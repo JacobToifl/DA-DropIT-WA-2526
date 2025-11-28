@@ -1,0 +1,24 @@
+% chktex-file 2
+\section{Arbeitsteilung}
+Kurze Beschreibung, wer was gemacht hat (Überblick).
+\section{Kapitelverzeichnis}
+\begin{longtable}{p{0.65\textwidth}|p{0.25\textwidth}}
+ \\
+% Definition des Tabellenkopfes auf der ersten Seite
+Kapitel & Editor  \\
+\cline{1-2}
+\endfirsthead% Erster Kopf zu Ende
+% Definition des Tabellenkopfes auf den folgenden Seiten
+\caption{Kapaitelverzeichnis Fortsetzung}\\
+Kapitel & 2 Editor \\
+\cline{1-2}
+\endhead% Zweiter Kopf ist zu Ende
+\multicolumn{2}{r}{Weiter auf der nächste Seite \ldots }\\
+\endfoot%Fußzeile bei Tabellenteilung
+\cline{1-2}
+\caption{Kapitelverzeichnis}
+\endlastfoot%letze Fußzeile
+% Ab hier kommt der Inhalt der Tabelle
+\ref{chapter:loesung1}~\nameref{chapter:loesung1}& Max Mustermann \\
+\ref{chapter:loesung2}~\nameref{chapter:loesung2}& Mex Musterjuan \\
+\end{longtable}
