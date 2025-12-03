@@ -1,5 +1,116 @@
 \section{Architekturen für Dokumentensysteme}\label{chapter:Architekturen_fuer_Dokumentensysteme}
 \subsection{Suche und Filter-Architekturen}
 \subsection{Rollen- und Berechtigungssysteme}
+\newpage
 \subsection{Skalierbare plattformunabhängige Systemarchitekturen}
+
+\subsubsection{Skalierbarkeit}
+Unter einer skalierbaren Systemarchitektur versteht man ein System, das sich problemlos an steigende Anforderungen anpassen lässt. Fehlende Skalierbarkeit führt 
+dazu, dass Systeme bei wachsender Nutzerzahl oder zunehmendem Datenvolumen spürbare Performanceprobleme entwickeln.
+Während des Entwicklungsprozess sind unterschiedliche Prinzipien zu beachten:
+
+\begin{table}[h!]
+\centering
+\caption{Merkmale von Softwaresystemen}   
+\label{tab:merkmale}                      
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Merkmal} & \textbf{Beschreibung} \\ \hline
+
+Modularität &
+Einzelne Komponenten der Software sollen unabhängig sein und sich flexibel aktualisieren oder erweitern lassen. \\
+\hline
+
+Flexibilität &
+Systeme müssen sich dynamisch an verändernde Anforderungen anpassen können. \\
+\hline
+
+Fehlertoleranz &
+Das System soll auf Fehler reagieren können und automatisch geeignete Maßnahmen ergreifen. \\
+\hline
+
+\end{tabular}
+\end{table}
+
+Um eine Skalierbare Architektur zu gewährleistem, sind Optimierungsfunktionen von Bedeutung, um die Effizienz und Leistung zu optimieren. 
+Wichtige Optimierungsstrategien sidn unteranderm: 
+
+\begin{table}[h!]
+\centering
+\caption{Techniken zur Leistungsoptimierung}
+\label{tab:optimierung}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Technik} & \textbf{Beschreibung} \\ \hline
+
+Load Balancing &
+Verteilung von Anfragen auf mehrere Server, um Überlastung zu vermeiden. \\
+\hline
+
+Caching &
+Speicherung häufig abgerufener Daten, um Zugriffszeiten zu verkürzen. \\
+\hline
+
+Partitioning &
+Aufteilung von Daten in kleinere Einheiten, die parallel verarbeitet werden können. \\
+\hline
+
+Asynchrone Verarbeitung &
+Ermöglicht es Systemen, Aufgaben im Hintergrund auszuführen, was die Reaktionszeit verbessert. \\
+\hline
+
+\end{tabular}
+\end{table}
+
+Das Hautziel einer Skalierbare Architektur ist es , eine hohe Verfügbarkeit und Leistung sicherzustellen, auch bei steigender Nutzerzahl und wachsendem Datenvolumen.
+Zudem soll die Wartbarkeit und Erweiterbarkeit des Systems gewährleistet werden, um zukünftige Anforderungen problemlos integrieren zu können.
+Abschließend ist zu sagen, dass eine gut durchdachte skalierbare Architektur entscheidend für den langfristigen Erfolg von Softwaresystemen ist.
+
+\newpage
+
+\subsubsection{Platformunabhängigkeit}
+
+Ein Computerprogramm benötigt eine Umgebung, in der es gestartet werden kann und während der gesamten Laufzeit stabil funktioniert.
+Ein Programm gilt als plattformunabhängig oder plattformübergreifend, wenn es auf verschiedenen Computersystemen ausgeführt
+werden kann – also auf Geräten mit unterschiedlicher Hardware, verschiedenen Prozessoren oder unterschiedlichen Betriebssystemen.
+Der Grad dieser Unabhängigkeit wird als Portierbarkeit (oder Portabilität) bezeichnet. 
+
+Die Portabilität kann z.\,B. geschätzt werden über
+\[
+  P = 1 - \frac{U + A}{E}
+\]
+mit
+\begin{itemize}
+  \item Übertragungsaufwand $U$ (insbesondere Neukompilierung),
+  \item Anpassungsaufwand $A$ (Änderung des Quellcodes, z.\,B. bei Austausch von
+        Betriebsschnittstellen),
+  \item Entwicklungsaufwand $E$ für Neuentwicklung.
+\end{itemize}
+
+Dabei entspricht
+\begin{itemize}
+  \item eine Portabilität von $1$ der Kompatibilität, das Programm ist also ohne
+        Änderung auf dem Zielsystem lauffähig:
+        \[
+          P = 1 \iff U + A = 0
+        \]
+  \item eine Quellcode-Portabilität in der Regel einer Gesamt-Portabilität von
+        $> 90\%$: 
+        \[
+          A = 0 \Rightarrow P = 1 - \frac{U}{E} > 0{,}9 \iff U < 0{,}1E
+        \]
+  \item eine Portabilität nahe $0$ einer naheliegenden Neuentwicklung des
+        Programmes:
+        \[
+          P \approx 0 \Rightarrow U + A \approx E
+        \]
+\end{itemize}
+
+Damit ist nicht nur gemeint, dass 
+ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwand nötig ist, um es dafür anzupassen.
+Dieser Vorgang wird Portierung oder Migration genannt.
+
+
+
+
 \subsection{Ableitung zur Forschungsfrage von Jacob Toifl}
