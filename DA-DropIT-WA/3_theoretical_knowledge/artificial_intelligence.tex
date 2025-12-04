@@ -1,5 +1,76 @@
 \section{Künstliche Intelligenz zur Dokumentenverarbeitung}
 \subsection{KI-gestützte Dokumentenklassifikation}
+\subsubsection{Definition von Dokumentenklassifikation}
+
+Bei der Dokumentenklassifizierung werden Dokumente bestimmten, zuvor definierten Klassen zugeordnet. 
+Das Dokument wird zunächst erfasst, anschließend werden die enthaltenen Informationen ausgelesen und ausgewertet. 
+So lässt sich erkennen, um welche Art von Dokument es sich handelt, wo es abgelegt werden soll, welche Daten daraus übernommen werden müssen und in welchen Workflow es anschließend einfließen kann.
+
+Zum Einsatz kommen dabei unter anderem OCR und KI, die selbst sehr feine Unterschiede zwischen verschiedenen Dokumentarten identifizieren können. 
+Mithilfe von OCR werden Textinhalte aus Bilddateien ausgelesen, automatisch kategorisiert und in eine strukturierte Form gebracht. 
+Dadurch können Dokumente und ihre Inhalte effizient gespeichert, verwaltet, durchsucht und ausgewertet werden. \\
+
+Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf:
+
+\begin{table}[h!]
+\centering
+\caption{Textklassifizierung vs. Dokumentenklassifizierung}
+\label{tab:klassifizierung}
+\begin{tabular}{|p{3cm}|p{5.5cm}|p{5.5cm}|}
+\hline
+\textbf{Aspekt} & \textbf{Textklassifizierung} & \textbf{Dokumentenklassifizierung} \\ \hline
+
+Geltungsbereich &
+Analysiert nur Textinhalt. &
+Analysiert Text sowie Layout- und Bildelemente. \\ \hline
+
+Data Input &
+Rein textliche Daten (Sätze, Absätze). &
+Gesamtes Dokument inkl.\ Bilder und Tabellen. \\ \hline
+
+Anwendungsfälle &
+Sentiment, Themenzuordnung, Spam-Erkennung. &
+Rechnungen, Verträge, Formulare. \\ \hline
+
+Techniken &
+NLP-Methoden. &
+Kombination aus NLP, Computer Vision und OCR. \\ \hline
+
+\end{tabular}
+\end{table}
+
+Im Allgemeinen lässt sich sagen, dass Textklassifizierung eine Teilmenge der Dokumentenklassifizierung ist, die sich ausschließlich auf den Textinhalt konzentriert, während die Dokumentenklassifizierung einen umfassenderen Ansatz verfolgt.
+
+
+\newpage
+\subsubsection{Funktion der Dokumentenklassifizierung}
+Die Dokumentenklassifizierung kann grundsätzlich auf zwei Wegen erfolgen: manuell oder automatisiert.
+Bei der manuellen Klassifizierung prüft eine Person die Dokumente, identifiziert inhaltliche Zusammenhänge und ordnet sie anschließend den entsprechenden Kategorien zu.
+Bei der automatischen Dokumentenklassifizierung kommen hingegen Verfahren des maschinellen Lernens bzw. Deep Learnings zum Einsatz. Ziel ist es, Dokumente ohne menschliches Eingreifen systematisch zuzuordnen. 
+Für betriebswirtschaftliche Anwendungen ist es daher wichtig, die unterschiedlichen Dokumentarten sowie die damit verbundenen Geschäftsprozesse zu verstehen.
+
+\textbf{Strukturierte Dokumente}
+
+Strukturierte Dokumente weisen klar definierte, einheitlich formatierte Daten auf (z. B. konsistente Nummerierung, Schriftarten und Layouts). 
+Aufgrund dieser hohen Standardisierung lassen sich Klassifizierungsmodelle für solche Unterlagen vergleichsweise einfach entwickeln und die Ergebnisse sind gut prognostizierbar.
+
+\textbf{Unstrukturierte Dokumente}
+
+Unstrukturierte Dokumente liegen in einem freien, wenig standardisierten Format vor. Beispiele sind Schreiben, Verträge oder Bestellungen mit variierendem Aufbau und sprachlicher Gestaltung. 
+Durch diese Heterogenität ist die automatisierte Identifikation relevanter Informationen deutlich komplexer, was den Einsatz leistungsfähiger Klassifikationsverfahren erforderlich macht.
+
+\subsubsection{Funktion der KI-basierten Dokumentenklassifizierung}
+
+Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise in mehreren aufeinanderfolgenden Schritten:
+
+\begin{enumerate}
+    \item \textbf{Datensammlung und Beschriftung} \\ Die Basis sind hochwertige, breit gefächerte Datenbestände. Dazu werden Dokumente aus unterschiedlichen Kategorien gesammelt und sauber mit passenden Labels versehen, damit Machine-Learning-Modelle sinnvoll trainiert werden können.
+    \item \textbf{Vorverarbeitung und Feature-Erzeugung} \\ Liegt ein Dokument als Scan oder Bild vor, wird der enthaltene Text zunächst per OCR (optische Zeichenerkennung) ausgelesen. Anschließend bereinigen NLP-Verfahren den Text, zerlegen ihn in Tokens und überführen ihn in aussagekräftige Merkmalsrepräsentationen. Parallel dazu wertet Computer Vision das Seitenlayout und visuelle Strukturen aus.
+    \item \textbf{Training des Klassifikationsmodells} \\ Überwachte Lernverfahren (etwa Transformer-Modelle oder CNNs) werden mit den gelabelten Beispielen trainiert, um wiederkehrende Muster zu entdecken. Das Modell lernt dabei, die gewonnenen Merkmale den jeweiligen Dokumentkategorien zuzuordnen.
+    \item \textbf{Evaluation und Feintuning} \\ Im Anschluss wird das Modell mit bislang unbekannten Testdaten geprüft, um Kennzahlen wie Genauigkeit, Präzision und Recall zu bestimmen. Durch Anpassung von Hyperparametern und ggf. Modellvarianten wird die Performance weiter verbessert.
+    \item \textbf{Produktivbetrieb und laufende Anpassung} \\ Nach der Implementierung ordnet das Modell neue Dokumente automatisch in Echtzeit den passenden Klassen zu. Über Nutzerfeedback und zusätzliche Trainingsdaten wird es regelmäßig nachtrainiert und kann seine Treffgenauigkeit im Zeitverlauf kontinuierlich steigern.
+\end{enumerate}
+
 \subsection{Feature-Extraktion und Embeddings}
 \subsection{Modellfamilien zur Dokumenttypenerkennung}
 \subsection{Ableitung zur Forschungsfrage von Michael Schaider}
