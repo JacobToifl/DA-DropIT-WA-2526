@@ -88,36 +88,33 @@ mit
   \item Anpassungsaufwand $A$ (Änderung des Quellcodes, z.\,B. bei Austausch von
         Betriebsschnittstellen),
   \item Entwicklungsaufwand $E$ für Neuentwicklung.
+  \item[] \vspace{0.5em}
 \end{itemize}
 
-Dabei entspricht
-\begin{itemize}
-  \item eine Portabilität von $1$ der Kompatibilität, das Programm ist also ohne
-        Änderung auf dem Zielsystem lauffähig:
-        \[
-          P = 1 \iff U + A = 0
-        \]
-  \item eine Quellcode-Portabilität in der Regel einer Gesamt-Portabilität von
-        $> 90\%$: 
-        \[
-          A = 0 \Rightarrow P = 1 - \frac{U}{E} > 0{,}9 \iff U < 0{,}1E
-        \]
-  \item eine Portabilität nahe $0$ einer naheliegenden Neuentwicklung des
-        Programmes:
-        \[
-          P \approx 0 \Rightarrow U + A \approx E
-        \]
-\end{itemize}
+Eine Portabilität von \( P = 1 \) bedeutet vollständige Kompatibilität; 
+das Programm ist also ohne Änderungen auf dem Zielsystem lauffähig, 
+was genau dann gilt, wenn \( U = A = 0 \).
+
+Eine Quellcode-Portabilität liegt im Regelfall vor, wenn die Gesamt-Portabilität 
+über \( 90\% \) liegt. Dies entspricht einem Anpassungsaufwand von \( A = 0 \) 
+und einem Übertragungsaufwand von \( U < 0{,}1E \), da bei
+\[
+P = 1 - \frac{U}{E} > 0{,}9
+\]
+der Wert für \( U \) kleiner als ein Zehntel von \( E \) sein muss.
+Eine Portabilität nahe \( 0 \) entspricht hingegen einer nahezu vollständigen 
+Neuentwicklung des Programms, wobei in diesem Fall \( P \approx 0 \) 
+und somit \( U + A \approx E \) gilt.
+
 Portabilität ist kein Maß für die Lauffähigkeit eines Programms auf der
 Zielplattform, d.\,h.\ selbst eine Portabilität von 99\,\% bedeutet nicht
 unbedingt, dass das Programm nutzbar ist, sondern lediglich, dass eine
 Portierung im Vergleich zu einer Neuentwicklung deutlich weniger Aufwand
-erfordert.
-Damit ist nicht nur gemeint, dass 
+erfordert. Damit ist nicht nur gemeint, dass 
 ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwand nötig ist, um es dafür anzupassen.
 Dieser Vorgang wird Portierung oder Migration genannt.
 
 
-
+\newpage
 
 \subsection{Ableitung zur Forschungsfrage von Jacob Toifl}
