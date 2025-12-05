@@ -4,13 +4,14 @@
 
 Bei der Dokumentenklassifizierung werden Dokumente bestimmten, zuvor definierten Klassen zugeordnet. 
 Das Dokument wird zunächst erfasst, anschließend werden die enthaltenen Informationen ausgelesen und ausgewertet. 
-So lässt sich erkennen, um welche Art von Dokument es sich handelt, wo es abgelegt werden soll, welche Daten daraus übernommen werden müssen und in welchen Workflow es anschließend einfließen kann.
+So lässt sich erkennen, um welche Art von Dokument es sich handelt, wo es abgelegt werden soll, 
+welche Daten daraus übernommen werden müssen und in welchen Workflow es anschließend einfließen kann.
 
 Zum Einsatz kommen dabei unter anderem OCR und KI, die selbst sehr feine Unterschiede zwischen verschiedenen Dokumentarten identifizieren können. 
 Mithilfe von OCR werden Textinhalte aus Bilddateien ausgelesen, automatisch kategorisiert und in eine strukturierte Form gebracht. 
-Dadurch können Dokumente und ihre Inhalte effizient gespeichert, verwaltet, durchsucht und ausgewertet werden. \\
+Dadurch können Dokumente und ihre Inhalte effizient gespeichert, verwaltet, durchsucht und ausgewertet werden. \cite{ser2024documentclassification}\\
 
-Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf:
+Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf, wie in Tabelle \ref{tab:klassifizierung} ersichtlich. \cite{shaip2025dokumentenklassifizierung}
 
 \begin{table}[h!]
 \centering
@@ -57,7 +58,7 @@ Aufgrund dieser hohen Standardisierung lassen sich Klassifizierungsmodelle für 
 \textbf{Unstrukturierte Dokumente}
 
 Unstrukturierte Dokumente liegen in einem freien, wenig standardisierten Format vor. Beispiele sind Schreiben, Verträge oder Bestellungen mit variierendem Aufbau und sprachlicher Gestaltung. 
-Durch diese Heterogenität ist die automatisierte Identifikation relevanter Informationen deutlich komplexer, was den Einsatz leistungsfähiger Klassifikationsverfahren erforderlich macht.
+Durch diese Heterogenität ist die automatisierte Identifikation relevanter Informationen deutlich komplexer, was den Einsatz leistungsfähiger Klassifikationsverfahren erforderlich macht. \cite{shaip2025dokumentenklassifizierung}
 
 \subsubsection{Funktion der KI-basierten Dokumentenklassifizierung}
 
@@ -69,7 +70,7 @@ Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise 
     \item \textbf{Training des Klassifikationsmodells} \\ Überwachte Lernverfahren (etwa Transformer-Modelle oder CNNs) werden mit den gelabelten Beispielen trainiert, um wiederkehrende Muster zu entdecken. Das Modell lernt dabei, die gewonnenen Merkmale den jeweiligen Dokumentkategorien zuzuordnen.
     \item \textbf{Evaluation und Feintuning} \\ Im Anschluss wird das Modell mit bislang unbekannten Testdaten geprüft, um Kennzahlen wie Genauigkeit, Präzision und Recall zu bestimmen. Durch Anpassung von Hyperparametern und ggf. Modellvarianten wird die Performance weiter verbessert.
     \item \textbf{Produktivbetrieb und laufende Anpassung} \\ Nach der Implementierung ordnet das Modell neue Dokumente automatisch in Echtzeit den passenden Klassen zu. Über Nutzerfeedback und zusätzliche Trainingsdaten wird es regelmäßig nachtrainiert und kann seine Treffgenauigkeit im Zeitverlauf kontinuierlich steigern.
-\end{enumerate}
+\end{enumerate} \cite{shaip2025dokumentenklassifizierung}
 
 \subsection{Feature-Extraktion und Embeddings}
 \subsection{Modellfamilien zur Dokumenttypenerkennung}
