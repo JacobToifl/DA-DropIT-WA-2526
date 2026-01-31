@@ -1,5 +1,6 @@
 \section{Künstliche Intelligenz zur Dokumentenverarbeitung}
 \subsection{KI-gestützte Dokumentenklassifikation}
+\subsection{Architekturen zur Integration externer KI-Dienstleister }
 \subsubsection{Definition von Dokumentenklassifikation}
 
 Bei der Dokumentenklassifizierung werden Dokumente bestimmten, zuvor definierten Klassen zugeordnet. 
@@ -17,8 +18,7 @@ Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig syno
 \centering
 \caption{Textklassifizierung vs. Dokumentenklassifizierung}
 \label{tab:klassifizierung}
-\begin{tabular}{|p{3cm}|p{5.5cm}|p{5.5cm}|}
-\hline
+\begin{tabular}{p{3cm} p{5.5cm}p{5.5cm}}
 \textbf{Aspekt} & \textbf{Textklassifizierung} & \textbf{Dokumentenklassifizierung} \\ \hline
 
 Geltungsbereich &
@@ -69,10 +69,9 @@ Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise 
     \item \textbf{Vorverarbeitung und Feature-Erzeugung} \\ Liegt ein Dokument als Scan oder Bild vor, wird der enthaltene Text zunächst per OCR (optische Zeichenerkennung) ausgelesen. Anschließend bereinigen NLP-Verfahren den Text, zerlegen ihn in Tokens und überführen ihn in aussagekräftige Merkmalsrepräsentationen. Parallel dazu wertet Computer Vision das Seitenlayout und visuelle Strukturen aus.
     \item \textbf{Training des Klassifikationsmodells} \\ Überwachte Lernverfahren (etwa Transformer-Modelle oder CNNs) werden mit den gelabelten Beispielen trainiert, um wiederkehrende Muster zu entdecken. Das Modell lernt dabei, die gewonnenen Merkmale den jeweiligen Dokumentkategorien zuzuordnen.
     \item \textbf{Evaluation und Feintuning} \\ Im Anschluss wird das Modell mit bislang unbekannten Testdaten geprüft, um Kennzahlen wie Genauigkeit, Präzision und Recall zu bestimmen. Durch Anpassung von Hyperparametern und ggf. Modellvarianten wird die Performance weiter verbessert.
-    \item \textbf{Produktivbetrieb und laufende Anpassung} \\ Nach der Implementierung ordnet das Modell neue Dokumente automatisch in Echtzeit den passenden Klassen zu. Über Nutzerfeedback und zusätzliche Trainingsdaten wird es regelmäßig nachtrainiert und kann seine Treffgenauigkeit im Zeitverlauf kontinuierlich steigern.
-\end{enumerate} \cite{shaip2025dokumentenklassifizierung}
+    \item \textbf{Produktivbetrieb und laufende Anpassung} \\ Nach der Implementierung ordnet das Modell neue Dokumente automatisch in Echtzeit den passenden Klassen zu. Über Nutzerfeedback und zusätzliche Trainingsdaten wird es regelmäßig nachtrainiert und kann seine Treffgenauigkeit im Zeitverlauf kontinuierlich steigern. \cite{shaip2025dokumentenklassifizierung}
+\end{enumerate} 
 
 \subsection{Feature-Extraktion und Embeddings}
 \subsection{Modellfamilien zur Dokumenttypenerkennung}
 \subsection{Datenaufbereitung und Preprocessing für Dokumente}
-\subsection{Ableitung zur Forschungsfrage von Michael Schaider}
