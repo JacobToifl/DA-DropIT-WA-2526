@@ -30,6 +30,7 @@ Das System soll auf Fehler reagieren können und automatisch geeignete Maßnahme
 
 \end{tabular}
 \end{table}
+\hfill \cite{studysmarter2024skalierbare}
 
 Um eine skalierbare Architektur zu gewährleisten, sind Optimierungsfunktionen von Bedeutung, um die Effizienz und Leistung zu optimieren. 
 Wichtige Optimierungsstrategien sind unter anderem: 
@@ -60,6 +61,7 @@ Ermöglicht es Systemen, Aufgaben im Hintergrund auszuführen, was die Reaktions
 
 \end{tabular}
 \end{table}
+\hfill \cite{studysmarter2024skalierbare}
 
 
 Das Hauptziel einer skalierbaren Architektur besteht darin, auch bei steigender Nutzerzahl und wachsendem Datenvolumen eine hohe Verfügbarkeit 
@@ -105,7 +107,7 @@ P = 1 - \frac{U}{E} > 0{,}9
 der Wert für \( U \) kleiner als ein Zehntel von \( E \) sein muss.
 Eine Portabilität nahe \( 0 \) entspricht hingegen einer nahezu vollständigen 
 Neuentwicklung des Programms, wobei in diesem Fall \( P \approx 0 \) 
-und somit \( U + A \approx E \) gilt.
+und somit \( U + A \approx E \) gilt. \cite{wikipedia2024plattformunabhaengigkeit}
 
 Portabilität ist kein Maß für die Lauffähigkeit eines Programms auf der
 Zielplattform, d.\,h.\ selbst eine Portabilität von 99\,\% bedeutet nicht
@@ -119,4 +121,134 @@ Dieser Vorgang wird Portierung oder Migration genannt.
 \newpage
 
 \subsection{Sharepoint}
+
+\subsubsection{Einordnung und Produkte}
+
+Microsoft SharePoint fungiert als webbasierte Kollaborationsplattform, die primär auf die Optimierung der teaminternen 
+Zusammenarbeit sowie ein effizientes Informationsmanagement ausgelegt ist. Durch die Bereitstellung zentraler Instanzen 
+zur Inhaltsverwaltung ermöglicht die Plattform eine strukturierte Ablage und Verteilung von Daten. Ziel ist es, durch 
+synergetische Kommunikation und medienbruchfreie Kooperation die organisatorische Produktivität zu steigern. \cite{Microsoft.2024.SharePointSupport}
+
+\begin{table}[h]
+\centering
+\caption{Überblick über SharePoint-Produkte}
+\begin{tabular}{p{4cm}p{10cm}}
+\hline
+\textbf{Produkt} & \textbf{Kernmerkmale und Fokus} \\
+\hline
+SharePoint in Microsoft 365 & 
+Cloudbasierte Plattform (SaaS) zur zentralen Inhaltsverwaltung und teamübergreifenden Freigabe von Dokumenten. Nutzung erfolgt im Rahmen von Microsoft-365-Abonnements. \\
+\hline
+SharePoint Server & 
+On-Premise-Lösung für den Betrieb auf eigener IT-Infrastruktur. Ermöglicht volle Kontrolle über Datenhoheit und unterstützt hybride Szenarien mit der Cloud. \\
+\hline
+SharePoint Designer 2013 & 
+Spezialisiertes Werkzeug zur Erstellung deklarativer Workflows und zur Modellierung komplexer Geschäftsprozesse innerhalb der SharePoint-Umgebung. \\
+\hline
+OneDrive & 
+Schnittstelle zur Synchronisation von SharePoint-Bibliotheken mit lokalen Endgeräten. Ermöglicht die Offline-Bearbeitung und Dateiverwaltung im lokalen Dateisystem. \\
+\hline
+\end{tabular}
+\end{table}
+
+\hfill \cite{Microsoft.2024.SharePointSupport}
+
+\subsubsection{Architektur und Hierarchie}
+
+Die Struktur von SharePoint ist hierarchisch aufgebaut, um Inhalte logisch zu trennen und den Zugriff gezielt zu steuern. Den Kern dieser Architektur bildet die sogenannte Websitesammlung (Site Collection). \cite{Microsoft2023}
+
+Eine Websitesammlung besteht immer aus einer Website auf der obersten Ebene und allen darunterliegenden Websites. Sie dient als übergeordneter Container, in dem zentrale Einstellungen für die Sicherheit, das Design und verschiedene Funktionen festgelegt werden. Technisch gesehen landen alle Daten einer solchen Sammlung in einer einzigen Inhaltsdatenbank. Zwar kann eine Datenbank mehrere Websitesammlungen speichern, aber eine Sammlung kann nicht über mehrere Datenbanken verteilt werden. \cite{Microsoft2023}
+
+Bei der Planung der Struktur gibt Microsoft die Empfehlung ab, für jede Arbeitseinheit eine eigene Websitesammlung anzulegen, anstatt eine komplexe Verschachtelung mit vielen Unterwebsites zu bauen. Das hat den Vorteil, dass die Umgebung übersichtlich bleibt und später einfacher migriert werden kann. \cite{Microsoft2023}
+
+Innerhalb einer solchen Sammlung können Ressourcen wie Bilder, Vorlagen oder bestimmte Spaltentypen gemeinsam genutzt werden. Das sorgt dafür, dass die Navigation und das Erscheinungsbild für die Nutzer einheitlich bleiben. Bei der Benennung der URLs wird meistens auf pfadbasierte Adressen (wie z. B. „/sites/Projektname“) gesetzt, da diese mit Tools wie der PowerShell am einfachsten zu verwalten sind. \cite{Microsoft2023}
+
+\subsubsection{Funktionale Elemente einer SharePoint-Website}
+
+Innerhalb einer Websitesammlung bestehen die einzelnen Websites aus verschiedenen funktionalen Elementen, die für die Organisation und Verwaltung der Daten zuständig sind:
+
+\begin{itemize}
+    \item \textbf{Dokumentbibliotheken (Document Libraries):} Diese stellen den primären Speicherort für Dateien dar. Im Gegensatz zu herkömmlichen Dateiordnern ermöglichen sie die Nutzung von erweiterten Funktionen wie Versionierung, Check-Out-Mechanismen und die Verwendung von Metadaten. \cite{microsoft_sharepoint_support}
+    \item \textbf{Listen (Lists):} Listen dienen der Erfassung strukturierter Daten, ähnlich einer Tabelle. Sie werden beispielsweise für Aufgabenlisten, Kontaktverzeichnisse oder Inventarlisten verwendet. \cite{microsoft_sharepoint_support}
+    \item \textbf{Seiten (Pages):} Diese bilden das visuelle Interface der Website. Informationen werden hier mithilfe von sogenannten Webparts (funktionalen Bausteinen) für den Endanwender aufbereitet. \cite{microsoft_sharepoint_support}
+    \item \textbf{Metadaten (Spalten):} Anstatt Dateien ausschließlich in starren Ordnerstrukturen zu sortieren, erlauben Spalten das Hinzufügen von Attributen wie „Dokumententyp“ oder „Status“. Dies verbessert die Filterbarkeit und Auffindbarkeit der Dokumente innerhalb der gemeinsamen Ablage erheblich. \cite{microsoft_sharepoint_support}
+\end{itemize} 
+
+\subsubsection{Kernfunktionen der Dokumentenverwaltung}
+
+SharePoint bietet eine Vielzahl von Funktionen, die speziell auf die Anforderungen der Dokumentenverwaltung zugeschnitten sind:
+
+\begin{itemize}
+    \item \textbf{Versionierung:} Jede Änderung an einem Dokument wird als separate Version gespeichert. Dadurch können Nutzer frühere Versionen wiederherstellen oder Änderungen nachverfolgen. \cite{microsoft_sharepoint_support}
+    
+    \item \textbf{Auschecken und Einchecken (Check-Out/In):} Um Bearbeitungskonflikte zu vermeiden, können Dokumente exklusiv für einen Nutzer gesperrt werden. Während eine Datei ausgecheckt ist, können andere Nutzer diese zwar lesen, aber keine Änderungen vornehmen, bis sie wieder eingecheckt wird. \cite{microsoft_sharepoint_support}
+    
+    \item \textbf{Gemeinsame Dokumenterstellung (Co-Authoring):} Diese Funktion erlaubt es mehreren Anwendern, zeitgleich an demselben Dokument (z.\,B. Word oder Excel) zu arbeiten. Änderungen werden in Echtzeit synchronisiert, was die kollaborative Zusammenarbeit beschleunigt. \cite{microsoft_sharepoint_support}
+\end{itemize}
+
 \subsection{Microsoft Entra ID}
+
+\subsubsection{Begriff und Einordnung}
+
+Microsoft Entra beschreibt eine umfassende Produktfamilie für Identitätsmanagement und Netzwerkzugriff, die darauf ausgelegt ist, eine moderne Zero Trust-Sicherheitsstrategie in Organisationen zu etablieren. Das Ziel dieser Architektur ist die Schaffung einer Vertrauensstruktur, die Identitäten sowie Zugriffsbedingungen und Berechtigungen konsequent überprüft, Verbindungskanäle verschlüsselt und eine kontinuierliche Überwachung auf Kompromittierungen ermöglicht. Die hierarchische Struktur und die verschiedenen Säulen dieser Architektur sind in Abbildung \ref{fig:ms_entra_overview} dargestellt. \cite{msentra2025}
+
+Das zentrale Kernprodukt dieser Familie ist Microsoft Entra ID. Dabei handelt es sich um einen cloudbasierten Dienst zur Identitäts- und Zugriffsverwaltung, der die grundlegenden Funktionen für Authentifizierung und den Schutz von Benutzern, Geräten sowie Anwendungen bereitstellt. Eine wesentliche Besonderheit für Unternehmen im Microsoft-Umfeld besteht darin, dass Abonnenten von Diensten wie Microsoft 365 oder Azure automatisch einen Microsoft Entra-Mandanten nutzen und somit direkt mit der Verwaltung ihrer Cloud-Anwendungen beginnen können. Über das webbasierte Microsoft Entra Admin Center lassen sich diese Produkte zentral über eine einzige Benutzeroberfläche konfigurieren und verwalten. \cite{msentra2025}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra-product-family.png}
+    \caption{Übersicht der Microsoft Entra Produktfamilie \cite{msentra2025}}
+    \label{fig:ms_entra_overview}
+\end{figure}
+
+\subsubsection{Zentrale Identitätsverwaltung}
+
+Die zentrale Verwaltung innerhalb von Microsoft Entra sorgt dafür, dass Identitäten für unterschiedliche Nutzergruppen und Ressourcen an einem einzigen Ort kontrolliert werden. Dies umfasst nicht nur menschliche Identitäten wie Mitarbeitende, Partner oder Kundschaft, sondern schließt auch Geräte sowie sogenannte Workload-Identitäten (z. B. Anwendungen und Dienste) mit ein. \cite{msentra2025}
+ 
+Ein wesentlicher Bestandteil dieser Verwaltung ist die Microsoft Entra ID Governance. Diese ermöglicht es, den gesamten Lebenszyklus einer Identität zu automatisieren. So können beispielsweise Zugriffsanfragen, Zuweisungen von Lizenzen und regelmäßige Überprüfungen von Berechtigungen systemgesteuert erfolgen. Dies stellt sicher, dass neuen Mitarbeitern automatisch die benötigten Ressourcen zugewiesen werden und diese Zugänge beim Verlassen des Unternehmens ebenso zuverlässig wieder entfernt werden. \cite{msentra2025}
+
+Für die Verwaltung externer Nutzer bietet Microsoft Entra External ID eine sichere Methode zur Zusammenarbeit. Hiermit können Geschäftspartner oder Gäste gezielt Zugriff auf interne Ressourcen erhalten, während Kunden über Self-Service-Registrierungen (z. B. via Google- oder Facebook-Konten) angebunden werden können. \cite{msentra2025}
+
+\subsubsection{Authentifizierung und Autorisierung}
+
+Innerhalb von Microsoft Entra ID bilden Authentifizierung und Autorisierung die Grundlage für den sicheren Zugriff auf Ressourcen, folgen jedoch unterschiedlichen Prinzipien:
+
+\begin{itemize}
+    \item \textbf{Authentifizierung (Identity):} Dies ist der Prozess der Identitätsprüfung. Hierbei stellt das System sicher, dass ein Benutzer tatsächlich die Person ist, für die er sich ausgibt. Dies geschieht in der Regel durch die Abfrage von Anmeldedaten oder sicheren Methoden wie der Multi-Faktor-Authentifizierung (MFA). Microsoft Entra ID Protection unterstützt diesen Vorgang, indem es risikobasierte Richtlinien nutzt, um verdächtige Anmeldeversuche automatisch zu erkennen und zusätzliche Bestätigungen einzufordern. \cite{msentra2025}
+    
+    \item \textbf{Autorisierung (Permissions):} Nach einer erfolgreichen Anmeldung bestimmt die Autorisierung, welche spezifischen Zugriffsrechte der Benutzer besitzt. Es wird festgelegt, auf welche Anwendungen, Dateien oder Funktionen (z.\,B. innerhalb einer SharePoint-Website) zugegriffen werden darf. \cite{msentra2025}
+\end{itemize}
+
+
+\subsubsection{Single Sign-On (SSO)}
+
+Ein zentrales Leistungsmerkmal von Microsoft Entra ID ist das sogenannte Single Sign-On. Diese Funktion ermöglicht es Benutzern, sich mit nur einer einzigen Identität – bestehend aus einem Benutzernamen und einem Kennwort – einmalig anzumelden, um danach automatisch Zugriff auf alle für sie freigegebenen Cloud-Anwendungen sowie lokalen Ressourcen zu erhalten. \cite{msentra2025}
+
+Aus technischer Sicht bietet SSO zwei wesentliche Vorteile für das Unternehmen:
+
+\begin{itemize}
+    \item \textbf{Benutzerfreundlichkeit:} Da sich die Anwender nicht mehr für jede einzelne Anwendung (wie SharePoint, Teams oder externe Drittanbieter-Tools) unterschiedliche Zugangsdaten merken müssen, wird die tägliche Arbeit effizienter. Zudem sinkt die Anzahl an Support-Anfragen aufgrund vergessener Passwörter erheblich. \cite{msentra2025}
+    
+    \item \textbf{Sicherheit:} Da die Identität zentral an einer Stelle geprüft wird, können Sicherheitsrichtlinien, wie beispielsweise die Mehrfaktor-Authentifizierung (MFA), global für alle angebundenen Programme erzwungen werden. Zudem wird das Risiko minimiert, dass Nutzer unsichere Passwörter für mehrere Dienste gleichzeitig verwenden oder diese ungesichert notieren. \cite{msentra2025}
+\end{itemize}
+
+\subsubsection{Integration externer Anwendungen}
+
+Ein wesentlicher Vorteil von Microsoft Entra ID ist die Fähigkeit, über die Grenzen der Microsoft-Welt hinaus als zentrale Identitätsinstanz zu fungieren. Dies wird durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
+
+\begin{itemize}
+    \item \textbf{SaaS-Anwendungen:} Über vorkonfigurierte Schnittstellen lassen sich gängige Cloud-Dienste (wie Salesforce, Slack oder Dropbox) nahtlos anbinden. Dadurch profitieren auch diese externen Dienste von Sicherheitsfeatures wie Single Sign-On (SSO) und der Mehrfaktor-Authentifizierung. \cite{msentra2025}
+    
+    \item \textbf{Zentrale App-Verwaltung:} Administratoren können im Entra Admin Center exakt steuern, welche Benutzer oder Gruppen Zugriff auf bestimmte externe Software erhalten. Dies vereinfacht das Onboarding neuer Mitarbeiter, da Zugänge für verschiedene Plattformen an einer zentralen Stelle zugewiesen werden können. \cite{msentra2025}
+    
+    \item \textbf{Sicherer Internet- und Privatzugriff:} Moderne Komponenten wie der \textit{Microsoft Entra Internet Access} und \textit{Private Access} erweitern diesen Schutz. Sie ermöglichen einen sicheren Zugriff auf Internet-Ressourcen sowie interne Unternehmensnetzwerke, ohne dass klassische, oft unsicherere VPN-Verbindungen notwendig sind. \cite{msentra2025}
+\end{itemize}
+
+Die zentrale Rolle von Microsoft Entra ID als Vermittler zwischen lokalen Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung \ref{fig:entra_integration} verdeutlicht. Durch diese weitreichende Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die Komplexität für die Endanwender reduziert.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra_integration.png}
+    \caption{Integration von On-Premises- und Cloud-Anwendungen über Microsoft Entra ID \cite{msentra2025}}
+    \label{fig:entra_integration}
+\end{figure}
