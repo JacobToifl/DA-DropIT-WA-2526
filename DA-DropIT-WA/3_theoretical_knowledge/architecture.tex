@@ -1,7 +1,94 @@
 \section{Architekturen für Dokumentensysteme}\label{chapter:Architekturen_fuer_Dokumentensysteme}
 \subsection{Suche und Filter-Architekturen}
 \subsection{Rollen- und Berechtigungssysteme}
-\newpage
+
+\subsubsection{Aufbau einer Berechtigung}
+
+Eine Berechtigung setzt sich grundsätzlich aus zwei zentralen Komponenten zusammen, die gemeinsam definieren, welcher Zugriff in einem System erlaubt oder untersagt ist.
+
+\begin{table}[h]
+\centering
+\caption{Komponenten einer Berechtigung}
+\label{tab:aufbau-berechtigung}
+\begin{tabular}{p{4cm} p{10cm}}
+\hline
+\textbf{Komponente} & \textbf{Beschreibung} \\
+\hline
+Zu schützende Ressource &
+Beschreibt das Objekt, auf das sich eine Berechtigung bezieht. 
+Dabei kann zwischen funktionalen und inhaltsbezogenen Ressourcen unterschieden werden. 
+Die Definition der Ressource kann auf unterschiedlichen Granularitätsebenen erfolgen, 
+beispielsweise global für ein gesamtes System oder atomar für einzelne Systembestandteile. \\
+\hline
+Zugehörige Operation auf der Ressource &
+Legt fest, welche konkrete Handlung in Bezug auf die definierte Ressource 
+durch eine Berechtigung erlaubt oder eingeschränkt wird. 
+Die Operation bestimmt, welche Aktionen eine Identität auf der jeweiligen Ressource ausführen darf. \\
+\hline
+\end{tabular}
+\end{table}
+\hfill \cite{tsolkas2017rollen}
+
+\subsubsection{Arten von Berechtigungen}
+
+Berechtigungskonzepte bilden eine wesentliche Grundlage für die Zugriffskontrolle in IT-Systemen. 
+Die elementarste Form stellt dabei die \textit{binäre Berechtigung} dar. 
+Sie beschreibt eine eindeutig definierte Zugriffserlaubnis, die sich jeweils auf ein konkretes Objekt 
+und eine einzelne Operation bezieht. Der Zugriff ist entweder erlaubt oder verweigert, wodurch diese 
+Berechtigungsform ausschließlich zwei mögliche Zustände kennt. \cite{tsolkas2017rollen}
+
+Aufgrund dieser klaren Struktur eignen sich binäre Berechtigungen besonders für die technische 
+Überprüfung von Zugriffsrechten. Umfangreichere Berechtigungsmodelle, die mehrere Objekte oder 
+Operationen umfassen, werden vor der eigentlichen Zugriffskontrolle in einzelne binäre Berechtigungen 
+zerlegt. Die endgültige Zugriffsentscheidung erfolgt anschließend ausschließlich auf Basis dieser 
+elementaren Berechtigungseinheiten. \cite{tsolkas2017rollen}
+
+Dieses Vorgehen findet auch bei weiterführenden Steuerungsmechanismen Anwendung, beispielsweise 
+bei der Verwendung von Rollen oder Profilen. Solche abstrakten Konzepte werden zunächst auf konkrete 
+Berechtigungen abgebildet und anschließend in mehrere binäre Einzelrechte aufgelöst, die festlegen, 
+ob eine bestimmte Handlung erlaubt oder untersagt ist. \cite{tsolkas2017rollen}
+
+Neben binären Berechtigungen existieren sogenannte \textit{Wertberechtigungen}, bei denen mehrere 
+Einzelrechte in einem numerischen Wert zusammengefasst werden. Ein verbreitetes Anwendungsbeispiel 
+hierfür ist das Berechtigungssystem von UNIX-Dateisystemen. Dort repräsentiert ein Zahlenwert die 
+Kombination einzelner Zugriffsrechte wie Lesen, Schreiben und Ausführen. Der Wert 7 steht für den 
+vollständigen Zugriff und ergibt sich aus der Addition der einzelnen Rechtewerte. \cite{tsolkas2017rollen}
+
+Wertberechtigungen stellen somit eine kompakte Darstellungsform mehrerer binärer Berechtigungen dar. 
+Obwohl sie die Verwaltung von Zugriffsrechten vereinfachen, basiert die tatsächliche Zugriffskontrolle 
+weiterhin auf der Auswertung der zugrunde liegenden binären Berechtigungen. \cite{tsolkas2017rollen}
+
+\subsubsection{Scope von Berechtigungen}
+
+Ein zentrales Kriterium bei der Konzeption und Platzierung von Berechtigungen ist die Festlegung, 
+welche Zugriffsrechte durch eine Berechtigung gewährt werden sollen. 
+In diesem Zusammenhang kommt dem Grad der Differenzierung von Berechtigungen, 
+der als Granularität bezeichnet wird, eine besondere Bedeutung zu. \cite{tsolkas2017rollen}
+
+Die Grundlage für die Ausgestaltung von Berechtigungen bildet der Schutzbedarf der jeweiligen Ressource. 
+Dieser wird üblicherweise im Rahmen einer Schutzbedarfsanalyse ermittelt, 
+bei der unterschiedliche Einflussfaktoren berücksichtigt werden. 
+Dazu zählen unter anderem die Relevanz der Ressource für Geschäftsprozesse 
+sowie die Kritikalität ihrer Funktionen und Inhalte. \cite{tsolkas2017rollen}
+
+Die ermittelten Schutzanforderungen fließen anschließend in die Berechtigungsplanung ein. 
+Dabei wird festgelegt, auf welcher Detailebene der Zugriffsschutz umgesetzt werden muss 
+und welche Funktionen durch entsprechende Berechtigungen abzusichern sind. 
+Darüber hinaus wird bestimmt, wie stark der Zugriffsschutz ausgeprägt sein soll, 
+beispielsweise ob der Einsatz erweiterter Authentifizierungsmechanismen erforderlich ist. \cite{tsolkas2017rollen}
+
+\subsubsection{Berechtigungsstufen}
+Anstatt jedem Nutzer komplizierte Einzelrechte zu geben, werden Berechtigungen in feste Stufen eingeteilt. Das macht die Verwaltung einfach: Man muss einem Nutzer nur noch eine \textbf{Ziffer} (die Stufe) zuweisen. \cite{tsolkas2017rollen}
+Die Skala reicht von \textit{keine Berechtigung} bis \textit{alle Berechtigungen}.
+
+\begin{itemize}
+    \item \textbf{Stufe 0: Kein Zugriff} \\ (Gar keine Rechte)
+    \item \textbf{Stufe 1: Nur lesen} \\ (Informationen ansehen)
+    \item \textbf{Stufe 2: Lesen und Hinzufügen} \\ (Daten ansehen und neue erstellen)
+    \item \textbf{Stufe 3: Ändern und Löschen} \\ (Bestehende Daten bearbeiten)
+    \item \textbf{Stufe 4: Vollzugriff} \\ (Alle Rechte)
+\end{itemize}
+
 \subsection{Skalierbare plattformunabhängige Systemarchitekturen}
 
 \subsubsection{Skalierbarkeit}
@@ -63,14 +150,11 @@ Ermöglicht es Systemen, Aufgaben im Hintergrund auszuführen, was die Reaktions
 \end{table}
 \hfill \cite{studysmarter2024skalierbare}
 
-
 Das Hauptziel einer skalierbaren Architektur besteht darin, auch bei steigender Nutzerzahl und wachsendem Datenvolumen eine hohe Verfügbarkeit 
 sowie eine konsistent hohe Leistung sicherzustellen. Gleichzeitig muss das System so gestaltet sein, dass es leicht wartbar und problemlos erweiterbar 
 bleibt, um zukünftige Anforderungen effizient integrieren zu können. Insgesamt ist eine durchdacht geplante skalierbare Architektur ein entscheidender 
 Faktor für die langfristige Stabilität, Flexibilität und den Erfolg moderner Softwaresysteme.
 \cite{studysmarter2024skalierbare}
-
-\newpage
 
 \subsubsection{Plattformunabhängigkeit}
 
@@ -83,7 +167,6 @@ Die Portabilität kann z.\,B. geschätzt werden über
 \[
   P = 1 - \frac{U + A}{E}
 \]
-
 
 mit
 \begin{itemize}
@@ -118,8 +201,6 @@ ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwan
 Dieser Vorgang wird Portierung oder Migration genannt. 
 \cite{wikipedia2024plattformunabhaengigkeit}
 
-\newpage
-
 \subsection{Sharepoint}
 
 \subsubsection{Einordnung und Produkte}
@@ -127,7 +208,7 @@ Dieser Vorgang wird Portierung oder Migration genannt.
 Microsoft SharePoint fungiert als webbasierte Kollaborationsplattform, die primär auf die Optimierung der teaminternen 
 Zusammenarbeit sowie ein effizientes Informationsmanagement ausgelegt ist. Durch die Bereitstellung zentraler Instanzen 
 zur Inhaltsverwaltung ermöglicht die Plattform eine strukturierte Ablage und Verteilung von Daten. Ziel ist es, durch 
-synergetische Kommunikation und medienbruchfreie Kooperation die organisatorische Produktivität zu steigern. \cite{Microsoft.2024.SharePointSupport}
+zusammenwirkende Kommunikation und medienbruchfreie Kooperation die organisatorische Produktivität zu steigern. \cite{Microsoft.2024.SharePointSupport}
 
 \begin{table}[h]
 \centering
