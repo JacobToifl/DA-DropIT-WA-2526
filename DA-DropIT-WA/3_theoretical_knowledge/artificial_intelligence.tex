@@ -1,22 +1,21 @@
 \section{Künstliche Intelligenz zur Dokumentenverarbeitung}
 \subsection{KI-gestützte Dokumentenklassifikation}
-\subsection{Architekturen zur Integration externer KI-Dienstleister }
 \subsubsection{Definition von Dokumentenklassifikation}
 
 Bei der Dokumentenklassifizierung werden Dokumente bestimmten, zuvor definierten Klassen zugeordnet. 
 Das Dokument wird zunächst erfasst, anschließend werden die enthaltenen Informationen ausgelesen und ausgewertet. 
 So lässt sich erkennen, um welche Art von Dokument es sich handelt, wo es abgelegt werden soll, 
-welche Daten daraus übernommen werden müssen und in welchen Workflow es anschließend einfließen kann.
+welche Daten daraus übernommen werden müssen und in welchen Workflow es anschließend einfließen kann. \cite{ser2024documentclassification}
 
 Zum Einsatz kommen dabei unter anderem OCR und KI, die selbst sehr feine Unterschiede zwischen verschiedenen Dokumentarten identifizieren können. 
 Mithilfe von OCR werden Textinhalte aus Bilddateien ausgelesen, automatisch kategorisiert und in eine strukturierte Form gebracht. 
 Dadurch können Dokumente und ihre Inhalte effizient gespeichert, verwaltet, durchsucht und ausgewertet werden. \cite{ser2024documentclassification}\\
 
-Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf, wie in Tabelle \ref{tab:klassifizierung} ersichtlich. \cite{shaip2025dokumentenklassifizierung}
+Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf, wie in Tabelle \ref{tab:klassifizierung} ersichtlich.
 
 \begin{table}[h!]
 \centering
-\caption{Textklassifizierung vs. Dokumentenklassifizierung}
+\caption{Textklassifizierung vs. Dokumentenklassifizierung \cite{shaip2025dokumentenklassifizierung}}
 \label{tab:klassifizierung}
 \begin{tabular}{p{3cm} p{5.5cm}p{5.5cm}}
 \textbf{Aspekt} & \textbf{Textklassifizierung} & \textbf{Dokumentenklassifizierung} \\ \hline
@@ -40,7 +39,7 @@ Kombination aus NLP, Computer Vision und OCR. \\ \hline
 \end{tabular}
 \end{table}
 
-Im Allgemeinen lässt sich sagen, dass Textklassifizierung eine Teilmenge der Dokumentenklassifizierung ist, die sich ausschließlich auf den Textinhalt konzentriert, während die Dokumentenklassifizierung einen umfassenderen Ansatz verfolgt.
+Im Allgemeinen lässt sich sagen, dass Textklassifizierung eine Teilmenge der Dokumentenklassifizierung ist, die sich ausschließlich auf den Textinhalt konzentriert, während die Dokumentenklassifizierung einen umfassenderen Ansatz verfolgt. \cite{shaip2025dokumentenklassifizierung}
 
 
 \newpage
@@ -48,16 +47,16 @@ Im Allgemeinen lässt sich sagen, dass Textklassifizierung eine Teilmenge der Do
 Die Dokumentenklassifizierung kann grundsätzlich auf zwei Wegen erfolgen: manuell oder automatisiert.
 Bei der manuellen Klassifizierung prüft eine Person die Dokumente, identifiziert inhaltliche Zusammenhänge und ordnet sie anschließend den entsprechenden Kategorien zu.
 Bei der automatischen Dokumentenklassifizierung kommen hingegen Verfahren des maschinellen Lernens bzw. Deep Learnings zum Einsatz. Ziel ist es, Dokumente ohne menschliches Eingreifen systematisch zuzuordnen. 
-Für betriebswirtschaftliche Anwendungen ist es daher wichtig, die unterschiedlichen Dokumentarten sowie die damit verbundenen Geschäftsprozesse zu verstehen.
+Für betriebswirtschaftliche Anwendungen ist es daher wichtig, die unterschiedlichen Dokumentarten sowie die damit verbundenen Geschäftsprozesse zu verstehen. \cite{shaip2025dokumentenklassifizierung}\\
 
-\textbf{Strukturierte Dokumente}
 
-Strukturierte Dokumente weisen klar definierte, einheitlich formatierte Daten auf (z. B. konsistente Nummerierung, Schriftarten und Layouts). 
-Aufgrund dieser hohen Standardisierung lassen sich Klassifizierungsmodelle für solche Unterlagen vergleichsweise einfach entwickeln und die Ergebnisse sind gut prognostizierbar.
 
-\textbf{Unstrukturierte Dokumente}
+\textbf{Strukturierte Dokumente} weisen klar definierte, einheitlich formatierte Daten auf (z. B. konsistente Nummerierung, Schriftarten und Layouts). 
+Aufgrund dieser hohen Standardisierung lassen sich Klassifizierungsmodelle für solche Unterlagen vergleichsweise einfach entwickeln und die Ergebnisse sind gut prognostizierbar. \cite{shaip2025dokumentenklassifizierung}
 
-Unstrukturierte Dokumente liegen in einem freien, wenig standardisierten Format vor. Beispiele sind Schreiben, Verträge oder Bestellungen mit variierendem Aufbau und sprachlicher Gestaltung. 
+
+
+\textbf{Unstrukturierte Dokumente} liegen in einem freien, wenig standardisierten Format vor. Beispiele sind Schreiben, Verträge oder Bestellungen mit variierendem Aufbau und sprachlicher Gestaltung. 
 Durch diese Heterogenität ist die automatisierte Identifikation relevanter Informationen deutlich komplexer, was den Einsatz leistungsfähiger Klassifikationsverfahren erforderlich macht. \cite{shaip2025dokumentenklassifizierung}
 
 \subsubsection{Funktion der KI-basierten Dokumentenklassifizierung}
@@ -65,14 +64,168 @@ Durch diese Heterogenität ist die automatisierte Identifikation relevanter Info
 Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise in mehreren aufeinanderfolgenden Schritten:
 
 \begin{enumerate}
-    \item \textbf{Datensammlung und Beschriftung} \\ Die Basis sind hochwertige, breit gefächerte Datenbestände. Dazu werden Dokumente aus unterschiedlichen Kategorien gesammelt und sauber mit passenden Labels versehen, damit Machine-Learning-Modelle sinnvoll trainiert werden können.
-    \item \textbf{Vorverarbeitung und Feature-Erzeugung} \\ Liegt ein Dokument als Scan oder Bild vor, wird der enthaltene Text zunächst per OCR (optische Zeichenerkennung) ausgelesen. Anschließend bereinigen NLP-Verfahren den Text, zerlegen ihn in Tokens und überführen ihn in aussagekräftige Merkmalsrepräsentationen. Parallel dazu wertet Computer Vision das Seitenlayout und visuelle Strukturen aus.
-    \item \textbf{Training des Klassifikationsmodells} \\ Überwachte Lernverfahren (etwa Transformer-Modelle oder CNNs) werden mit den gelabelten Beispielen trainiert, um wiederkehrende Muster zu entdecken. Das Modell lernt dabei, die gewonnenen Merkmale den jeweiligen Dokumentkategorien zuzuordnen.
-    \item \textbf{Evaluation und Feintuning} \\ Im Anschluss wird das Modell mit bislang unbekannten Testdaten geprüft, um Kennzahlen wie Genauigkeit, Präzision und Recall zu bestimmen. Durch Anpassung von Hyperparametern und ggf. Modellvarianten wird die Performance weiter verbessert.
+    \item \textbf{Datensammlung und Beschriftung} \\ Die Basis sind hochwertige, breit gefächerte Datenbestände. Dazu werden Dokumente aus unterschiedlichen Kategorien gesammelt und sauber mit passenden Labels versehen, damit Machine-Learning-Modelle sinnvoll trainiert werden können. \cite{shaip2025dokumentenklassifizierung}
+    \item \textbf{Vorverarbeitung und Feature-Erzeugung} \\ Liegt ein Dokument als Scan oder Bild vor, wird der enthaltene Text zunächst per OCR (optische Zeichenerkennung) ausgelesen. Anschließend bereinigen NLP-Verfahren den Text, zerlegen ihn in Tokens und überführen ihn in aussagekräftige Merkmalsrepräsentationen. Parallel dazu wertet Computer Vision das Seitenlayout und visuelle Strukturen aus. \cite{shaip2025dokumentenklassifizierung}
+    \item \textbf{Training des Klassifikationsmodells} \\ Überwachte Lernverfahren (etwa Transformer-Modelle oder CNNs) werden mit den gelabelten Beispielen trainiert, um wiederkehrende Muster zu entdecken. Das Modell lernt dabei, die gewonnenen Merkmale den jeweiligen Dokumentkategorien zuzuordnen. \cite{shaip2025dokumentenklassifizierung}\newpage
+    \item \textbf{Evaluation und Feintuning} \\ Im Anschluss wird das Modell mit bislang unbekannten Testdaten geprüft, um Kennzahlen wie Genauigkeit, Präzision und Recall zu bestimmen. Durch Anpassung von Hyperparametern und ggf. Modellvarianten wird die Performance weiter verbessert. \cite{shaip2025dokumentenklassifizierung}
     \item \textbf{Produktivbetrieb und laufende Anpassung} \\ Nach der Implementierung ordnet das Modell neue Dokumente automatisch in Echtzeit den passenden Klassen zu. Über Nutzerfeedback und zusätzliche Trainingsdaten wird es regelmäßig nachtrainiert und kann seine Treffgenauigkeit im Zeitverlauf kontinuierlich steigern. \cite{shaip2025dokumentenklassifizierung}
 \end{enumerate} 
 
-\subsection{Feature-Extraktion und Embeddings}
+\subsection{Architekturen zur Integration externer KI-Dienstleister }
+
+
+\subsection{Merkmalsextraktion und Embedding}
+\subsubsection{Definition von Merkmalsextraktion}
+
+Die Merkmalsextraktion ist ein wichtiger Schritt in der Datenanalyse und im maschinellen Lernen. Dabei werden aus Rohdaten gezielt die Informationen herausgefiltert, 
+die für eine spätere Auswertung oder ein Modell relevant sind. Ziel ist es, aussagekräftige Merkmale hervorzuheben und unwichtige oder störende Anteile zu reduzieren, 
+sodass die Daten kompakter und besser nutzbar werden. \cite{evoluce2026merkmalsextraktion}
+
+Je nach Datentyp kommen dafür unterschiedliche Methoden zum Einsatz – von einfachen statistischen Verfahren bis hin zu maschinellen Lernverfahren, die Muster automatisch erkennen. 
+Die gewonnenen Merkmale werden häufig in einer strukturierten Form zusammengefasst (z. B. als Merkmalsvektor) und bilden dann die Grundlage für weitere Schritte wie Klassifikation oder Vorhersagen. \cite{evoluce2026merkmalsextraktion} \\
+
+Wie in Tabelle \ref{tab:Merkmalsextraktion} ersichtlich, werden im Folgenden wichtige Begriffe der Merkmalsextraktion mit kurzer Beschreibung dargestellt.
+
+\begin{table}[h!]
+\centering
+\caption{Wichtige Begriffe der Merkmalsextraktion \cite{evoluce2026merkmalsextraktion}}
+\label{tab:Merkmalsextraktion}
+\begin{tabular}{p{4cm} p{10cm}}
+\textbf{Begriff} & \textbf{Beschreibung} \\ \hline
+
+Merkmal &
+Eine quantitativ oder qualitativ erfassbare Eigenschaft, die ein Datenobjekt beschreibt. \\\hline
+
+Feature Extraction &
+Verfahren, bei dem aus Rohdaten gezielt die aussagekräftigen Eigenschaften herausgelöst bzw. abgeleitet werden.  \\\hline
+
+Vektor &
+Geordnete Sammlung von Merkmalwerten, die ein Objekt in strukturierter Form repräsentiert. \\ \hline
+
+Dimensionalität &
+Anzahl der enthaltenen Merkmale bzw. Einträge eines Vektors. \\ \hline
+
+\end{tabular}
+\end{table}
+
+\subsubsection{Funktion der KI-gestützten Merkmalsextraktion}
+
+KI-gestützte Merkmalsextraktion ist ein zentraler Bestandteil moderner Datenanalyse. Dabei werden automatisierte Verfahren eingesetzt, um aus großen Datensätzen gezielt relevante Informationen herauszuarbeiten. 
+Durch den Einsatz unterschiedlicher KI-Algorithmen können Muster und Zusammenhänge präzise erkannt und die Daten effizient für weitere Analysen oder Modelle aufbereitet werden. \cite{evoluce2026merkmalsextraktion} \\
+
+Die in Tabelle \ref{tab:Algorithmen} aufgeführten KI-Algorithmen sind zentrale Methoden für die Merkmalsextraktion.
+
+\begin{table}[h!]
+\centering
+\caption{Relevante Algorithmen zur Merkmalsextraktion \cite{evoluce2026merkmalsextraktion}}
+\label{tab:Algorithmen}
+\begin{tabular}{p{4cm} p{10cm}}
+\textbf{Algorithmus} & \textbf{Beschreibung} \\ \hline
+
+Support Vector Machines (SVM) &
+Geeignet für Klassifikation und Regression; bestimmt eine optimale Trennlinie bzw. Entscheidungsgrenze zwischen Datenpunkten. \\\hline
+
+Decision Trees &
+Erstellen Entscheidungsbäume anhand von Merkmalen und Regeln, um Vorhersagen oder Klassen zu bestimmen.  \\\hline
+
+Random Forest &
+Kombiniert viele Entscheidungsbäume und erhöht dadurch meist Genauigkeit und Stabilität der Ergebnisse. \\ \hline
+
+
+\end{tabular}
+\end{table}
+
+\textbf{Maschinelles Lernen} unterstützt die Merkmalsextraktion, indem Modelle aus Trainingsdaten lernen, welche Merkmale für eine Aufgabe wichtig sind, und weniger relevante Informationen ausblenden.
+Für Textdaten ist besonders Natural Language Processing (NLP) relevant, da damit Bedeutungen und Zusammenhänge in Sprache erkannt werden können. Wichtige Methoden sind Tokenisierung, 
+Lemmatisierung und Named Entity Recognition (NER). Moderne Modelle wie BERT und GPT-3 nutzen große Datenmengen, um Muster im Kontext zu erfassen und Texte präziser zu analysieren. \cite{evoluce2026merkmalsextraktion}
+
+\textbf{Text Mining} ist ein Teilbereich der Merkmalsextraktion, der sich auf unstrukturierte Textdaten konzentriert. Ziel ist es, Texte computergestützt so auszuwerten, dass relevante Informationen herausgefiltert und unwichtige Inhalte reduziert werden, 
+um daraus verwertbare Erkenntnisse zu gewinnen. Dabei werden insbesondere Verfahren des maschinellen Lernens und der Natural Language Processing (NLP) eingesetzt, um Muster, Bedeutungen und Zusammenhänge in großen Textmengen zu erkennen. 
+Typische Anwendungsfelder sind unter anderem die Analyse von Kundenkommunikation sowie der Einsatz in Forschungskontexten, z. B. zur automatisierten Durchsicht umfangreicher Dokumente. \cite{evoluce2026merkmalsextraktion}
+
+\subsubsection{Definition von Embedding}
+
+Ein Embedding ist eine Darstellung von Objekten wie Text, Bildern oder Audio als Zahlenvektoren in einem kontinuierlichen Vektorraum. 
+Dabei sind ähnliche Inhalte im Raum näher beieinander angeordnet, sodass Machine-Learning-Modelle Ähnlichkeiten und Zusammenhänge leichter erkennen können. \cite{ibm2026embedding}
+
+Embeddings werden in vielen Anwendungen genutzt, z. B. für Suche, Empfehlungssysteme, Chatbots oder Betrugserkennung. 
+Im Unterschied zu handgebauten Merkmalen entstehen sie meist automatisch durch Lernverfahren (z. B. neuronale Netze), die Muster und Beziehungen direkt aus den Daten ableiten. 
+Dadurch können Modelle nicht nur einzelne Wörter oder Elemente isoliert betrachten, sondern auch deren Kontext und Bedeutung besser erfassen. \cite{ibm2026embedding}
+
+\subsubsection{Prinzip und Funktionsweise von Embeddings}
+
+Bei der Embedding-Funktionsweise werden Rohdaten zunächst in ein numerisches Format überführt, weil viele ML-Algorithmen nur mit Zahlen arbeiten (z. B. Text als Bag-of-Words, Bilder als Pixelwerte oder Graphdaten als Matrix). 
+Ein Embedding-Modell erzeugt daraus Vektoren – also Zahlenlisten –, die ein Objekt als Punkt in einem hochdimensionalen Raum repräsentieren. Jede Zahl steht für die Position entlang einer Dimension; 
+je nach Aufgabe können es sehr viele Dimensionen sein. Ähnliche Objekte liegen im Vektorraum näher beieinander, und diese Nähe wird mit Ähnlichkeitsmaßen wie Cosinus-Ähnlichkeit oder euklidischer Distanz bewertet. \cite{ibm2026embedding}
+
+In Abbildung \ref{fig:Vektordarstellung} ist dieses Prinzip schematisch dargestellt: semantisch ähnliche Begriffe liegen im Vektorraum näher beieinander (z. B. Cat, Dog, Wolf), während thematisch andere Begriffe weiter entfernt positioniert sind (z. B. Apple, Banana). 
+Die räumliche Distanz dient damit als Maß für Ähnlichkeit.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{content/img/3_theoretical_knowledge/Vektordarstellung.png}
+    \caption{Übersicht der Vektordarstellung von Embeddings \cite{weaviate2023vectorembeddings}}
+    \label{fig:Vektordarstellung}
+\end{figure}
+
+\newpage
+Ein anschauliches Beispiel sind Wort-Embeddings: Wörter werden als Vektoren dargestellt, etwa „Papa“ und „Mama“. Auch wenn beide inhaltlich verwandt sind, wäre zu erwarten, 
+dass „Vater“ im Vektorraum noch näher an „Papa“ liegt als „Mama“, weil die Bedeutung stärker übereinstimmt. \cite{ibm2026embedding} \\
+
+Beispielhaft als Vektoren:
+
+\begin{itemize}
+  \item „Papa“ = [0, 1548, 0, 4848, …, 1, 864]
+  \item „Mama“ = [0, 8785, 0, 8974, …, 2, 794]
+\end{itemize}
+
+In Empfehlungssystemen werden sowohl Nutzer als auch Artikel als Embedding-Vektoren gelernt. Die Grundidee: Ein Nutzer und ein Artikel passen umso besser zusammen, je größer das Punktprodukt ihrer Vektoren ist. 
+Der Empfehlungsscore wird dabei typischerweise so berechnet:
+
+\[
+  score = u * i
+\]
+
+mit
+\begin{itemize}
+  \item Empfehlungsscore $score$,
+  \item Embedding des Nutzers $u$,
+  \item Embedding des Artikels $i$,
+  \item[] \vspace{0.5em}
+\end{itemize}
+
+Im Training werden diese Embeddings anhand historischer Interaktionen (z. B. Klicks, Käufe, Bewertungen) angepasst, sodass hohe Scores mit tatsächlichen Präferenzen möglichst gut übereinstimmen. 
+Danach können Artikel mit den höchsten Scores als Top-N-Empfehlungen ausgegeben werden. \cite{ibm2026embedding}
+
+\subsubsection{Häufige Objekte für Embeddings}
+
+Embeddings sind flexible Repräsentationen, die sich auf unterschiedliche Datentypen anwenden lassen. Die häufigsten Objekte, die eingebettet werden können, sind in Tabelle \ref{tab:Objekte} dargestellt.
+
+\begin{table}[H]
+\centering
+\caption{Relevante Objekte für Embeddings \cite{ibm2026embedding}}
+\label{tab:Objekte}
+\begin{tabular}{p{4cm} p{10cm}}
+\textbf{Objekt} & \textbf{Beschreibung} \\ \hline
+
+Wörter &
+Dichte Vektorrepräsentationen einzelner Wörter, die Bedeutung und Kontextbeziehungen im Sprachkorpus abbilden. \\\hline
+
+Text &
+Vektoren für ganze Texte, die den Gesamtinhalt semantisch zusammenfassen und Vergleiche/Klassifikation erleichtern.  \\\hline
+
+Bilder &
+Embeddings, die visuelle Merkmale und Bildinhalt als Vektor kodieren, z. B. für Ähnlichkeitssuche oder Objekterkennung. \\ \hline
+
+Audio &
+Vektorrepräsentationen relevanter Klang- und Sprachmerkmale, nutzbar für Spracherkennung, Klassifikation oder Musikanalyse.  \\ \hline
+
+Graphen &
+Embeddings für Knoten oder ganze Netzwerke, die Struktur und Beziehungen erfassen, z. B. für Link Prediction oder Community Detection. \\ \hline
+
+\end{tabular}
+\end{table}
+
 \subsection{Modellfamilien zur Dokumenttypenerkennung}
 \subsection{Datenaufbereitung und Preprocessing für Dokumente}
 
