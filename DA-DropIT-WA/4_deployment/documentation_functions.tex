@@ -1,9 +1,146 @@
 \section{Dokumentation - Funktionen}
 \subsection{Dokumenten-Upload}
+
 \subsection{Dokumenten-Klassifikation}
 \subsection{Dokumenten-Suche}
 \subsection{Benutzer- und Rollenverwaltung}
 \subsection{System-Logging und Monitoring}
 \subsection{API-Endpunkte}
+
+\subsubsection{Dokumente-Upload Endpoint}
+
+\definecolor{bluekeywords}{rgb}{0,0,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.64,0.08,0.08}
+\definecolor{xmlcomments}{rgb}{0.5,0.5,0.5}
+\definecolor{types}{rgb}{0.17,0.57,0.68}
+
+\lstdefinelanguage{CSharp}{
+  language=[Sharp]C,
+  captionpos=b,
+  % Zahlen auf der linken Seite
+  numbers=left, 
+  numberstyle=\tiny, 
+  frame=lines, % Rahmen oben und unten
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  escapeinside={(*@}{@*)},
+  commentstyle=\color{greencomments},
+  morekeywords={partial, var, value, get, set, async, await, yield}, % C# Keywords ergänzen
+  keywordstyle=\color{bluekeywords},
+  stringstyle=\color{redstrings},
+  basicstyle=\ttfamily\footnotesize, % Schriftart und Größe
+  tabsize=4,
+}
+
+\begin{lstlisting}[language=CSharp, caption={C\# Endpoint für Dokumenten Upload in die DB}, label={lst:upload}]
+app.MapPost("/documents", async (CreateDocumentDto dto, DocumentsDb db, CancellationToken ct) =>
+{
+    var entity = new Document
+    {
+        ZoneId = dto.ZoneId,
+        OriginalFilename = dto.OriginalFilename,
+        StoredPath = dto.StoredPath,
+        MimeType = dto.MimeType,
+        SizeBytes = dto.SizeBytes,
+        Sha256 = dto.Sha256,
+        DocumentType = dto.DocumentType,
+        DocumentYear = dto.DocumentYear,
+        ContractType = dto.ContractType,
+        Partner = dto.Partner,
+        ExpiresAt = dto.ExpireDate,
+        SharePointItemId = dto.SharePointItemId,
+        ClassifiedAt = DateTimeOffset.UtcNow,
+        OwnerId = dto.ObjectId 
+    };
+
+    db.Documents.Add(entity);
+    await db.SaveChangesAsync(ct);
+
+    return Results.Created($"/documents/{entity.Id}", new { id = entity.Id });
+});
+\end{lstlisting}
+
+\begin{lstlisting}[language=CSharp, caption={C\# Endpoint für Dokumenten-Klassifikation}, label={lst:classification}]
+    g.MapPost("{zoneId:guid}/upload/preflight", async (Guid zoneId, HttpRequest req, FileZonesStore store, IUserContext user, IHttpClientFactory httpFactory, CancellationToken ct) =>
+        {
+            if (string.IsNullOrEmpty(user.TenantId) || string.IsNullOrEmpty(user.ObjectId)) return Results.Unauthorized();
+            var form = await req.ReadFormAsync(ct);
+            var file = form.Files["file"];
+            if (file == null) return Results.BadRequest("No file");
+
+            var ai = httpFactory.CreateClient("ai");
+            using var fileStream = file.OpenReadStream();
+            using var mp = new MultipartFormDataContent();
+            var streamContent = new StreamContent(fileStream);
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType ?? "application/octet-stream");
+            mp.Add(streamContent, "file", file.FileName);
+
+            var aiResp = await ai.PostAsync("/ai/classify", mp, ct);
+            if (!aiResp.IsSuccessStatusCode) return Results.Problem("KI-Dienst Fehler");
+            
+            var extraction = await aiResp.Content.ReadFromJsonAsync<DocumentClassificationResultDto>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }, ct);
+            if (extraction == null) return Results.Problem("KI-Fehler");
+
+            var (uploadId, docType) = await store.SaveTempAsync(user.TenantId, user.ObjectId, zoneId, file, extraction.DocumentType, extraction.DocumentYear, extraction.ContractType, extraction.Partner, extraction.ExpireDate, ct);
+            
+            return Results.Ok(new { uploadId, documentType = docType.ToString(), year = extraction.DocumentYear, partner = extraction.Partner, contractType = extraction.ContractType, expireDate = extraction.ExpireDate });
+        }).DisableAntiforgery();
+
+      g.MapPost("{zoneId:guid}/upload/{uploadId:guid}/commit", async (Guid zoneId, Guid uploadId, [FromBody] CommitRequest confirmed, FileZonesStore store, IUserContext user, IHttpClientFactory httpFactory, IConfiguration config, CancellationToken ct) =>
+    {
+        if (string.IsNullOrEmpty(user.TenantId) || string.IsNullOrEmpty(user.ObjectId)) return Results.Unauthorized();
+
+        var (meta, storedPath, sha256, contentText, sharePointItemId) = await store.CommitTempToSharePointAsync(user.TenantId, user.ObjectId, user.DisplayName ?? "", uploadId, confirmed, ct);
+
+        var docApi = httpFactory.CreateClient("documents");
+        
+        var dto = new CreateDocumentDto(
+            zoneId, 
+            meta.OriginalFilename, 
+            storedPath, 
+            meta.MimeType, 
+            meta.SizeBytes, 
+            sha256, 
+            meta.DocumentType, 
+            meta.DocumentYear, 
+            meta.ContractType, 
+            meta.Partner, 
+            meta.ExpireDate, 
+            sharePointItemId,
+            user.ObjectId 
+        );
+
+        var regResp = await docApi.PostAsJsonAsync("/documents", dto, ct);
+        if (!regResp.IsSuccessStatusCode) return Results.Problem("Fehler beim Speichern der Dokument-Metadaten.");
+        
+        var created = await regResp.Content.ReadFromJsonAsync<CreatedDocumentResponse>(ct);
+
+        var searchApi = httpFactory.CreateClient("search");
+        searchApi.DefaultRequestHeaders.TryAddWithoutValidation("X-Internal-Key", config["Services:SearchInternalApiKey"]!);
+        
+        var indexDto = new IndexDocumentDto(
+            created!.id, 
+            zoneId, 
+            meta.OriginalFilename, 
+            storedPath, 
+            meta.DocumentType, 
+            meta.DocumentYear, 
+            meta.ContractType, 
+            meta.Partner, 
+            meta.ClassifiedAtUtc, 
+            contentText, 
+            new[] { user.ObjectId } 
+        );
+        
+        await searchApi.PostAsJsonAsync("/internal/index", indexDto, ct);
+
+        return Results.Ok(new { fileName = meta.OriginalFilename, storedPath });
+    }).DisableAntiforgery();
+\end{lstlisting}
+
 \subsection{Fehlerbehandlung und Ausnahmen}
 \subsection{Sicherheitsfunktionen}

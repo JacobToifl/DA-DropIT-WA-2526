@@ -1,58 +1,10 @@
 \section{Architekturen für Dokumentensysteme}\label{chapter:Architekturen_fuer_Dokumentensysteme}
 \subsection{Suche und Filter-Architekturen}
-
 \subsubsection{Suchalgorithmen im Information Retrieval}
-
-In diesem Kapitel werden die technologischen Grundlagen moderner Suchmaschinen behandelt. Ziel des Information Retrieval (IR) ist es, aus einer großen Menge unstrukturierter Daten jene Informationen zu finden, die einer Benutzeranfrage (Query) entsprechen. Dabei haben sich im Laufe der Zeit verschiedene Ansätze entwickelt.
-
 \subsubsection{Lexikalische Suchverfahren (Keyword Search)}
-Die lexikalische Suche ist der klassische Ansatz im Information Retrieval. Sie basiert auf dem Abgleich von Zeichenketten zwischen der Suchanfrage und den Dokumenten.
-
-\subsubsection*{TF-IDF und Inverted Index}
-Ein grundlegendes Verfahren ist \textbf{TF-IDF} (Term Frequency - Inverse Document Frequency). Dieser Algorithmus bewertet die Relevanz eines Wortes, indem er zählt, wie oft es in einem Dokument vorkommt, gewichtet dies jedoch mit der Seltenheit des Wortes im gesamten Datensatz \cite{quelle_tfidf}.
-
-Das Rückgrat dieser Suche bildet meist ein sogenannter \textit{Inverted Index}, der ähnlich wie ein Stichwortverzeichnis in einem Buch funktioniert.
-
-\subsubsection*{BM25}
-Der heute am häufigsten eingesetzte Algorithmus ist \textbf{BM25} (Best Matching 25). Er ist eine Weiterentwicklung von TF-IDF und löst dessen Schwächen, indem er unter anderem die Dokumentenlänge berücksichtigt und eine Sättigungsgrenze für sehr häufige Begriffe einführt. BM25 gilt als Industriestandard für die Stichwortsuche.
-
 \subsubsection{Semantische Suchverfahren (Vector Search)}
-Während lexikalische Verfahren nur exakte Wortübereinstimmungen finden, zielen semantische Verfahren darauf ab, die \textit{Bedeutung} (Semantik) einer Anfrage zu verstehen.
-
-\subsubsection*{Embeddings und Vektorräume}
-Texte werden hierbei mithilfe von Machine-Learning-Modellen (z.\,B. BERT) in hochdimensionale Vektoren, sogenannte \textbf{Embeddings}, umgewandelt. In diesem mathematischen Vektorraum liegen Wörter mit ähnlicher Bedeutung räumlich nah beieinander (z.\,B. liegen die Vektoren für "Auto" und "PKW" nah beieinander, obwohl die Wörter völlig unterschiedlich geschrieben werden).
-
-\subsubsection*{Suche mittels k-NN und HNSW}
-Um in diesen Vektorräumen effizient zu suchen, kommen Algorithmen wie \textbf{HNSW} (Hierarchical Navigable Small World) zum Einsatz. Dieser Algorithmus ermöglicht eine extrem schnelle \textit{Approximate Nearest Neighbor} (ANN) Suche, selbst bei Millionen von Datensätzen \cite{malkov2018hnsw}.
-
 \subsubsection{Hybride Suchansätze (Hybrid Search)}
-\label{subsec:hybrid}
-In der Praxis zeigt sich oft, dass weder die reine Keyword-Suche noch die reine Vektorsuche alle Anwendungsfälle perfekt abdeckt.
-\begin{itemize}
-    \item Die \textbf{Keyword-Suche} ist überlegen bei exakten Treffern (z.\,B. Artikelnummern, Eigennamen).
-    \item Die \textbf{Vektorsuche} ist überlegen bei kontextbezogenen Fragen oder wenn der Nutzer den genauen Fachbegriff nicht kennt.
-\end{itemize}
-Daher kombinieren moderne Systeme beide Ansätze ("Hybrid Search"). Die Ergebnisse beider Algorithmen werden oft durch ein sogenanntes \textit{Re-Ranking} (z.\,B. mittels Reciprocal Rank Fusion, RRF) zu einer finalen Ergebnisliste zusammengeführt.
-
 \subsubsection{Vergleich der Verfahren}
-\label{subsec:vergleich}
-Die folgende Tabelle fasst die wesentlichen Unterschiede zwischen den lexikalischen und semantischen Ansätzen zusammen.
-
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Zeilenabstand für bessere Lesbarkeit
-    \begin{tabular}{|p{3cm}|p{5.5cm}|p{5.5cm}|}
-        \hline
-        \textbf{Kriterium} & \textbf{Lexikalische Suche (z.\,B. BM25)} & \textbf{Semantische Suche (Vektor)} \\ \hline
-        \textbf{Funktionsweise} & Abgleich exakter Zeichenketten & Mathematische Nähe im Vektorraum (Bedeutung) \\ \hline
-        \textbf{Stärken} & Findet exakte Begriffe (IDs, Namen); keine Trainingsdaten nötig & Versteht Synonyme, Kontext und Tippfehler \\ \hline
-        \textbf{Schwächen} & Scheitert bei Synonymen ("Auto" vs. "PKW"); versteht keinen Kontext & Langsamer; kann bei sehr spezifischen Begriffen ungenau sein \\ \hline
-        \textbf{Einsatzgebiet} & E-Commerce (Produkt-IDs), Code-Suche & Chatbots, FAQ-Suche, Empfehlungssysteme \\ \hline
-    \end{tabular}
-    \caption{Vergleich zwischen lexikalischer und semantischer Suche}
-    \label{tab:vergleich_suche}
-\end{table}
-
 
 \subsection{Rollen- und Berechtigungssysteme}
 
@@ -142,6 +94,11 @@ Die Skala reicht von \textit{keine Berechtigung} bis \textit{alle Berechtigungen
     \item \textbf{Stufe 3: Ändern und Löschen} \\ (Bestehende Daten bearbeiten)
     \item \textbf{Stufe 4: Vollzugriff} \\ (Alle Rechte)
 \end{itemize}
+
+\subsubsection{Rollentypisierung (Role Taxonomy)}
+\subsubsection{Rollenarchitektur und Hierarchien}
+\subsubsection{Methodik der Rollenfindung (Role Engineering)}
+\subsubsection{Funktionstrennung (Segregation of Duties - SoD)}
 
 \subsection{Skalierbare plattformunabhängige Systemarchitekturen}
 
@@ -254,6 +211,8 @@ erfordert. Damit ist nicht nur gemeint, dass
 ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwand nötig ist, um es dafür anzupassen.
 Dieser Vorgang wird Portierung oder Migration genannt. 
 \cite{wikipedia2024plattformunabhaengigkeit}
+
+ROLLEN FEHELN HIER NOCH
 
 \subsection{Sharepoint}
 
