@@ -31,7 +31,6 @@ bin-release/
 *.acn
 *.glo
 *.ist
-*.pdf
 .DS_Store
 
 
