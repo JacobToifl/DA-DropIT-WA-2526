@@ -32,6 +32,7 @@ bin-release/
 *.glo
 *.ist
 *.pdf
+.DS_Store
 
 
 

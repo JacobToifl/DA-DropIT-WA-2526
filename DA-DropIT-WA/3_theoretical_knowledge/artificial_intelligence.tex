@@ -226,7 +226,56 @@ Embeddings für Knoten oder ganze Netzwerke, die Struktur und Beziehungen erfass
 \end{tabular}
 \end{table}
 
+\subsubsection{Abgrenzung: Merkmalsextraktion vs. Embedding}
+
+Merkmalsextraktion beschreibt den allgemeinen Prozess, aus Rohdaten aussagekräftige Merkmale zu gewinnen oder abzuleiten, sodass die Daten für Analyse- oder Lernverfahren besser nutzbar sind. 
+Dabei können unterschiedliche Methoden zum Einsatz kommen (z. B. statistische Kennwerte, regelbasierte Verfahren oder lernbasierte Ansätze), und das Ergebnis sind Merkmale, die eine Aufgabe gezielt unterstützen (z. B. Klassifikation oder Vorhersage).
+
+Ein Embedding ist dagegen eine spezielle Form der Merkmalsrepräsentation: Objekte wie Wörter, Sätze, Bilder oder Nutzer/Artikel werden als dichte Vektoren in einem kontinuierlichen Vektorraum dargestellt. 
+Die zentrale Idee ist, dass semantisch oder inhaltlich ähnliche Objekte im Vektorraum näher beieinanderliegen und dadurch über Ähnlichkeitsmaße vergleichbar werden.
+
 \subsection{Modellfamilien zur Dokumenttypenerkennung}
+
+Die Dokumenttypenerkennung ist ein zentraler Baustein in der KI-gestützten Dokumentenverarbeitung. Ziel ist es, eingehende Dokumente – 
+etwa Rechnungen, Angebote, Verträge oder Formulare – automatisch einem definierten Dokumenttyp zuzuordnen, um nachgelagerte Verarbeitungsschritte wie Routing, Extraktion oder Validierung zu steuern. 
+Je nach Anwendungsfall stehen dafür unterschiedliche Modellansätze zur Verfügung, die sich vor allem darin unterscheiden, welche Informationsquellen eines Dokuments sie nutzen: reinen Textinhalt, visuelle Merkmale einer Seite, Layout- und Positionsinformationen oder Kombinationen daraus.
+In der Literatur und in praktischen Systemen haben sich daher mehrere „Modellfamilien“ etabliert.
+
+\subsubsection{Textbasierte Modellfamilie}
+
+Textbasierte Verfahren formulieren die Dokumenttypenerkennung als Textklassifikationsproblem: Ein Dokument wird zunächst in eine rein textuelle Darstellung überführt (z. B. durch direkt extrahierbaren PDF-Text oder durch OCR bei gescannten Dokumenten). 
+Anschließend wird dieser Text einer vordefinierten Klasse zugeordnet. Methodisch entspricht dies dem allgemeinen Vorgehen der Textklassifikation, bei dem Textinhalte analysiert und mittels gelabelter Beispiele in Kategorien eingeteilt werden. \cite{elastic_textclassification}
+
+Innerhalb dieser Modellfamilie werden sowohl klassische Feature-basierte Ansätze (z. B. Bag-of-Words/gewichtete Termrepräsentationen) als auch neuere neuronale Modelle eingesetzt. 
+Moderne Systeme nutzen häufig kontextuelle Sprachmodelle (Transformer), um neben Schlüsselbegriffen auch semantische Zusammenhänge zu berücksichtigen. 
+Die Leistungsfähigkeit textbasierter Ansätze hängt in der Dokumentenverarbeitung jedoch stark von der Qualität der Texterfassung ab: OCR-Fehler, fehlende Sonderzeichen oder fragmentierter Text können die Klassifikation erschweren. 
+Außerdem werden Layout- und Strukturinformationen eines Dokuments (z. B. Positionen von Feldern oder tabellarische Anordnungen) in einem rein textuellen Ansatz nur indirekt oder gar nicht abgebildet. \cite{elastic_textclassification}
+
+\subsubsection{Bildbasierte Modellfamilie}
+
+Bildbasierte Verfahren behandeln Dokumenttypenerkennung als Bildklassifikation: Seiten werden als gerenderte PDF-Seiten oder Scans (Seitenbilder) verarbeitet und auf Basis visueller Merkmale klassifiziert. 
+Solche Ansätze nutzen typischerweise Convolutional Neural Networks (CNNs), die darauf ausgelegt sind, Muster in visuellen Daten zu erkennen und sich besonders für Klassifikationsaufgaben in der Computer Vision eignen. \cite{googlecloud_cnn}
+
+Ein wichtiges Argument für bildbasierte Ansätze ist, dass Dokumenttypen oft durch wiederkehrende visuelle Strukturen unterscheidbar sind (z. B. Formularcharakter, Briefkopf, typische Anordnung von Blöcken). 
+In der Forschung wird die Dokumentbildklassifikation häufig auf etablierten Datensätzen evaluiert; als verbreitetes Beispiel gilt RVL-CDIP mit 16 Dokumentklassen und insgesamt 400.000 Dokumentbildern.
+Neben CNNs kommen zunehmend Vision Transformer (ViT) zum Einsatz, die Bilder in Patches zerlegen und diese ähnlich wie Token-Sequenzen verarbeiten, um globale Zusammenhänge besser abzubilden. \cite{harley_rvlcdip} \cite{v7labs_vitguide}
+
+\subsubsection{Layout-aware / dokumentenspezifische Transformer}
+
+Layout-aware Modelle erweitern textbasierte Ansätze um räumliche Layoutinformationen. Statt Text nur als Sequenz zu betrachten, wird zusätzlich modelliert, wo ein Token auf der Seite steht (z. B. über Bounding Boxes). 
+Damit lässt sich die Dokumenttypenerkennung als Aufgabe formulieren, bei der Inhalt und Struktur gemeinsam berücksichtigt werden (z. B. typische Positionen von Überschriften, Adressblöcken, Tabellenbereichen). \cite{huggingface_layoutlm}
+
+Ein prominentes Beispiel für diese Modellfamilie ist die LayoutLM-Klasse: In der Implementierung (z. B. in verbreiteten Frameworks) wird explizit ein zusätzliches Eingabesignal "bbox" erwartet, das die Bounding Boxes der Tokens enthält und damit die 2D-Positionen abbildet. \cite{huggingface_layoutlm}
+
+\subsubsection{Multimodale Foundation-Model-Familie (VLM/LLM)}
+
+Multimodale Foundation-Model-Ansätze nutzen große Modelle, die visuelle und häufig auch sprachliche Informationen gemeinsam verarbeiten können. 
+In der Dokumenttypenerkennung werden Dokumentseiten (als Bild bzw. gerendertes PDF) typischerweise zusammen mit einer natürlichsprachlichen Aufgabenbeschreibung (Prompt) an ein Vision-Language-Modell übergeben, das den Dokumenttyp direkt ausgibt. 
+Solche Verfahren sind besonders dann attraktiv, wenn eine schnelle Erweiterung auf neue Klassen erforderlich ist oder wenn man Zero-/Few-shot-Strategien erproben möchte. \cite{azuresamples_docclass_gptvision}
+
+Dass diese Vorgehensweise praktisch umgesetzt wird, zeigen Anbieterbeispiele: Ein öffentliches Azure-Sample demonstriert explizit die Klassifikation eines Dokuments mithilfe eines Vision-fähigen GPT-4o-Modells (Prompt + Dokumentbild), 
+also genau das Grundprinzip dieser Modellfamilie. \cite{azuresamples_docclass_gptvision}
+
 \subsection{Datenaufbereitung und Preprocessing für Dokumente}
 
 \newpage
