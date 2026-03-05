@@ -2,6 +2,139 @@
 \subsection{Dokumenten-Upload}
 \subsection{Dokumenten-Klassifikation}
 \subsection{Dokumenten-Suche}
+
+Dieses Kapitel dokumentiert die implementierte Suchfunktion über den gesamten Request-Flow hinweg: von der Benutzerinteraktion in der Weboberfläche bis zur Ausführung der Abfrage in Azure AI Search und der Rückgabe von Treffern inklusive Facetten.
+
+\subsubsection{Technischer Such-Flow}
+
+Die Suche ist als mehrstufiger Ablauf umgesetzt:
+\begin{enumerate}
+    \item Die Benutzerin bzw. der Benutzer gibt Suchtext und optionale Filter (Dokumenttyp, Vertragstyp, Jahr, Partner) in der Seite \texttt{Search.razor} ein.
+    \item Das Web-Frontend baut daraus ein \texttt{SearchRequestDto} und sendet einen \texttt{POST} an den Search-Service (\texttt{/search}).
+    \item Der Search-Service liest die Benutzeridentität (\texttt{oid}) aus dem Access Token und erzwingt damit eine benutzerbezogene Zugriffskontrolle.
+    \item Der \texttt{AzureSearchQueryService} erstellt \texttt{SearchOptions} (Paging, Facets, Filter) und führt die Abfrage gegen den Azure-Search-Index aus.
+    \item Die Treffer und Facetten werden in ein \texttt{SearchResponseDto} gemappt und an das Frontend zurückgegeben.
+    \item Das Frontend aktualisiert Trefferliste und Filteroptionen dynamisch anhand der zurückgegebenen Facetten.
+\end{enumerate}
+
+\subsubsection{Frontend: Aufbau und Versand des Such-Requests}
+
+Die zentrale Suchmethode im Frontend befindet sich in \texttt{Search.razor}. Vor dem eigentlichen Suchaufruf wird eine Synchronisation mit der Zone-API ausgelöst. Anschließend wird das DTO aufgebaut und an den Suchendpunkt gesendet.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Suchen im Frontend mit DTO-Aufbau und API-Aufruf},label={lst:search-frontend-request}]
+private async Task RunSearch()
+{
+    await ZoneApi.PostAsync("/zones/sync-all", null);
+
+    var req = new SearchRequestDto(
+        Query: string.IsNullOrWhiteSpace(_query) ? null : _query.Trim(),
+        DocumentYear: int.TryParse(_documentYear, out var y) ? y : null,
+        DocumentType: Enum.TryParse<DocumentType>(_documentType, true, out var dt) ? dt : null,
+        ContractType: string.IsNullOrWhiteSpace(_contractType) ? null : _contractType,
+        Partner: string.IsNullOrWhiteSpace(_partner) ? null : _partner,
+        Skip: 0,
+        Size: 50
+    );
+
+    var resp = await SearchApi.PostAsJsonAsync("/search", req);
+    resp.EnsureSuccessStatusCode();
+}
+\end{lstlisting}
+
+Die Implementierung ist bewusst defensiv: Leere Eingaben werden als \texttt{null} übertragen, numerische und Enum-Filter werden nur bei erfolgreicher Konvertierung gesetzt. Dadurch bleiben Request und Filterlogik stabil, auch wenn einzelne UI-Felder leer bleiben.
+
+\subsubsection{Search API: Authentifizierter Endpunkt}
+
+Der Search-Service stellt die fachliche Suchoperation über \texttt{POST /search} bereit. Der Endpunkt ist geschützt (\texttt{RequireAuthorization()}) und extrahiert die Benutzerkennung aus dem JWT-Token. Ohne gültige \texttt{oid} wird der Request abgelehnt.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Search-Endpunkt mit Benutzerkontext},label={lst:search-api-endpoint}]
+app.MapPost("/search", async (SearchRequestDto req, HttpContext ctx,
+                              AzureSearchQueryService svc, CancellationToken ct) =>
+{
+    var oid = ctx.User.FindFirst("oid")?.Value
+              ?? ctx.User.FindFirst(
+                  "http://schemas.microsoft.com/identity/claims/objectidentifier"
+                 )?.Value;
+
+    if (string.IsNullOrWhiteSpace(oid)) return Results.Unauthorized();
+
+    var result = await svc.SearchAsync(req, oid, ct);
+    return Results.Ok(result);
+}).RequireAuthorization();
+\end{lstlisting}
+
+Damit ist sichergestellt, dass jeder Suchaufruf mit einem konkreten Benutzerkontext verknüpft ist und die nachgelagerte Filterlogik diesen Kontext verwenden kann.
+
+\subsubsection{Query-Service: Paging, Facets und Filter}
+
+Die eigentliche Suchlogik liegt im \texttt{AzureSearchQueryService}. Dort werden Suchtext, Paging und Facetten konfiguriert. Für leere Suchanfragen wird ein Wildcard-Searchtext (\texttt{"*"}) verwendet, damit auch reine Filterabfragen möglich sind.
+
+\begin{lstlisting}[language={[Sharp]C},caption={SearchOptions und Filteraufbau im Query-Service},label={lst:search-query-options}]
+var searchText = string.IsNullOrWhiteSpace(req.Query) ? "*" : req.Query;
+
+var opt = new SearchOptions
+{
+    IncludeTotalCount = true,
+    Skip = Math.Max(0, req.Skip),
+    Size = Math.Clamp(req.Size, 1, 100)
+};
+
+opt.Facets.Add("documentYear,count:50");
+opt.Facets.Add("documentType,count:50");
+opt.Facets.Add("partner,count:50");
+
+opt.Filter = BuildFilter(req, callerOid,
+    includeDocumentType: true,
+    includeDocumentYear: true,
+    includeContractType: true,
+    includePartner: true);
+
+var resp = await _client.SearchAsync<SearchDocument>(searchText, opt, ct);
+\end{lstlisting}
+
+Die Limits (\texttt{Size} zwischen 1 und 100) schützen den Service vor übergroßen Antworten. Gleichzeitig liefern Facetten die Datenbasis für dynamische Filteroptionen im UI.
+
+Die wichtigste Sicherheitsregel ist im Filteraufbau implementiert: Ergebnisse werden immer auf Dokumente eingeschränkt, die für den aktuellen Benutzer freigegeben sind.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Benutzerbezogener OData-Filter},label={lst:search-filter-acl}]
+private static string BuildFilter(SearchRequestDto req, string callerOid, ...)
+{
+    var parts = new List<string>();
+
+    parts.Add($"allowedUsers/any(u: u eq '{EscapeOData(callerOid)}')");
+
+    if (req.DocumentYear is not null)
+        parts.Add($"documentYear eq {req.DocumentYear.Value}");
+    if (req.DocumentType is not null)
+        parts.Add($"documentType eq '{EscapeOData(req.DocumentType.Value.ToString())}'");
+    if (!string.IsNullOrWhiteSpace(req.Partner))
+        parts.Add($"partner eq '{EscapeOData(req.Partner)}'");
+
+    return string.Join(" and ", parts);
+}
+\end{lstlisting}
+
+Durch die Kombination aus ACL-Bedingung und fachlichen Filtern entsteht ein Security-First-Ansatz: Ein Dokument wird nur dann zurückgegeben, wenn sowohl die Berechtigung als auch die Suchkriterien erfüllt sind.
+
+\subsubsection{Rückgabe und UI-Aktualisierung}
+
+Nach der Suchausführung werden die Index-Dokumente auf \texttt{SearchHitDto}-Objekte gemappt. Zusätzlich werden Facettenwerte in Bucket-Strukturen überführt. Das Frontend nutzt diese Buckets, um Filterlisten (z. B. Jahre, Vertragstypen, Partner) mit Trefferanzahl zu aktualisieren.
+
+Dadurch entsteht eine adaptive Suchoberfläche: Filter zeigen nur Werte an, die im aktuellen Ergebnisraum tatsächlich vorkommen. Das reduziert ungültige Kombinationen und verbessert die Bedienbarkeit bei großen Dokumentmengen.
+
+\subsubsection{Zusammenfassung der Implementierung}
+
+Die implementierte Dokumentensuche kombiniert:
+\begin{itemize}
+    \item einen authentifizierten API-Endpunkt,
+    \item benutzerbezogene Zugriffskontrolle direkt in der Query,
+    \item kombinierbare Volltext- und Metadatenfilter,
+    \item serverseitige Facettenaggregation,
+    \item sowie eine dynamische UI-Nachführung der Filteroptionen.
+\end{itemize}
+
+Damit ist die Suche sowohl funktional als auch sicherheitstechnisch in die Gesamtarchitektur integriert und für den produktiven Einsatz mit mandanten-/benutzerbezogenen Daten geeignet.
+
 \subsection{Benutzer- und Rollenverwaltung}
 \subsection{System-Logging und Monitoring}
 \subsection{API-Endpunkte}
