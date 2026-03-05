@@ -13,7 +13,7 @@ Dadurch können Dokumente und ihre Inhalte effizient gespeichert, verwaltet, dur
 
 Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf, wie in Tabelle \ref{tab:klassifizierung} ersichtlich.
 
-\begin{table}[h!]
+\begin{table}[h]
 \centering
 \caption{Textklassifizierung vs. Dokumentenklassifizierung \cite{shaip2025dokumentenklassifizierung}}
 \label{tab:klassifizierung}
@@ -74,7 +74,7 @@ Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise 
 \subsection{Architekturen zur Integration externer KI-Dienstleister }
 
 
-\subsection{Merkmalsextraktion und Embedding}
+\subsection{Merkmalsextraktion und Embedding}\label{subsec:merkmalsextraktion_embedding}
 \subsubsection{Definition von Merkmalsextraktion}
 
 Die Merkmalsextraktion ist ein wichtiger Schritt in der Datenanalyse und im maschinellen Lernen. Dabei werden aus Rohdaten gezielt die Informationen herausgefiltert, 
@@ -86,7 +86,7 @@ Die gewonnenen Merkmale werden häufig in einer strukturierten Form zusammengefa
 
 Wie in Tabelle \ref{tab:Merkmalsextraktion} ersichtlich, werden im Folgenden wichtige Begriffe der Merkmalsextraktion mit kurzer Beschreibung dargestellt.
 
-\begin{table}[h!]
+\begin{table}[h]
 \centering
 \caption{Wichtige Begriffe der Merkmalsextraktion \cite{evoluce2026merkmalsextraktion}}
 \label{tab:Merkmalsextraktion}
@@ -115,7 +115,7 @@ Durch den Einsatz unterschiedlicher KI-Algorithmen können Muster und Zusammenh�
 
 Die in Tabelle \ref{tab:Algorithmen} aufgeführten KI-Algorithmen sind zentrale Methoden für die Merkmalsextraktion.
 
-\begin{table}[h!]
+\begin{table}[h]
 \centering
 \caption{Relevante Algorithmen zur Merkmalsextraktion \cite{evoluce2026merkmalsextraktion}}
 \label{tab:Algorithmen}
@@ -201,7 +201,7 @@ Danach können Artikel mit den höchsten Scores als Top-N-Empfehlungen ausgegebe
 
 Embeddings sind flexible Repräsentationen, die sich auf unterschiedliche Datentypen anwenden lassen. Die häufigsten Objekte, die eingebettet werden können, sind in Tabelle \ref{tab:Objekte} dargestellt.
 
-\begin{table}[H]
+\begin{table}[h]
 \centering
 \caption{Relevante Objekte für Embeddings \cite{ibm2026embedding}}
 \label{tab:Objekte}
@@ -278,4 +278,76 @@ also genau das Grundprinzip dieser Modellfamilie. \cite{azuresamples_docclass_gp
 
 \subsection{Datenaufbereitung und Preprocessing für Dokumente}
 
-\newpage
+Die Datenaufbereitung ist ein zentraler Erfolgsfaktor in der KI-gestützten Dokumentenverarbeitung, weil Klassifikationsmodelle nur so gut sind wie die Qualität ihrer Eingabedaten. 
+Bereits kleine Inkonsistenzen in Scanqualität, Dokumentstruktur oder Labeling wirken sich direkt auf Modellgüte, Generalisierbarkeit und spätere Produktionsstabilität aus. \cite{shaip2025dokumentenklassifizierung}
+
+Gerade bei heterogenen Dokumentbeständen (z. B. gescannte Belege, digital erzeugte PDFs und Formularbilder) ist Preprocessing daher kein optionaler Zwischenschritt, sondern eine eigene Prozessphase. 
+Sie verbindet die Rohdatenerfassung mit der modellgerechten Repräsentation und reduziert Informationsverluste über die gesamte Pipeline hinweg. \cite{shaip2025dokumentenklassifizierung}
+
+\subsubsection{Zielsetzung und Qualitätskriterien}
+
+Das Ziel der Dokumentaufbereitung besteht darin, Eingaben technisch zu standardisieren, semantisch verwertbar zu machen und gleichzeitig den Informationsgehalt für nachgelagerte Modelle zu erhalten. 
+In der Praxis bedeutet das vor allem: robuste OCR-Ergebnisse, stabile Layoutsignale und konsistente Trainingslabels. \cite{shaip2025dokumentenklassifizierung}
+
+Aus OCR-Sicht hängt die Lesegenauigkeit stark von Eigenschaften wie Auflösung, Schräglage, Rauschen, Binarisierung und Randartefakten ab. 
+Die Tesseract-Dokumentation beschreibt dafür konkrete Vorverarbeitungsschritte wie Rescaling (typisch mindestens 300 dpi), Binarisierung, Rauschreduktion und Deskewing, um die Erkennungsqualität zu erhöhen. \cite{tesseract_improve_quality}
+
+Für dokumentenspezifische Transformer reicht reine Textqualität jedoch nicht aus, weil zusätzlich Layoutinformationen benötigt werden. 
+Modelle wie LayoutLM verarbeiten deshalb nicht nur Tokens, sondern auch räumliche Positionsinformationen (Bounding Boxes), damit Inhalte im Seitenkontext interpretiert werden können. \cite{layoutlm_2020} \cite{huggingface_layoutlm}
+
+Die wichtigsten Qualitätsziele der Aufbereitung sind in Tabelle \ref{tab:preprocessing_qualitaetsziele} zusammengefasst.
+
+\begin{table}[h]
+\centering
+\caption{Qualitätsziele in der Dokumentaufbereitung \cite{tesseract_improve_quality} \cite{layoutlm_2020}}
+\label{tab:preprocessing_qualitaetsziele}
+\begin{tabular}{p{4cm} p{5cm} p{5cm}}
+\textbf{Qualitätsziel} & \textbf{Typische Maßnahme} & \textbf{Nutzen für KI-Modelle} \\ \hline
+
+Lesbarkeit des Dokuments &
+Rescaling, Binarisierung, Rauschfilterung &
+Stabilere OCR-Texte und weniger fehlerhafte Tokens \\ \hline
+
+Räumliche Konsistenz &
+Deskewing, Randkorrektur, Box-Normalisierung &
+Bessere Nutzung von Layoutmerkmalen für Dokumentverständnis \\ \hline
+
+Semantische Konsistenz &
+Einheitliches Labeling und Klassenregeln &
+Weniger Labelrauschen, höhere Klassifikationsgüte \\ \hline
+
+\end{tabular}
+\end{table}
+
+\subsubsection{Technische Preprocessing-Pipeline}
+
+Eine belastbare Pipeline folgt typischerweise einem klaren Ablauf von Standardisierung, visueller Korrektur, Textextraktion, Feature-Aufbereitung und Datensplitting. 
+Damit wird sichergestellt, dass sowohl klassische textbasierte Modelle als auch multimodale Architekturen mit konsistenten Eingaben trainiert werden. \cite{shaip2025dokumentenklassifizierung} \cite{layoutlmv2_2021}
+
+\begin{enumerate}
+    \item \textbf{Format- und Eingangsstandardisierung} \\ Zu Beginn werden Dateiformate vereinheitlicht (z. B. Scanbilder und PDFs in eine verarbeitbare Seitenrepräsentation), Seitenmetriken geprüft und ungeeignete Dokumente ausgeschlossen. Für OCR-basierte Verarbeitung ist insbesondere eine ausreichende Bildauflösung relevant; Tesseract nennt hier mindestens 300 dpi als sinnvollen Richtwert. \cite{tesseract_improve_quality}
+    \item \textbf{Bildvorverarbeitung} \\ Anschließend folgt die visuelle Bereinigung mit Binarisierung, Entfernung von Bildrauschen, Korrektur von Schräglagen (Deskewing) und Behandlung von Randartefakten. Diese Schritte verbessern die Zeichen- und Zeilensegmentierung und senken damit die Wahrscheinlichkeit systematischer OCR-Fehler. \cite{tesseract_improve_quality}
+    \item \textbf{OCR und Strukturerfassung} \\ Nach der Bildbereinigung wird der Text extrahiert und gleichzeitig die Seitenstruktur erfasst (z. B. Positionen von Wörtern oder Blöcken). Für layoutbewusste Modelle ist diese Strukturinformation essenziell, da Textinhalte erst in Kombination mit Position und Kontext ihre volle Aussagekraft entfalten. \cite{huggingface_layoutlm} \cite{layoutlm_2020}
+    \item \textbf{Textnormalisierung und Feature-Aufbereitung} \\ Auf OCR-Ebene werden üblicherweise Normalisierungsschritte wie Bereinigung von Artefaktzeichen, Vereinheitlichung von Datums-/Zahlformaten und konsistente Tokenrepräsentationen angewendet. Dadurch sinkt die Streuung technischer Schreibvarianten, und die Merkmale werden für das Klassifikationsmodell robuster. \cite{shaip2025dokumentenklassifizierung}
+    \item \textbf{Multimodale Repräsentation} \\ In modernen Dokument-Pipelines werden Text-, Layout- und Bildsignale gemeinsam verarbeitet. LayoutLMv2 zeigt, dass die gemeinsame Modellierung dieser Modalitäten auf mehreren Dokumentaufgaben deutliche Leistungsgewinne gegenüber rein textuellen Ansätzen ermöglicht. \cite{layoutlmv2_2021}
+    \item \textbf{Training/Validierung/Test-Split} \\ Vor dem Training werden die Daten reproduzierbar in Teilmengen aufgeteilt (z. B. mit fixer Zufallsinitialisierung und stratifizierter Verteilung), um Verzerrungen bei der Evaluation zu reduzieren. Für komplexe Datenstrukturen mit Gruppenzugehörigkeiten (z. B. mehrere Seiten desselben Dokuments) sind gruppenbasierte Splitter sinnvoll, damit keine Informationsleckage zwischen Train- und Testmenge entsteht. \cite{sklearn_train_test_split} \cite{sklearn_cross_validation}
+\end{enumerate}
+
+\subsubsection{Datenannotation, Balancierung und Leakage-Vermeidung}
+
+Neben der technischen Vorverarbeitung ist die semantische Qualität der Labels entscheidend. 
+In der Dokumentklassifikation sollten Klassenregeln eindeutig dokumentiert, Label-Guidelines versioniert und Grenzfälle (z. B. Mischdokumente) konsistent behandelt werden, damit das Modell keine widersprüchlichen Lernsignale erhält. \cite{shaip2025dokumentenklassifizierung}
+
+Ein weiteres Risiko ist Klassenungleichgewicht, das in realen Unternehmensdaten häufig vorkommt (z. B. viele Rechnungen, aber wenige Sonderformulare). 
+Für robuste Evaluationen sind daher stratifizierte Splits und klassenbewusste Kennzahlen wichtig; große Referenzdatensätze wie RVL-CDIP zeigen zugleich, dass breite Klassenabdeckung ein wesentlicher Faktor für stabile Modellvergleiche ist. \cite{harley_rvlcdip} \cite{sklearn_train_test_split}
+
+Besondere Aufmerksamkeit erfordert Data Leakage: Wenn inhaltlich sehr ähnliche Dokumente oder Seiten desselben Falls versehentlich in verschiedenen Splits landen, werden Ergebnisse künstlich verbessert. 
+Methodisch lässt sich das über gruppenbasierte Aufteilungen (z. B. GroupKFold/GroupShuffleSplit) vermeiden, bei denen zusammengehörige Dokumente nur einem Split zugeordnet werden. \cite{sklearn_cross_validation}
+
+\subsubsection{Best Practices für die Umsetzung}
+
+Für die praktische Umsetzung hat sich ein iteratives Vorgehen bewährt: Zunächst wird ein reproduzierbarer Baseline-Preprocessing-Stand definiert, danach werden einzelne Verarbeitungsschritte (z. B. Deskewing, Binarisierung, Layout-Normalisierung) kontrolliert variiert und ihr Einfluss auf Qualitätsmetriken gemessen. 
+So wird sichtbar, welche Maßnahmen tatsächlich Modellnutzen erzeugen und welche lediglich zusätzliche Komplexität verursachen. \cite{tesseract_improve_quality} \cite{layoutlmv2_2021}
+
+Zusammenfassend ist Datenaufbereitung in Dokumentprojekten als eigenständige Engineering-Aufgabe zu behandeln. 
+Je systematischer Preprocessing, Annotation und Evaluationsdesign umgesetzt werden, desto zuverlässiger lassen sich Dokumenttypen automatisiert erkennen und in stabile Geschäftsprozesse integrieren. \cite{shaip2025dokumentenklassifizierung} \cite{sklearn_cross_validation}
