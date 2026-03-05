@@ -3,53 +3,87 @@
 
 \subsubsection{Suchalgorithmen im Information Retrieval}
 
-In diesem Kapitel werden die technologischen Grundlagen moderner Suchmaschinen behandelt. Ziel des Information Retrieval (IR) ist es, aus einer großen Menge unstrukturierter Daten jene Informationen zu finden, die einer Benutzeranfrage (Query) entsprechen. Dabei haben sich im Laufe der Zeit verschiedene Ansätze entwickelt.
+Suche und Filter bilden in Dokumentensystemen eine gemeinsame Architekturaufgabe: Die Suche identifiziert relevante Kandidaten, während Filter die Ergebnisliste auf fachlich gültige Teilmengen einschränken. 
+Im Information Retrieval (IR) hat sich dafür eine mehrstufige Verarbeitung etabliert, die Abfrageinterpretation, Kandidatenfindung, Ranking und nachgelagerte Einschränkungen kombiniert. \cite{manning2008irbook} \cite{elastic_query_filter_context}
+
+Für unternehmensweite Dokumentplattformen ist diese Trennung besonders wichtig, weil dieselbe Anfrage häufig sowohl unstrukturierte Textfelder als auch strukturierte Metadaten (z. B. Dokumenttyp, Zeitraum, Abteilung) adressiert. 
+Eine belastbare Sucharchitektur muss daher Ranking- und Filterlogik technisch klar trennen, aber in einer gemeinsamen Query-Pipeline ausführbar machen. \cite{elastic_query_filter_context}
 
 \subsubsection{Lexikalische Suchverfahren (Keyword Search)}
-Die lexikalische Suche ist der klassische Ansatz im Information Retrieval. Sie basiert auf dem Abgleich von Zeichenketten zwischen der Suchanfrage und den Dokumenten.
+Die lexikalische Suche ist der klassische IR-Ansatz und basiert auf dem Abgleich von Termen zwischen Query und Dokumentbestand. 
+Sie ist besonders stark bei exakten Treffern, etwa bei IDs, normierten Begriffen, Produktcodes oder eindeutig benannten Entitäten. \cite{manning2008irbook}
 
-\subsubsection*{TF-IDF und Inverted Index}
-Ein grundlegendes Verfahren ist \textbf{TF-IDF} (Term Frequency - Inverse Document Frequency). Dieser Algorithmus bewertet die Relevanz eines Wortes, indem er zählt, wie oft es in einem Dokument vorkommt, gewichtet dies jedoch mit der Seltenheit des Wortes im gesamten Datensatz \cite{quelle_tfidf}.
+\subsubsection*{Inverted Index und TF-IDF}
+Die technische Basis lexikalischer Systeme ist der Inverted Index: Für jeden Term wird eine Postings-Liste der zugehörigen Dokumente geführt, sodass Anfragen nicht über alle Dokumente sequentiell laufen müssen. 
+Diese Datenstruktur ist in IR-Systemen der Standard, weil sie Suchanfragen in großen Korpora effizient auswertbar macht. \cite{manning2008irbook}
 
-Das Rückgrat dieser Suche bildet meist ein sogenannter \textit{Inverted Index}, der ähnlich wie ein Stichwortverzeichnis in einem Buch funktioniert.
+Auf Ranking-Ebene wird häufig mit termbasierten Gewichtungen gearbeitet. Ein klassisches Schema ist TF-IDF, bei dem ein Term höher gewichtet wird, wenn er in einem Dokument häufig vorkommt, aber im Gesamtkorpus vergleichsweise selten ist. 
+Dadurch erhalten diskriminierende Begriffe mehr Einfluss auf die Relevanzbewertung als sehr häufige, wenig informative Terme. \cite{stanford_tfidf}
 
 \subsubsection*{BM25}
-Der heute am häufigsten eingesetzte Algorithmus ist \textbf{BM25} (Best Matching 25). Er ist eine Weiterentwicklung von TF-IDF und löst dessen Schwächen, indem er unter anderem die Dokumentenlänge berücksichtigt und eine Sättigungsgrenze für sehr häufige Begriffe einführt. BM25 gilt als Industriestandard für die Stichwortsuche.
+In praktischen Suchsystemen ist BM25 der verbreitete Standard für lexikalisches Ranking. 
+Das Modell erweitert den reinen TF-IDF-Gedanken um Termfrequenz-Sättigung und Längennormalisierung und reduziert damit typische Verzerrungen zugunsten sehr langer Dokumente. \cite{robertson2009bm25}
+
+Dass BM25 nicht nur theoretisch, sondern auch produktiv relevant ist, zeigt sich in verbreiteten Suchbibliotheken: Lucene führt BM25 als zentrale Similarity-Variante und erlaubt zusätzlich die Parametrisierung über \(k_1\) und \(b\) für unterschiedliche Korpuscharakteristika. \cite{lucene_similarity}
 
 \subsubsection{Semantische Suchverfahren (Vector Search)}
-Während lexikalische Verfahren nur exakte Wortübereinstimmungen finden, zielen semantische Verfahren darauf ab, die \textit{Bedeutung} (Semantik) einer Anfrage zu verstehen.
+Semantische Suchverfahren adressieren eine zentrale Schwäche rein lexikalischer Verfahren: relevante Treffer enthalten häufig nicht exakt dieselben Terme wie die Suchanfrage, sind aber inhaltlich nahe verwandt. 
+Daher werden Query und Dokumente in einen gemeinsamen Vektorraum überführt und über Distanz- bzw. Ähnlichkeitsmaße verglichen. \cite{elastic_knn_search}
 
-\subsubsection*{Embeddings und Vektorräume}
-Texte werden hierbei mithilfe von Machine-Learning-Modellen (z.\,B. BERT) in hochdimensionale Vektoren, sogenannte \textbf{Embeddings}, umgewandelt. In diesem mathematischen Vektorraum liegen Wörter mit ähnlicher Bedeutung räumlich nah beieinander (z.\,B. liegen die Vektoren für "Auto" und "PKW" nah beieinander, obwohl die Wörter völlig unterschiedlich geschrieben werden).
+Embeddings werden in dieser Arbeit bereits in Abschnitt \ref{subsec:merkmalsextraktion_embedding} eingeführt und dort detailliert erklärt. 
+Für die Sucharchitektur ist hier nur relevant: Die Qualität der semantischen Suche hängt davon ab, dass Query- und Dokumentvektoren mit kompatiblen Modellen und identischen Dimensionsannahmen erzeugt werden. \cite{elastic_knn_search}
 
 \subsubsection*{Suche mittels k-NN und HNSW}
-Um in diesen Vektorräumen effizient zu suchen, kommen Algorithmen wie \textbf{HNSW} (Hierarchical Navigable Small World) zum Einsatz. Dieser Algorithmus ermöglicht eine extrem schnelle \textit{Approximate Nearest Neighbor} (ANN) Suche, selbst bei Millionen von Datensätzen \cite{malkov2018hnsw}.
+Das grundlegende Suchproblem in Vektorräumen ist k-NN (k-nearest neighbors): Gesucht werden die \(k\) nächsten Dokumentvektoren zur Query. 
+Da exakte k-NN-Suche bei großen Datenmengen teuer wird, setzen produktive Systeme meist auf ANN-Methoden (Approximate Nearest Neighbor), die Rechenzeit gegen eine kontrollierte Recall-Abweichung tauschen. \cite{elastic_knn_search}
+
+Ein verbreiteter ANN-Ansatz ist HNSW (Hierarchical Navigable Small World). 
+Der Algorithmus organisiert Vektoren in einer hierarchischen Navigationsstruktur und erreicht dadurch hohe Suchgeschwindigkeit bei gleichzeitig guter Trefferqualität, was ihn für große Dokumentindizes praktikabel macht. \cite{malkov2018hnsw}
 
 \subsubsection{Hybride Suchansätze (Hybrid Search)}
 \label{subsec:hybrid}
-In der Praxis zeigt sich oft, dass weder die reine Keyword-Suche noch die reine Vektorsuche alle Anwendungsfälle perfekt abdeckt.
-\begin{itemize}
-    \item Die \textbf{Keyword-Suche} ist überlegen bei exakten Treffern (z.\,B. Artikelnummern, Eigennamen).
-    \item Die \textbf{Vektorsuche} ist überlegen bei kontextbezogenen Fragen oder wenn der Nutzer den genauen Fachbegriff nicht kennt.
-\end{itemize}
-Daher kombinieren moderne Systeme beide Ansätze ("Hybrid Search"). Die Ergebnisse beider Algorithmen werden oft durch ein sogenanntes \textit{Re-Ranking} (z.\,B. mittels Reciprocal Rank Fusion, RRF) zu einer finalen Ergebnisliste zusammengeführt.
+In realen Dokumentanwendungen deckt weder ein rein lexikalischer noch ein rein semantischer Retriever alle Abfragetypen optimal ab. 
+Hybrid Search kombiniert deshalb beide Signale in einer gemeinsamen Retrieval-Pipeline und erhöht so die Robustheit gegenüber unterschiedlichen Query-Formen. \cite{elastic_knn_search}
+
+Eine verbreitete Fusionsstrategie ist Reciprocal Rank Fusion (RRF). 
+RRF kombiniert mehrere Ergebnislisten rein rangbasiert und benötigt keine aufwändige Score-Normalisierung zwischen unterschiedlichen Retrievalmethoden, was die praktische Integration deutlich vereinfacht. \cite{elastic_rrf}
+
+\subsubsection{Filter- und Facettenarchitekturen}
+
+Filter sind kein Ersatz für Ranking, sondern eine komplementäre Architekturkomponente. 
+In Elasticsearch wird diese Trennung explizit als Query Context (scored) versus Filter Context (binär, nicht-scorebasiert) modelliert; insbesondere `bool.filter`-Klauseln werden ohne Relevanzbewertung ausgeführt und für wiederholte Nutzung gecacht. \cite{elastic_query_filter_context} \cite{elastic_bool_query}
+
+Für fachliche Navigation in großen Trefferlisten werden zusätzlich Facetten bzw. Aggregationen eingesetzt. 
+Typische Muster sind Terms-Buckets (z. B. Dokumenttyp, Abteilung) und zeitliche Buckets (Date Histogram), die eine schrittweise Eingrenzung der Suchergebnisse ermöglichen. \cite{elastic_bucket_aggregation} \cite{elastic_terms_aggregation} \cite{elastic_date_histogram}
+
+Dass diese Logik plattformübergreifend etabliert ist, zeigt auch der Solr-Ansatz: Faceting wird dort als Kategorisierung von Suchresultaten über indizierte Terme beschrieben und als zentrales Interaktionsmuster für explorative Suche eingesetzt. \cite{solr_faceting}
+
+Für die Systemarchitektur ergibt sich daraus ein stabiler Aufbau mit klaren Verantwortlichkeiten:
+\begin{enumerate}
+    \item \textbf{Retriever-Schicht} für lexikalische und/oder semantische Kandidatensuche, \cite{elastic_knn_search}
+    \item \textbf{Ranking-/Fusion-Schicht} für die Ergebniszusammenführung (z. B. RRF), \cite{elastic_rrf}
+    \item \textbf{Filter-/Facet-Schicht} für fachliche Constraints und UI-gestützte Eingrenzung. \cite{elastic_query_filter_context} \cite{elastic_terms_aggregation}
+\end{enumerate}
+
+Diese Schichtung verbessert Wartbarkeit und Skalierbarkeit, weil Relevanzmodelle, Filterregeln und Navigationslogik unabhängig weiterentwickelt werden können. 
+Gerade in Dokumentensystemen mit häufig wechselnden Metadatenanforderungen ist diese Entkopplung ein zentraler Qualitätsfaktor. \cite{elastic_query_filter_context}
 
 \subsubsection{Vergleich der Verfahren}
 \label{subsec:vergleich}
-Die folgende Tabelle fasst die wesentlichen Unterschiede zwischen den lexikalischen und semantischen Ansätzen zusammen.
+Die folgende Tabelle stellt die in der Praxis wichtigsten Unterschiede zwischen lexikalischer, semantischer und hybrider Suche gegenüber.
 
 \begin{table}[h]
     \centering
     \renewcommand{\arraystretch}{1.5} % Zeilenabstand für bessere Lesbarkeit
-    \begin{tabular}{|p{3cm}|p{5.5cm}|p{5.5cm}|}
+    \begin{tabular}{|p{3cm}|p{4cm}|p{4cm}|p{3cm}|}
         \hline
-        \textbf{Kriterium} & \textbf{Lexikalische Suche (z.\,B. BM25)} & \textbf{Semantische Suche (Vektor)} \\ \hline
-        \textbf{Funktionsweise} & Abgleich exakter Zeichenketten & Mathematische Nähe im Vektorraum (Bedeutung) \\ \hline
-        \textbf{Stärken} & Findet exakte Begriffe (IDs, Namen); keine Trainingsdaten nötig & Versteht Synonyme, Kontext und Tippfehler \\ \hline
-        \textbf{Schwächen} & Scheitert bei Synonymen ("Auto" vs. "PKW"); versteht keinen Kontext & Langsamer; kann bei sehr spezifischen Begriffen ungenau sein \\ \hline
-        \textbf{Einsatzgebiet} & E-Commerce (Produkt-IDs), Code-Suche & Chatbots, FAQ-Suche, Empfehlungssysteme \\ \hline
+        \textbf{Kriterium} & \textbf{Lexikalische Suche} & \textbf{Semantische Suche} & \textbf{Hybride Suche} \\ \hline
+        \textbf{Primäres Signal} & Termübereinstimmung (z. B. BM25) & Vektorähnlichkeit (k-NN/ANN) & Kombination beider Signale \\ \hline
+        \textbf{Stärken} & Exakte Treffer bei IDs und Fachbegriffen & Robust bei Synonymen und paraphrasierten Anfragen & Höhere Robustheit über gemischte Query-Typen \\ \hline
+        \textbf{Grenzen} & Schwach bei semantischer Varianz & Abhängig von Embedding-Qualität und Indexparametern & Höherer Integrations- und Betriebsaufwand \\ \hline
+        \textbf{Filterintegration} & Sehr gut mit Metadatenfiltern kombinierbar & Ebenfalls kombinierbar, teils mit speziellen ANN-Strategien & Standardmuster: Ranking + Filter + Facets \\ \hline
     \end{tabular}
-    \caption{Vergleich zwischen lexikalischer und semantischer Suche}
+    \caption{Vergleich von Suchansätzen in Dokumentsystemen \cite{robertson2009bm25} \cite{elastic_knn_search} \cite{elastic_rrf}}
     \label{tab:vergleich_suche}
 \end{table}
 
