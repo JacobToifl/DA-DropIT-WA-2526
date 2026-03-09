@@ -73,6 +73,42 @@ Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise 
 
 \subsection{Architekturen zur Integration externer KI-Dienstleister }
 
+\subsubsection{Grundidee der Integration externer KI-Dienste}
+
+Externe KI-Dienstleister stellen ihre Modelle typischerweise als verwaltete Cloud- oder API-Dienste bereit. Für Unternehmen reduziert das den Aufwand für den Eigenbetrieb komplexer Modelle, beschleunigt die Einführung neuer KI-Funktionen und ermöglicht einen schnellen Zugriff auf aktuelle Modellgenerationen. Gleichzeitig verlagert sich ein Teil der Systemarchitektur von der Modellimplementierung hin zur sauberen Integration externer Abhängigkeiten, etwa für Authentifizierung, Quotensteuerung, Fehlertoleranz und Kostenkontrolle. \cite{griesch2024ki,azure_ai_gateway_apim}
+
+\subsubsection{Direkte Kopplung und Vermittlungsschicht}
+
+Die einfachste Integrationsform ist die direkte Kopplung einer Anwendung an den Endpunkt eines externen KI-Anbieters. Dieses Muster eignet sich vor allem für Prototypen oder kleine Lösungen mit nur wenigen Konsumenten. Mit zunehmender Systemgröße entstehen jedoch Nachteile: Modellwechsel, neue Endpunkte oder geänderte Authentifizierungsverfahren müssen direkt in den konsumierenden Anwendungen umgesetzt werden. Eine vorgeschaltete Vermittlungsschicht in Form eines Gateways oder eines internen KI-Adapters entkoppelt daher die Clients vom konkreten Anbieter und erlaubt serverseitige Routing-Entscheidungen, ohne Client-Code oder Konfiguration neu ausrollen zu müssen. \cite{azure_openai_gateway_multi_backend}
+
+Ein zentrales Gateway übernimmt in diesem Zusammenhang nicht nur die Weiterleitung von Requests, sondern auch Governance-Aufgaben. Laut Microsoft Learn kann ein AI-Gateway Authentifizierung und Autorisierung bündeln, Anfragen über mehrere KI-Endpunkte verteilen, Interaktionen überwachen, Tokenverbrauch begrenzen und verschiedene Anbieter über eine gemeinsame Verwaltungsschicht anbinden. Dadurch entsteht eine providernahe, aber fachlich zentralisierte Integrationsarchitektur, die besonders in größeren Organisationen die Standardisierung vereinfacht. \cite{azure_ai_gateway_apim}
+
+\subsubsection{Asynchrone Integrationsmuster}
+
+Für dokumentenbezogene KI-Anwendungsfälle ist eine rein synchrone Kommunikation oft nicht ausreichend. OCR, Klassifikation, Extraktion oder mehrstufige Prompt-Ketten können zu längeren Laufzeiten führen, die eine direkte Request-Response-Kommunikation unnötig blockieren würden. Das Architekturpattern \glqq Asynchronous Request-Reply\grqq{} entkoppelt deshalb die Annahme einer Anfrage von ihrer eigentlichen Verarbeitung: Der Client erhält zunächst eine Bestätigung, während die Verarbeitung in einer Queue oder einer nachgelagerten Komponente stattfindet und der Status später über Polling, Redirects oder Benachrichtigungsmechanismen abgefragt wird. Dadurch steigen Reaktionsfähigkeit, Parallelität und Skalierbarkeit der Gesamtlösung. \cite{azure_async_request_reply}
+
+\subsubsection{Sicherheit, Governance und Datenhoheit}
+
+Sobald externe KI-Dienstleister in produktive Systeme eingebunden werden, wird die Sicherheitsarchitektur zu einem eigenständigen Entwurfsbereich. Ein Gateway erlaubt es, Zugangsdaten an zentraler Stelle zu terminieren und gegenüber dem externen Dienst mit einer eigenen Identität aufzutreten. Microsoft empfiehlt hierfür insbesondere Managed Identities, damit API-Schlüssel nicht in Anwendungen, Konfigurationsdateien oder Quellcode verteilt werden müssen. Darüber hinaus lassen sich über die Vermittlungsschicht Protokollierung, Content-Safety-Policies und feinere Zugriffskontrollen umsetzen. \cite{azure_ai_gateway_apim,azure_openai_gateway_multi_backend}
+
+Hinzu kommt die Frage der Datenhoheit. Bei KI-Services, die über mehrere Instanzen, Regionen oder Anbieter verteilt werden, müssen Architekturentscheidungen auch unter Compliance- und Residency-Gesichtspunkten betrachtet werden. Microsoft weist ausdrücklich darauf hin, dass active-active- oder active-passive-Strategien nur innerhalb der zulässigen geopolitischen Grenzen angewendet werden sollten, wenn Datenresidenz eine Anforderung darstellt. Für sensible Dokumentensysteme bedeutet das, dass Routing- und Failover-Logik nicht nur nach Verfügbarkeit, sondern auch nach regulatorischen Vorgaben entworfen werden muss. \cite{azure_openai_gateway_multi_backend}
+
+\subsubsection{Resilienz gegenüber Anbieterfehlern}
+
+Externe KI-Dienste sind aus Sicht der eigenen Anwendung entfernte Ressourcen und damit grundsätzlich anfällig für temporäre Fehler wie Timeouts, Überlastung oder kurzzeitige Nichterreichbarkeit. Das Retry-Pattern adressiert solche vorübergehenden Störungen, indem fehlgeschlagene Aufrufe kontrolliert wiederholt werden. Die Dokumentation des Azure Architecture Center empfiehlt dabei insbesondere verzögerte und bei Bedarf exponentiell ansteigende Wiederholungen, um ausgelastete Dienste nicht zusätzlich zu belasten. Für Integrationen mit KI-Dienstleistern ist diese Logik zentral, weil Lastspitzen und Quotenengpässe in der Praxis regelmäßig auftreten können. \cite{azure_retry_pattern}
+
+Nicht jeder Fehler ist jedoch nur kurzfristig. Dauert eine Störung länger an, reicht Wiederholen allein nicht aus. Das Circuit-Breaker-Pattern verhindert in diesem Fall weitere Aufrufe an eine wahrscheinlich fehlerhafte Abhängigkeit und ermöglicht so eine sanfte Degradation des Gesamtsystems. Gerade bei der Einbindung externer KI-APIs schützt dieses Muster davor, dass ein gestörter Anbieter die gesamte Anwendung blockiert oder nachgelagerte Komponenten überlastet. Microsoft beschreibt explizit die Kombination von Retry und Circuit Breaker als robusten Ansatz zur Fehlerbehandlung in verteilten Systemen. \cite{azure_circuit_breaker,azure_retry_pattern}
+
+\subsubsection{Performance-, Kosten- und Routingoptimierung}
+
+Neben Sicherheit und Resilienz spielt bei externen KI-Dienstleistern die effiziente Nutzung von Tokens, Durchsatz und Latenz eine zentrale Rolle. Ein Gateway kann hierfür Tokenlimits pro Konsument durchsetzen, Last über mehrere Backends verteilen und semantisches Caching einsetzen, um wiederkehrende Anfragen nicht erneut vollständig an den Provider zu senden. Auf Anbieter-Seite beschreibt OpenAI ergänzend, dass sich Latenzen architektonisch unter anderem durch weniger Requests, Parallelisierung unabhängiger Schritte, kleinere Modelle für Teilaufgaben und klassische Optimierungstechniken reduzieren lassen. Damit wird deutlich, dass die Integrationsarchitektur nicht nur eine Verbindungsschicht ist, sondern aktiv die Wirtschaftlichkeit und Antwortzeit von KI-Funktionen beeinflusst. \cite{azure_ai_gateway_apim,openai_latency_optimization}
+
+Ein weiterer Optimierungshebel ist Caching auf Prompt-Ebene. OpenAI dokumentiert, dass Prompt Caching bei langen, wiederkehrenden Präfixen Latenz und Eingabekosten deutlich senken kann, wenn statische Instruktionen am Anfang und variable Inhalte am Ende eines Prompts angeordnet werden. In Verbindung mit einem zentralen Gateway oder einem internen KI-Service entsteht daraus ein zweistufiges Optimierungsmodell: Einerseits kann die Integrationsschicht Anfragen deduplizieren oder semantisch cachen, andererseits nutzt der externe Anbieter dieselben oder ähnliche Prompt-Präfixe effizienter. \cite{openai_prompt_caching,azure_ai_gateway_apim}
+
+\subsubsection{Einordnung für Dokumentenverarbeitungssysteme}
+
+Für Systeme zur Dokumentenverarbeitung ergibt sich daraus ein klares Zielbild: Externe KI-Dienstleister sollten nicht direkt und unkontrolliert aus jeder Fachkomponente heraus aufgerufen werden, sondern über eine definierte Integrationsarchitektur mit zentralem Routing, Sicherheitskontrollen, Quotenmanagement und Beobachtbarkeit. Ergänzt um asynchrone Verarbeitungsmuster, Retry-/Circuit-Breaker-Mechanismen sowie providernahe Caching- und Routingstrategien entsteht eine Architektur, die sowohl technisch robust als auch organisatorisch beherrschbar bleibt. Genau diese Entkopplung ist entscheidend, wenn KI-Funktionen langfristig in produktive Dokumenten- und Unternehmensprozesse eingebettet werden sollen. \cite{griesch2024ki,azure_ai_gateway_apim,azure_async_request_reply,azure_circuit_breaker}
+
 
 \subsection{Merkmalsextraktion und Embedding}\label{subsec:merkmalsextraktion_embedding}
 \subsubsection{Definition von Merkmalsextraktion}

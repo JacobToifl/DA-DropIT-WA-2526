@@ -1,6 +1,374 @@
 \section{Dokumentation - Funktionen}
 \subsection{Dokumenten-Upload}
+
+Dieses Kapitel dokumentiert den vollständigen Upload-Flow von der Anlage einer Upload-Zone bis zur finalen Speicherung des Dokuments in SharePoint inklusive Metadatenpersistenz und Suchindex-Aktualisierung.
+
+\subsubsection{Technischer Gesamtflow}
+
+Der Upload ist als mehrstufige Pipeline umgesetzt, damit fachliche Prüfung, Benutzerinteraktion und Persistenz klar getrennt bleiben:
+\begin{enumerate}
+    \item Eine Zone wird im Frontend erstellt oder ausgewählt.
+    \item Die Zone wird im Zone-Service persistiert; der zugehörige SharePoint-Ordner wird best-effort angelegt.
+    \item Eine Datei wird per Dateiauswahl oder Drag \& Drop in die Zone-Upload-Queue gestellt.
+    \item Der Zone-Service führt eine Preflight-Phase aus und ruft die Dokumenten-Klassifikation auf.
+    \item Ergebniswerte der Klassifikation werden zusammen mit der Datei temporär abgelegt und mit \texttt{uploadId} referenziert.
+    \item Die Benutzerin bzw. der Benutzer bestätigt oder korrigiert die erkannten Metadaten.
+    \item Beim \texttt{commit} wird die Datei nach SharePoint geschrieben und die temporäre Ablage aufgelöst.
+    \item Die Dokument-Metadaten werden in der Documents-API in der Datenbank gespeichert.
+    \item Das Dokument wird für die Suche über die Search-API indiziert.
+\end{enumerate}
+
+Damit kann der Uploadprozess robust aufgeteilt werden: Die KI-Extraktion ist vor der finalen Persistenz sichtbar und korrigierbar, bevor irreversible Schreiboperationen durchgeführt werden.
+
+\subsubsection{Zone-Erstellung und SharePoint-Ordnerinitialisierung}
+
+Der Upload beginnt fachlich mit einer Zone. Die Zone-API stellt dafür \texttt{POST /zones} bereit. Beim Anlegen wird ein neuer \texttt{ZoneDto}-Eintrag in der zonenspezifischen JSON-Struktur gespeichert und parallel versucht, den Zielordner in SharePoint zu erzeugen.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Zone-Erstellung mit SharePoint-Ordnerinitialisierung},label={lst:upload-zone-create}]
+g.MapPost("", async (ZoneDto zone, IZonesStore store, IUserContext user,
+                     ITokenAcquisition tokenAcquisition,
+                     IHttpClientFactory httpFactory, IConfiguration cfg,
+                     CancellationToken ct) =>
+{
+    var folderName = zone.FolderPath.Trim('/').Split('/').Last();
+    var driveId = cfg["SharePoint:DriveId"] ?? zone.DriveId ?? "";
+
+    var doc = await store.UpsertAsync(user.TenantId, user.ObjectId, d => {
+        var list = d.Zones.ToList();
+        var newZone = zone with { Id = Guid.NewGuid(), OrderIndex = list.Count + 1, DriveId = driveId };
+        list.Add(newZone);
+        return d with { Zones = list };
+    }, null, ct);
+
+    try {
+        var token = await tokenAcquisition.GetAccessTokenForUserAsync(
+            new[] { "https://graph.microsoft.com/Files.ReadWrite.All" });
+        var client = httpFactory.CreateClient("graph");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var payload = new { name = folderName, folder = new { }, microsoft_graph_conflictBehavior = "fail" };
+        await client.PostAsJsonAsync($"drives/{driveId}/root/children", payload, ct);
+    } catch {}
+
+    return Results.Ok(doc);
+});
+\end{lstlisting}
+
+Die Ordneranlage ist absichtlich tolerant implementiert (\texttt{try/catch} ohne Abbruch), sodass die fachliche Zone nicht verloren geht, wenn die Graph-Operation nicht unmittelbar erfolgreich ist.
+
+\subsubsection{Frontend-Uploadsteuerung über UploadQueueService}
+
+In der Webanwendung wird der Upload nicht direkt aus der Seite abgesendet, sondern über den \texttt{UploadQueueService} sequenziell verarbeitet. Dadurch können mehrere Dateien nacheinander pro Zone verarbeitet werden, inklusive Statusmeldungen und Dialogsteuerung.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Preflight- und Commit-Steuerung im UploadQueueService},label={lst:upload-queue-preflight-commit}]
+private async Task ProcessRequestAsync(UploadRequest request, CancellationToken ct)
+{
+    if (request.SizeBytes > MaxUploadBytes) return; // 100 MB Grenze
+
+    using var form = new MultipartFormDataContent();
+    form.Add(new StreamContent(await OpenUploadStreamAsync(request, ct)),
+             "file", request.FileName);
+
+    var res = await client.PostAsync($"zones/{request.ZoneId}/upload/preflight", form, ct);
+    if (!res.IsSuccessStatusCode) return;
+
+    var preflight = await res.Content.ReadFromJsonAsync<UploadPreflight>(cancellationToken: ct);
+    CurrentPreflight = preflight;
+    _decision = new TaskCompletionSource<UploadDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    var decision = await _decision.Task.WaitAsync(ct);
+    if (!decision.Confirmed || decision.Payload is null) return;
+
+    await CommitAsync(client, decision.Payload, ct);
+}
+\end{lstlisting}
+
+Wesentliche technische Punkte in dieser Schicht sind:
+\begin{itemize}
+    \item zentrale Dateigrößenbegrenzung auf 100 MB,
+    \item einheitlicher Status pro Zone (z. B. \texttt{"KI analysiert Dokument..."}),
+    \item ein expliziter Bestätigungszustand zwischen Preflight und Commit,
+    \item sowie identischer Ablauf für Dateiauswahl und Drag-\&-Drop.
+\end{itemize}
+
+\subsubsection{Preflight-Endpunkt und Klassifikationsaufruf}
+
+Die eigentliche serverseitige Vorverarbeitung startet über den Preflight-Endpunkt der Zone-API. Der Endpunkt nimmt das Multipart-File entgegen, sendet es an den AI-Service und legt danach Datei plus Metadaten temporär ab.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Preflight-Endpunkt im Zone-Service},label={lst:upload-preflight-endpoint}]
+g.MapPost("{zoneId:guid}/upload/preflight", async (Guid zoneId, HttpRequest req,
+                                                   FileZonesStore store,
+                                                   IUserContext user,
+                                                   IHttpClientFactory httpFactory,
+                                                   CancellationToken ct) =>
+{
+    var form = await req.ReadFormAsync(ct);
+    var file = form.Files["file"];
+    if (file == null) return Results.BadRequest("No file");
+
+    var ai = httpFactory.CreateClient("ai");
+    using var mp = new MultipartFormDataContent();
+    mp.Add(new StreamContent(file.OpenReadStream()), "file", file.FileName);
+
+    var aiResp = await ai.PostAsync("/ai/classify", mp, ct);
+    if (!aiResp.IsSuccessStatusCode) return Results.Problem("KI-Dienst Fehler");
+
+    var extraction = await aiResp.Content.ReadFromJsonAsync<DocumentClassificationResultDto>(
+        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }, ct);
+
+    var (uploadId, docType) = await store.SaveTempAsync(
+        user.TenantId, user.ObjectId, zoneId, file,
+        extraction!.DocumentType, extraction.DocumentYear,
+        extraction.ContractType, extraction.Partner, extraction.ExpireDate, ct);
+
+    return Results.Ok(new {
+        uploadId,
+        documentType = docType.ToString(),
+        year = extraction.DocumentYear,
+        partner = extraction.Partner,
+        contractType = extraction.ContractType,
+        expireDate = extraction.ExpireDate
+    });
+}).DisableAntiforgery();
+\end{lstlisting}
+
+Die Klassifikation selbst (Prompting, Schema-Bindung, Nachvalidierung) ist in Kapitel 4.2.2 detailliert beschrieben und wird hier nur als aufgerufener Baustein verwendet.
+
+Die Methode \texttt{SaveTempAsync(...)} persistiert in dieser Phase:
+\begin{itemize}
+    \item die hochgeladene Binärdatei im temporären Bereich,
+    \item ein Metadaten-JSON mit \texttt{uploadId}, Zone, Dateieigenschaften und Klassifikation,
+    \item sowie den Zeitstempel der KI-Auswertung (\texttt{ClassifiedAtUtc}).
+\end{itemize}
+
+\subsubsection{Temporäre Ablage und Benutzerkorrektur}
+
+Die temporäre Ablage entkoppelt KI-Ergebnis und finale Speicherung. Das Frontend zeigt die zurückgegebenen Werte in einem Dialog (\texttt{UploadPreflight}) an. Dort können Dokumenttyp, Jahr, Partner, Vertragsart und Ablaufdatum vor dem Commit angepasst werden.
+
+Die finale Commit-Nachricht enthält damit nicht nur die \texttt{uploadId}, sondern den bestätigten Metadatenstand aus der Benutzeroberfläche.
+
+\subsubsection{Commit in SharePoint und technische Verarbeitung}
+
+Der Commit wird über \texttt{POST /zones/\{zoneId\}/upload/\{uploadId\}/commit} gestartet. Die Hauptarbeit liegt in \texttt{CommitTempToSharePointAsync(...)}:
+\begin{itemize}
+    \item Laden der temporären Datei und KI-Metadaten,
+    \item Merge mit benutzerbestätigten Änderungen,
+    \item SHA-256-Bildung zur Integritätsreferenz,
+    \item Zielpfad-Aufbau aus Zone-Ordner und optionalem Partner-Unterordner,
+    \item Upload der Datei in SharePoint via Microsoft Graph,
+    \item optionale Textextraktion bei PDF für spätere Suche,
+    \item Löschung der temporären Artefakte.
+\end{itemize}
+
+\begin{lstlisting}[language={[Sharp]C},caption={Commit-Logik mit SharePoint-Upload},label={lst:upload-commit-store}]
+var finalMeta = aiMeta with {
+    ExpireDate = confirmed.ExpireDate,
+    Partner = confirmed.Partner ?? aiMeta.Partner,
+    ContractType = confirmed.ContractType ?? aiMeta.ContractType,
+    DocumentYear = confirmed.DocumentYear ?? aiMeta.DocumentYear,
+    DocumentType = confirmed.DocumentType ?? aiMeta.DocumentType
+};
+
+var partnerFolder = SanitizeFolderName(finalMeta.Partner);
+if (!string.IsNullOrWhiteSpace(partnerFolder))
+{
+    await EnsureFolderExistsAsync(client, driveId, zoneFolder, partnerFolder, ct);
+    targetFolder = string.IsNullOrWhiteSpace(zoneFolder) ? partnerFolder : $"{zoneFolder}/{partnerFolder}";
+}
+
+var uploadUrl = string.IsNullOrEmpty(targetFolder)
+    ? $"drives/{encodedDriveId}/root:/{encodedFileName}:/content"
+    : $"drives/{encodedDriveId}/root:/{EncodePathForGraph(targetFolder)}/{encodedFileName}:/content";
+
+using (var stream = File.OpenRead(binPath))
+{
+    var resp = await client.PutAsync(uploadUrl, new StreamContent(stream), ct);
+    resp.EnsureSuccessStatusCode();
+    var item = await resp.Content.ReadFromJsonAsync<JsonElement>(ct);
+    sharePointItemId = item.GetProperty("id").GetString()!;
+}
+\end{lstlisting}
+
+Die Partner-Unterordner werden vor dem Datei-Upload gezielt erstellt. Ungültige Zeichen werden über \texttt{SanitizeFolderName(...)} ersetzt, damit SharePoint-konforme Pfade entstehen.
+
+\subsubsection{Persistenz in Documents-API und Suchindex}
+
+Nach erfolgreichem SharePoint-Write registriert der Zone-Service das Dokument in der Documents-API und übergibt dabei auch \texttt{sharePointItemId} und \texttt{ownerId}. Danach wird ein interner Indexierungsaufruf an die Search-API ausgelöst.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Commit-Endpunkt mit Metadatenpersistenz und Indexierung},label={lst:upload-commit-endpoint}]
+var (meta, storedPath, sha256, contentText, sharePointItemId) =
+    await store.CommitTempToSharePointAsync(user.TenantId, user.ObjectId, user.DisplayName ?? "",
+                                            uploadId, confirmed, ct);
+
+var dto = new CreateDocumentDto(
+    zoneId, meta.OriginalFilename, storedPath, meta.MimeType, meta.SizeBytes, sha256,
+    meta.DocumentType, meta.DocumentYear, meta.ContractType, meta.Partner,
+    meta.ExpireDate, sharePointItemId, user.ObjectId);
+
+var regResp = await docApi.PostAsJsonAsync("/documents", dto, ct);
+var created = await regResp.Content.ReadFromJsonAsync<CreatedDocumentResponse>(ct);
+
+searchApi.DefaultRequestHeaders.TryAddWithoutValidation("X-Internal-Key", config["Services:SearchInternalApiKey"]!);
+await searchApi.PostAsJsonAsync("/internal/index", new IndexDocumentDto(
+    created!.id, zoneId, meta.OriginalFilename, storedPath, meta.DocumentType,
+    meta.DocumentYear, meta.ContractType, meta.Partner, meta.ClassifiedAtUtc,
+    contentText, new[] { user.ObjectId }), ct);
+\end{lstlisting}
+
+Die Suche wird damit direkt nach dem Upload aktualisiert; es ist kein separater Batchlauf notwendig, um neue Dokumente auffindbar zu machen.
+
+\subsubsection{Fehlerbehandlung und Sicherheitsaspekte im Upload-Flow}
+
+Der Flow implementiert mehrere Sicherheits- und Robustheitsmechanismen:
+\begin{itemize}
+    \item Autorisierung auf allen geschützten Zone-Endpunkten über Benutzerkontext (\texttt{TenantId}, \texttt{ObjectId}),
+    \item temporäre Entkopplung via \texttt{uploadId}, um unbestätigte Uploads nicht sofort final zu persistieren,
+    \item typisierte Persistenzobjekte für API-Grenzen (DTOs für Dokumenterfassung und Suchindexierung),
+    \item interne Indexierung nur mit \texttt{X-Internal-Key},
+    \item ACL-Übernahme in den Index über \texttt{AllowedUsers}.
+\end{itemize}
+
+Zusätzlich führen Fehler in Preflight, Commit oder Metadatenpersistenz zu klaren Benutzer-Rückmeldungen im Frontend (Toasts) und unterbrechen den Vorgang kontrolliert, statt inkonsistente Zwischenzustände zu erzeugen.
+
+\subsubsection{Zusammenfassung der Upload-Implementierung}
+
+Die Upload-Implementierung verbindet Benutzerführung, KI-Voranalyse und Persistenz in einem durchgängigen Prozess.
+Durch die Trennung in Preflight und Commit bleiben KI-Ergebnisse vor dem endgültigen Speichern überprüfbar. Datenhaltung und Suchindexierung werden danach konsistent aktualisiert.
+
 \subsection{Dokumenten-Klassifikation}
+
+Dieses Kapitel dokumentiert die implementierte Dokumenten-Klassifikation und beschreibt den technischen Ablauf vom API-Endpunkt bis zur Nachvalidierung der Ergebnisse.
+
+\subsubsection{Zweck und Ergebnisobjekt}
+
+Die Klassifikation extrahiert aus einem PDF die für die weitere Verarbeitung relevanten Metadaten und liefert diese in einem einheitlichen DTO zurück. Das Ergebnis besteht aus Dokumenttyp, Jahr, Vertragstyp, Partner und optionalem Ablaufdatum.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Rückgabeobjekt der Klassifikation},label={lst:classification-result-dto}]
+public record DocumentClassificationResultDto(
+    DocumentType DocumentType,
+    int? DocumentYear,
+    string? ContractType,
+    string? Partner,
+    DateTime? ExpireDate
+);
+\end{lstlisting}
+
+Damit ist das Ergebnisformat für alle aufrufenden Komponenten stabil und typisiert.
+
+\subsubsection{Klassifikations-Endpunkt}
+
+Die AI-API stellt den Endpunkt \texttt{POST /ai/classify} bereit. Der Controller validiert die Eingabe (nicht leer, MIME-Type PDF) und delegiert die eigentliche Klassifikationslogik an den Service \texttt{OpenAiClassifier}.
+
+\begin{lstlisting}[language={[Sharp]C},caption={API-Endpunkt der Dokumenten-Klassifikation},label={lst:classification-endpoint}]
+[HttpPost("classify")]
+public async Task<ActionResult<DocumentClassificationResultDto>> Classify(
+    [FromForm] IFormFile file, CancellationToken ct)
+{
+    if (file.Length == 0) return BadRequest("Empty file.");
+    if (!string.Equals(file.ContentType, "application/pdf",
+        StringComparison.OrdinalIgnoreCase))
+        return BadRequest("Only PDF supported for now.");
+
+    await using var s = file.OpenReadStream();
+    var result = await _classifier.ClassifyPdfAsync(s, file.FileName, ct);
+    return Ok(result);
+}
+\end{lstlisting}
+
+Die Verantwortung des Controllers bleibt damit bewusst schlank: Validierung, Delegation und Response.
+
+\subsubsection{Kernlogik im OpenAiClassifier}
+
+Der Service \texttt{OpenAiClassifier} enthält die eigentliche KI-Interaktion. Die Pipeline besteht aus vier Schritten:
+\begin{enumerate}
+    \item Upload der PDF-Datei an die OpenAI Files API,
+    \item Aufruf der Responses API mit Modell, Prompt und strikt vorgegebenem JSON-Schema,
+    \item Parsen der strukturierten Antwort,
+    \item technische und fachliche Nachvalidierung der Felder.
+\end{enumerate}
+
+Der wichtigste Baustein ist das Schema-gebundene Prompting, weil dadurch die Antwort in ein verlässliches, maschinenlesbares Format gezwungen wird.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Schema-gebundener Responses-Aufruf},label={lst:classification-schema-call}]
+var payload = new
+{
+    model = _model,
+    input = new[]
+    {
+        new {
+            role = "user",
+            content = new object[]
+            {
+                new { type = "input_file", file_id = fileId },
+                new { type = "input_text", text = prompt }
+            }
+        }
+    },
+    text = new
+    {
+        format = new
+        {
+            type = "json_schema",
+            name = "doc_extraction",
+            strict = true,
+            schema
+        }
+    }
+};
+
+using var resp = await _http.PostAsync(
+    "https://api.openai.com/v1/responses",
+    new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"),
+    ct);
+\end{lstlisting}
+
+Durch \texttt{strict = true} und das definierte Schema wird die Ausgabe stark normalisiert. Das reduziert nachgelagerte Parsingfehler.
+
+\subsubsection{Parsing und fachliche Nachvalidierung}
+
+Nach dem API-Aufruf wird der JSON-Text extrahiert, in die internen Typen gemappt und anschließend fachlich bereinigt. Dabei gelten unter anderem folgende Regeln:
+\begin{itemize}
+    \item Jahr nur im Bereich 1900 bis 2100,
+    \item \texttt{ContractType} und \texttt{ExpireDate} nur für \texttt{DocumentType.Vertrag},
+    \item leere Strings werden auf \texttt{null} normalisiert.
+\end{itemize}
+
+\begin{lstlisting}[language={[Sharp]C},caption={Nachvalidierung der Klassifikationsergebnisse},label={lst:classification-post-validation}]
+var typeStr = root.GetProperty("document_type").GetString()!;
+var docType = Enum.Parse<DocumentType>(typeStr, ignoreCase: true);
+
+int? year = null;
+var y = root.GetProperty("year");
+if (y.ValueKind == JsonValueKind.Number && y.TryGetInt32(out var yi))
+    year = yi;
+
+if (year is < 1900 or > 2100) year = null;
+if (docType != DocumentType.Vertrag)
+{
+    contractType = null;
+    expireDate = null;
+}
+\end{lstlisting}
+
+Diese Nachvalidierung ist zentral, damit inkonsistente Modellantworten nicht ungeprüft in den weiteren Prozess übernommen werden.
+
+\subsubsection{Fehlerbehandlung und Robustheit}
+
+Die Service-Methoden prüfen HTTP-Antworten zentral über \texttt{EnsureOk(...)}. Bei nicht erfolgreichem Status wird die API-Antwort inklusive Statuscode in eine Exception übernommen. Dadurch sind Fehler in Files-Upload oder Responses-Aufruf klar lokalisierbar und beobachtbar.
+
+Zusätzlich unterstützt \texttt{ExtractFirstOutputText(...)} mehrere Antwortvarianten, insbesondere ein direktes \texttt{output\_text}-Feld sowie textuelle Inhalte in der \texttt{output}-Struktur. Das macht die Verarbeitung robuster gegenüber Response-Formvarianten.
+
+\subsubsection{Zusammenfassung der Klassifikationsimplementierung}
+
+Die Dokumenten-Klassifikation ist als klar gekapselter Service umgesetzt:
+\begin{itemize}
+    \item schlanker API-Endpunkt für PDF-Eingaben,
+    \item schema-basierter KI-Aufruf für strukturierte Extraktion,
+    \item typisierte Ergebnisrückgabe über \texttt{DocumentClassificationResultDto},
+    \item sowie explizite Nachvalidierung der KI-Ergebnisse.
+\end{itemize}
+
+Damit ist die Klassifikationslogik technisch isoliert dokumentiert und als wiederverwendeter Baustein beschrieben.
+
 \subsection{Dokumenten-Suche}
 
 Dieses Kapitel dokumentiert die implementierte Suchfunktion über den gesamten Request-Flow hinweg: von der Benutzerinteraktion in der Weboberfläche bis zur Ausführung der Abfrage in Azure AI Search und der Rückgabe von Treffern inklusive Facetten.
@@ -42,6 +410,18 @@ private async Task RunSearch()
 \end{lstlisting}
 
 Die Implementierung ist bewusst defensiv: Leere Eingaben werden als \texttt{null} übertragen, numerische und Enum-Filter werden nur bei erfolgreicher Konvertierung gesetzt. Dadurch bleiben Request und Filterlogik stabil, auch wenn einzelne UI-Felder leer bleiben.
+
+\subsubsection{Suchmodi und Filterkombinationen}
+
+Die Suche unterstützt mehrere praktische Nutzungsarten:
+\begin{itemize}
+    \item Volltextsuche über \texttt{Query} (z. B. Begriff aus Dateiname oder Dokumentinhalt),
+    \item reine Filterabfrage ohne Suchtext (z. B. nur Jahr, Partner oder Dokumenttyp),
+    \item kombinierte Suche aus Volltext und Filtern (z. B. Suchwort plus Jahr und Partner),
+    \item gezielte Eingrenzung über Vertragsart (\texttt{ContractType}) bei Vertragsdokumenten.
+\end{itemize}
+
+Technisch wird bei leerem Suchtext automatisch \texttt{"*"} als Suchausdruck verwendet. Dadurch kann das System auch dann Ergebnisse liefern, wenn ausschließlich nach Metadaten wie Jahr, Partner oder Dokumenttyp gefiltert wird.
 
 \subsubsection{Search API: Authentifizierter Endpunkt}
 
