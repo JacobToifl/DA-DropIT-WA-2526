@@ -1,12 +1,19 @@
 \section{Grundlagen}
-\subsection{Test Umgebung}
+Dieses Kapitel beschreibt die grundlegenden technischen Rahmenbedingungen der umgesetzten Lösung. Dabei werden die Systemarchitektur sowie die verwendeten Technologien als Basis für die nachfolgenden Implementierungs- und Funktionsbeschreibungen vorgestellt.
+
+\subsection{Systemarchitektur}
 \subsection{Technologien}
+
+Dieses Unterkapitel gibt einen Überblick über die zentralen Technologien, die für die Umsetzung des Systems verwendet wurden. Dabei werden insbesondere Backend, Datenhaltung, Suchtechnologie sowie Frontend-nahe Technologien kurz eingeordnet.
 
 \subsection*{Backend und Kommunikation}
 Die Backend-Implementierung erfolgte in der Programmiersprache \textbf{C\#}. Zur Kommunikation zwischen Client und Server wird eine \textbf{REST-basierte Schnittstelle (REST-API)} verwendet. Diese ermöglicht eine standardisierte Datenübertragung über \textbf{HTTP} und sorgt für eine klare Trennung zwischen Präsentationsschicht und Anwendungslogik.
 
 \subsection*{Datenhaltung}
 Zur persistenten Speicherung der Daten kommt das relationale Datenbankmanagementsystem \textbf{PostgreSQL} zum Einsatz. PostgreSQL bietet eine hohe Stabilität, umfangreiche SQL-Funktionalitäten sowie eine gute Skalierbarkeit und eignet sich daher optimal für datenbankgestützte Webanwendungen.
+
+\subsection*{Suchtechnologie}
+Für die Dokumentensuche wird \textbf{Azure AI Search} eingesetzt. Dieser Dienst ermöglicht die Indizierung großer Dokumentbestände sowie eine performante Volltextsuche mit Filter- und Facettenfunktionen. Dadurch können Dokumente anhand von Suchbegriffen und strukturierten Metadaten effizient aufgefunden werden.
 
 \subsection*{Frontend und Design}
 Das Frontend wurde mit einem \textbf{Blazor WebAssembly} realisiert. Dieses Framework ermöglicht die Entwicklung interaktiver Webanwendungen unter Verwendung von C\#, wobei der Anwendungscode direkt im Browser des Clients ausgeführt wird. Dadurch kann ein Teil der Verarbeitungslogik clientseitig erfolgen, was zu einer verbesserten Benutzerinteraktion führt.

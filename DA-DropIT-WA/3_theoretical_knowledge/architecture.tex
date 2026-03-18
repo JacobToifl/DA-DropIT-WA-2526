@@ -185,6 +185,17 @@ Die Skala reicht von \textit{keine Berechtigung} bis \textit{alle Berechtigungen
 
 Dieses Unterkapitel gibt einen Überblick über zentrale Anforderungen an skalierbare und plattformunabhängige Systemarchitekturen. Dabei werden Grundlagen der Skalierbarkeit sowie Aspekte der Portabilität beschrieben.
 
+\subsubsection{Allgemeine Einordnung und Architekturarten}
+
+Allgemein versteht man unter skalierbaren plattformunabhängigen Systemarchitekturen solche Architekturen, die ihre Funktionen über klar abgegrenzte Komponenten und Schnittstellen bereitstellen und sich an wachsende Lasten sowie unterschiedliche technische Umgebungen anpassen lassen. Welche konkrete Architektur gewählt wird, hängt vom jeweiligen Anwendungskontext, den Sicherheitsanforderungen und der gewünschten Wartbarkeit ab.
+
+In der Literatur werden unter anderem folgende Architekturarten häufig beschrieben:
+\begin{itemize}
+    \item \textbf{Client-Server-Architektur:} Diese Architektur trennt die Benutzerinteraktion auf der Client-Seite von der Datenverarbeitung und Datenhaltung auf der Server-Seite. Dadurch können Oberflächen und Serverlogik weitgehend unabhängig weiterentwickelt werden, was sowohl die Portabilität als auch die Skalierbarkeit verbessert. \cite{fielding2000}
+    \item \textbf{Microservices-Architektur:} Hier wird ein System in mehrere kleine, fachlich abgegrenzte Dienste unterteilt. Diese Dienste können unabhängig entwickelt, bereitgestellt und skaliert werden, wodurch sich die Architektur besonders für wachsende und sich häufig ändernde Systeme eignet. \cite{dragoni2017microservices}
+    \item \textbf{Serviceorientierte Architektur (SOA):} Bei diesem Ansatz werden Funktionen als wiederverwendbare Services mit standardisierten Schnittstellen bereitgestellt. Dadurch lassen sich heterogene Systeme besser integrieren und organisatorisch getrennte Funktionen kontrolliert miteinander verbinden. \cite{papazoglou2006soa}
+\end{itemize}
+
 \subsubsection{Skalierbarkeit}
 Unter einer skalierbaren Systemarchitektur versteht man ein System, das sich problemlos an steigende Anforderungen anpassen lässt. Fehlende Skalierbarkeit führt 
 dazu, dass Systeme bei wachsender Nutzerzahl oder zunehmendem Datenvolumen spürbare Performanceprobleme entwickeln.
@@ -294,6 +305,8 @@ erfordert. Damit ist nicht nur gemeint, dass
 ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwand nötig ist, um es dafür anzupassen.
 Dieser Vorgang wird Portierung oder Migration genannt. 
 \cite{wikipedia2024plattformunabhaengigkeit}
+
+Für webbasierte Dokumentenablagen ergibt sich daraus ein konsistentes Architekturverständnis: Hohe Lasten und große Dokumentmengen lassen sich vor allem dann beherrschbar verarbeiten, wenn Verarbeitungsschritte modular getrennt, zustandsarme Dienste horizontal skalierbar, I/O-intensive Aufgaben asynchron ausführbar und häufig benötigte Daten gezielt gecacht oder partitioniert werden. Plattformunabhängigkeit wird dabei nicht allein durch die Wahl einer Laufzeit erreicht, sondern vor allem durch klar abgegrenzte Schnittstellen und eine geringe Kopplung an einzelne Infrastrukturkomponenten. Gleichzeitig darf Sicherheit nicht als nachträgliche Ergänzung behandelt werden, sondern muss über zentrale Identitätsverwaltung, klar definierte Autorisierung und konsistente Zugriffskontrollen als querschnittliche Eigenschaft der Gesamtarchitektur mitgeführt werden. \cite{studysmarter2024skalierbare,wikipedia2024plattformunabhaengigkeit,tsolkas2017rollen,msentra2025}
 
 \subsection{Sharepoint}
 
@@ -424,7 +437,7 @@ Ein wesentlicher Vorteil von Microsoft Entra ID ist die Fähigkeit, über die Gr
 
 Die zentrale Rolle von Microsoft Entra ID als Vermittler zwischen lokalen Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung \ref{fig:entra_integration} verdeutlicht. Durch diese weitreichende Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die Komplexität für die Endanwender reduziert.
 
-\begin{figure}[htbp]
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra_integration.png}
     \caption{Integration von On-Premises- und Cloud-Anwendungen über Microsoft Entra ID \cite{msentra2025}}
