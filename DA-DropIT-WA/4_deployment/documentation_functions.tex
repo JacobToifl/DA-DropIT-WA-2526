@@ -1,4 +1,7 @@
-\section{Dokumentation - Funktionen}
+\section{Funktionen}
+
+Dieses Kapitel gibt einen Überblick über die zentralen Funktionen des umgesetzten Systems. Dabei werden insbesondere der Dokumenten-Upload, die Dokumenten-Klassifikation sowie die Dokumenten-Suche und deren technischer Ablauf beschrieben.
+
 \subsection{Dokumenten-Upload}
 
 Dieses Kapitel dokumentiert den vollständigen Upload-Flow von der Anlage einer Upload-Zone bis zur finalen Speicherung des Dokuments in SharePoint inklusive Metadatenpersistenz und Suchindex-Aktualisierung.
@@ -25,32 +28,64 @@ Damit kann der Uploadprozess robust aufgeteilt werden: Die KI-Extraktion ist vor
 Der Upload beginnt fachlich mit einer Zone. Die Zone-API stellt dafür \texttt{POST /zones} bereit. Beim Anlegen wird ein neuer \texttt{ZoneDto}-Eintrag in der zonenspezifischen JSON-Struktur gespeichert und parallel versucht, den Zielordner in SharePoint zu erzeugen.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Zone-Erstellung mit SharePoint-Ordnerinitialisierung},label={lst:upload-zone-create}]
-g.MapPost("", async (ZoneDto zone, IZonesStore store, IUserContext user,
-                     ITokenAcquisition tokenAcquisition,
-                     IHttpClientFactory httpFactory, IConfiguration cfg,
-                     CancellationToken ct) =>
+g.MapPost(
+    "",
+    async (
+        ZoneDto zone,
+        IZonesStore store,
+        IUserContext user,
+        ITokenAcquisition tokenAcquisition,
+        IHttpClientFactory httpFactory,
+        IConfiguration cfg,
+        CancellationToken ct
+    ) =>
 {
     var folderName = zone.FolderPath.Trim('/').Split('/').Last();
     var driveId = cfg["SharePoint:DriveId"] ?? zone.DriveId ?? "";
 
-    var doc = await store.UpsertAsync(user.TenantId, user.ObjectId, d => {
-        var list = d.Zones.ToList();
-        var newZone = zone with { Id = Guid.NewGuid(), OrderIndex = list.Count + 1, DriveId = driveId };
-        list.Add(newZone);
-        return d with { Zones = list };
-    }, null, ct);
+    var doc = await store.UpsertAsync(
+        user.TenantId,
+        user.ObjectId,
+        d =>
+        {
+            var list = d.Zones.ToList();
+            var newZone = zone with
+            {
+                Id = Guid.NewGuid(),
+                OrderIndex = list.Count + 1,
+                DriveId = driveId
+            };
 
-    try {
+            list.Add(newZone);
+            return d with { Zones = list };
+        },
+        null,
+        ct
+    );
+
+    try
+    {
         var token = await tokenAcquisition.GetAccessTokenForUserAsync(
             new[] { "https://graph.microsoft.com/Files.ReadWrite.All" });
+
         var client = httpFactory.CreateClient("graph");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var payload = new { name = folderName, folder = new { }, microsoft_graph_conflictBehavior = "fail" };
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        var payload = new
+        {
+            name = folderName,
+            folder = new { },
+            microsoft_graph_conflictBehavior = "fail"
+        };
+
         await client.PostAsJsonAsync($"drives/{driveId}/root/children", payload, ct);
-    } catch {}
+    }
+    catch { }
 
     return Results.Ok(doc);
-});
+}
+);
 \end{lstlisting}
 
 Die Ordneranlage ist absichtlich tolerant implementiert (\texttt{try/catch} ohne Abbruch), sodass die fachliche Zone nicht verloren geht, wenn die Graph-Operation nicht unmittelbar erfolgreich ist.
@@ -95,11 +130,16 @@ Wesentliche technische Punkte in dieser Schicht sind:
 Die eigentliche serverseitige Vorverarbeitung startet über den Preflight-Endpunkt der Zone-API. Der Endpunkt nimmt das Multipart-File entgegen, sendet es an den AI-Service und legt danach Datei plus Metadaten temporär ab.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Preflight-Endpunkt im Zone-Service},label={lst:upload-preflight-endpoint}]
-g.MapPost("{zoneId:guid}/upload/preflight", async (Guid zoneId, HttpRequest req,
-                                                   FileZonesStore store,
-                                                   IUserContext user,
-                                                   IHttpClientFactory httpFactory,
-                                                   CancellationToken ct) =>
+g.MapPost(
+    "{zoneId:guid}/upload/preflight",
+    async (
+        Guid zoneId,
+        HttpRequest req,
+        FileZonesStore store,
+        IUserContext user,
+        IHttpClientFactory httpFactory,
+        CancellationToken ct
+    ) =>
 {
     var form = await req.ReadFormAsync(ct);
     var file = form.Files["file"];
@@ -112,15 +152,30 @@ g.MapPost("{zoneId:guid}/upload/preflight", async (Guid zoneId, HttpRequest req,
     var aiResp = await ai.PostAsync("/ai/classify", mp, ct);
     if (!aiResp.IsSuccessStatusCode) return Results.Problem("KI-Dienst Fehler");
 
-    var extraction = await aiResp.Content.ReadFromJsonAsync<DocumentClassificationResultDto>(
-        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }, ct);
+    var extraction =
+        await aiResp.Content.ReadFromJsonAsync<DocumentClassificationResultDto>(
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            },
+            ct
+        );
 
     var (uploadId, docType) = await store.SaveTempAsync(
-        user.TenantId, user.ObjectId, zoneId, file,
-        extraction!.DocumentType, extraction.DocumentYear,
-        extraction.ContractType, extraction.Partner, extraction.ExpireDate, ct);
+        user.TenantId,
+        user.ObjectId,
+        zoneId,
+        file,
+        extraction!.DocumentType,
+        extraction.DocumentYear,
+        extraction.ContractType,
+        extraction.Partner,
+        extraction.ExpireDate,
+        ct
+    );
 
-    return Results.Ok(new {
+    return Results.Ok(new
+    {
         uploadId,
         documentType = docType.ToString(),
         year = extraction.DocumentYear,
@@ -128,7 +183,8 @@ g.MapPost("{zoneId:guid}/upload/preflight", async (Guid zoneId, HttpRequest req,
         contractType = extraction.ContractType,
         expireDate = extraction.ExpireDate
     });
-}).DisableAntiforgery();
+}
+).DisableAntiforgery();
 \end{lstlisting}
 
 Die Klassifikation selbst (Prompting, Schema-Bindung, Nachvalidierung) ist in Kapitel 4.2.2 detailliert beschrieben und wird hier nur als aufgerufener Baustein verwendet.
@@ -160,7 +216,8 @@ Der Commit wird über \texttt{POST /zones/\{zoneId\}/upload/\{uploadId\}/commit}
 \end{itemize}
 
 \begin{lstlisting}[language={[Sharp]C},caption={Commit-Logik mit SharePoint-Upload},label={lst:upload-commit-store}]
-var finalMeta = aiMeta with {
+var finalMeta = aiMeta with
+{
     ExpireDate = confirmed.ExpireDate,
     Partner = confirmed.Partner ?? aiMeta.Partner,
     ContractType = confirmed.ContractType ?? aiMeta.ContractType,
@@ -177,7 +234,8 @@ if (!string.IsNullOrWhiteSpace(partnerFolder))
 
 var uploadUrl = string.IsNullOrEmpty(targetFolder)
     ? $"drives/{encodedDriveId}/root:/{encodedFileName}:/content"
-    : $"drives/{encodedDriveId}/root:/{EncodePathForGraph(targetFolder)}/{encodedFileName}:/content";
+    : $"drives/{encodedDriveId}/root:/" +
+      $"{EncodePathForGraph(targetFolder)}/{encodedFileName}:/content";
 
 using (var stream = File.OpenRead(binPath))
 {
@@ -196,22 +254,56 @@ Nach erfolgreichem SharePoint-Write registriert der Zone-Service das Dokument in
 
 \begin{lstlisting}[language={[Sharp]C},caption={Commit-Endpunkt mit Metadatenpersistenz und Indexierung},label={lst:upload-commit-endpoint}]
 var (meta, storedPath, sha256, contentText, sharePointItemId) =
-    await store.CommitTempToSharePointAsync(user.TenantId, user.ObjectId, user.DisplayName ?? "",
-                                            uploadId, confirmed, ct);
+    await store.CommitTempToSharePointAsync(
+        user.TenantId,
+        user.ObjectId,
+        user.DisplayName ?? "",
+        uploadId,
+        confirmed,
+        ct
+    );
 
 var dto = new CreateDocumentDto(
-    zoneId, meta.OriginalFilename, storedPath, meta.MimeType, meta.SizeBytes, sha256,
-    meta.DocumentType, meta.DocumentYear, meta.ContractType, meta.Partner,
-    meta.ExpireDate, sharePointItemId, user.ObjectId);
+    zoneId,
+    meta.OriginalFilename,
+    storedPath,
+    meta.MimeType,
+    meta.SizeBytes,
+    sha256,
+    meta.DocumentType,
+    meta.DocumentYear,
+    meta.ContractType,
+    meta.Partner,
+    meta.ExpireDate,
+    sharePointItemId,
+    user.ObjectId
+);
 
 var regResp = await docApi.PostAsJsonAsync("/documents", dto, ct);
 var created = await regResp.Content.ReadFromJsonAsync<CreatedDocumentResponse>(ct);
 
-searchApi.DefaultRequestHeaders.TryAddWithoutValidation("X-Internal-Key", config["Services:SearchInternalApiKey"]!);
-await searchApi.PostAsJsonAsync("/internal/index", new IndexDocumentDto(
-    created!.id, zoneId, meta.OriginalFilename, storedPath, meta.DocumentType,
-    meta.DocumentYear, meta.ContractType, meta.Partner, meta.ClassifiedAtUtc,
-    contentText, new[] { user.ObjectId }), ct);
+searchApi.DefaultRequestHeaders.TryAddWithoutValidation(
+    "X-Internal-Key",
+    config["Services:SearchInternalApiKey"]!
+);
+
+await searchApi.PostAsJsonAsync(
+    "/internal/index",
+    new IndexDocumentDto(
+        created!.id,
+        zoneId,
+        meta.OriginalFilename,
+        storedPath,
+        meta.DocumentType,
+        meta.DocumentYear,
+        meta.ContractType,
+        meta.Partner,
+        meta.ClassifiedAtUtc,
+        contentText,
+        new[] { user.ObjectId }
+    ),
+    ct
+);
 \end{lstlisting}
 
 Die Suche wird damit direkt nach dem Upload aktualisiert; es ist kein separater Batchlauf notwendig, um neue Dokumente auffindbar zu machen.
@@ -317,8 +409,13 @@ var payload = new
 
 using var resp = await _http.PostAsync(
     "https://api.openai.com/v1/responses",
-    new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"),
-    ct);
+    new StringContent(
+        JsonSerializer.Serialize(payload),
+        Encoding.UTF8,
+        "application/json"
+    ),
+    ct
+);
 \end{lstlisting}
 
 Durch \texttt{strict = true} und das definierte Schema wird die Ausgabe stark normalisiert. Das reduziert nachgelagerte Parsingfehler.
@@ -397,7 +494,10 @@ private async Task RunSearch()
     var req = new SearchRequestDto(
         Query: string.IsNullOrWhiteSpace(_query) ? null : _query.Trim(),
         DocumentYear: int.TryParse(_documentYear, out var y) ? y : null,
-        DocumentType: Enum.TryParse<DocumentType>(_documentType, true, out var dt) ? dt : null,
+        DocumentType:
+            Enum.TryParse<DocumentType>(_documentType, true, out var dt)
+                ? dt
+                : null,
         ContractType: string.IsNullOrWhiteSpace(_contractType) ? null : _contractType,
         Partner: string.IsNullOrWhiteSpace(_partner) ? null : _partner,
         Skip: 0,
@@ -428,8 +528,14 @@ Technisch wird bei leerem Suchtext automatisch \texttt{"*"} als Suchausdruck ver
 Der Search-Service stellt die fachliche Suchoperation über \texttt{POST /search} bereit. Der Endpunkt ist geschützt (\texttt{RequireAuthorization()}) und extrahiert die Benutzerkennung aus dem JWT-Token. Ohne gültige \texttt{oid} wird der Request abgelehnt.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Search-Endpunkt mit Benutzerkontext},label={lst:search-api-endpoint}]
-app.MapPost("/search", async (SearchRequestDto req, HttpContext ctx,
-                              AzureSearchQueryService svc, CancellationToken ct) =>
+app.MapPost(
+    "/search",
+    async (
+        SearchRequestDto req,
+        HttpContext ctx,
+        AzureSearchQueryService svc,
+        CancellationToken ct
+    ) =>
 {
     var oid = ctx.User.FindFirst("oid")?.Value
               ?? ctx.User.FindFirst(
@@ -440,7 +546,8 @@ app.MapPost("/search", async (SearchRequestDto req, HttpContext ctx,
 
     var result = await svc.SearchAsync(req, oid, ct);
     return Results.Ok(result);
-}).RequireAuthorization();
+}
+).RequireAuthorization();
 \end{lstlisting}
 
 Damit ist sichergestellt, dass jeder Suchaufruf mit einem konkreten Benutzerkontext verknüpft ist und die nachgelagerte Filterlogik diesen Kontext verwenden kann.
@@ -463,11 +570,14 @@ opt.Facets.Add("documentYear,count:50");
 opt.Facets.Add("documentType,count:50");
 opt.Facets.Add("partner,count:50");
 
-opt.Filter = BuildFilter(req, callerOid,
+opt.Filter = BuildFilter(
+    req,
+    callerOid,
     includeDocumentType: true,
     includeDocumentYear: true,
     includeContractType: true,
-    includePartner: true);
+    includePartner: true
+);
 
 var resp = await _client.SearchAsync<SearchDocument>(searchText, opt, ct);
 \end{lstlisting}

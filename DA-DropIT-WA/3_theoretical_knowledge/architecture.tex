@@ -1,6 +1,8 @@
-
 \newpage
 \section{Architekturen für Dokumentensysteme}\label{chapter:Architekturen_fuer_Dokumentensysteme}
+
+Dieses Kapitel gibt einen Überblick über zentrale Architekturbausteine moderner Dokumentensysteme. Dabei werden insbesondere Such- und Filterarchitekturen sowie Rollen- und Berechtigungssysteme als wesentliche Grundlagen für den Aufbau solcher Systeme beschrieben.
+
 
 \subsection{Skalierbare plattformunabhängige Systemarchitekturen}
 
@@ -268,6 +270,8 @@ Dieser Vorgang wird Portierung oder Migration genannt.
 \newpage
 \subsection{Sharepoint}
 
+Dieses Unterkapitel gibt einen Überblick über SharePoint als Plattform für Dokumentenmanagement und Zusammenarbeit. Dabei werden die grundlegende Einordnung, die Architektur sowie zentrale Funktionen der Dokumentenverwaltung beschrieben.
+
 \subsubsection{Einordnung und Produkte}
 
 Microsoft SharePoint fungiert als webbasierte Kollaborationsplattform, die primär auf die Optimierung der teaminternen 
@@ -490,6 +494,8 @@ individuellen Rechtevergabe in der Unternehmenspraxis klar bevorzugt wird.
 
 \subsection{Microsoft Entra ID}
 
+Dieses Unterkapitel gibt einen Überblick über Microsoft Entra ID als zentrales System für Identitäts- und Zugriffsverwaltung. Dabei werden die Einordnung, zentrale Verwaltungsfunktionen sowie Authentifizierungs- und Integrationsmöglichkeiten beschrieben.
+
 \subsubsection{Begriff und Einordnung}
 
 Microsoft Entra beschreibt eine umfassende Produktfamilie für Identitätsmanagement und Netzwerkzugriff, die darauf ausgelegt ist, eine moderne Zero Trust-Sicherheitsstrategie in Organisationen zu etablieren. Das Ziel dieser Architektur ist die Schaffung einer Vertrauensstruktur, die Identitäten sowie Zugriffsbedingungen und Berechtigungen konsequent überprüft, Verbindungskanäle verschlüsselt und eine kontinuierliche Überwachung auf Kompromittierungen ermöglicht. Die hierarchische Struktur und die verschiedenen Säulen dieser Architektur sind in Abbildung \ref{fig:ms_entra_overview} dargestellt. \cite{msentra2025}
@@ -547,7 +553,7 @@ Ein wesentlicher Vorteil von Microsoft Entra ID ist die Fähigkeit, über die Gr
 
 Die zentrale Rolle von Microsoft Entra ID als Vermittler zwischen lokalen Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung \ref{fig:entra_integration} verdeutlicht. Durch diese weitreichende Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die Komplexität für die Endanwender reduziert.
 
-\begin{figure}[htbp]
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra_integration.png}
     \caption{Integration von On-Premises- und Cloud-Anwendungen über Microsoft Entra ID \cite{msentra2025}}
