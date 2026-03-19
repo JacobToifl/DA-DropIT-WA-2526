@@ -1,10 +1,566 @@
+\newpage
 \section{Architekturen für Dokumentensysteme}\label{chapter:Architekturen_fuer_Dokumentensysteme}
 
 Dieses Kapitel gibt einen Überblick über zentrale Architekturbausteine moderner Dokumentensysteme. Dabei werden insbesondere Such- und Filterarchitekturen sowie Rollen- und Berechtigungssysteme als wesentliche Grundlagen für den Aufbau solcher Systeme beschrieben.
 
-\subsection{Suche und Filter-Architekturen}
 
-Dieses Unterkapitel gibt einen Überblick über Such- und Filterarchitekturen in Dokumentensystemen. Dabei werden lexikalische, semantische und hybride Suchverfahren sowie die Rolle von Filtern und Facetten beschrieben.
+\subsection{Skalierbare plattformunabhängige Systemarchitekturen}
+
+\subsubsection{Grundlagen von Softwarearchitektur}
+
+Softwarearchitektur beschreibt die grundlegende Struktur eines Softwaresystems. 
+Sie legt fest, aus welchen Komponenten ein System besteht, wie diese miteinander interagieren 
+und welche Prinzipien der Gestaltung zugrunde liegen. 
+Ziel der Softwarearchitektur ist es, ein System so zu gestalten, dass es die funktionalen 
+Anforderungen erfüllt und gleichzeitig langfristig wartbar, erweiterbar und zuverlässig bleibt. \cite{bass2012software}
+
+Die Aufgabe der Softwarearchitektur besteht darin, frühzeitig grundlegende Entscheidungen 
+zu treffen, die den gesamten Entwicklungsprozess beeinflussen. 
+Dazu gehören die Wahl geeigneter Strukturmuster, die Definition von Schnittstellen zwischen 
+Komponenten sowie die Festlegung von Qualitätszielen wie Sicherheit, Skalierbarkeit 
+und Plattformunabhängigkeit. \cite{bass2012software}
+
+Zu den grundlegenden Prinzipien der Softwarearchitektur zählen:
+
+\begin{itemize}
+    \item \textbf{Schichtenarchitektur (Layered Architecture):} 
+    Ein System wird in übereinanderliegende Schichten unterteilt, 
+    wobei jede Schicht eine klar definierte Aufgabe übernimmt und nur mit der direkt 
+    darunterliegenden Schicht kommuniziert. 
+    Typische Schichten sind Präsentation, Geschäftslogik und Datenhaltung. 
+    Dieses Prinzip fördert die Trennung von Verantwortlichkeiten und erleichtert 
+    die Wartbarkeit des Systems. \cite{bass2012software}
+
+    \item \textbf{Komponenten und Schnittstellen:} 
+    Softwaresysteme werden in eigenständige, wiederverwendbare Einheiten (Komponenten) 
+    unterteilt, die über klar definierte Schnittstellen miteinander kommunizieren. 
+    Durch diese Kapselung bleiben interne Implementierungsdetails verborgen, 
+    was die Austauschbarkeit einzelner Komponenten ermöglicht. \cite{bass2012software}
+
+    \item \textbf{Client-Server-Prinzip:} 
+    Dieses Prinzip beschreibt die Kommunikationsstruktur zwischen zwei Rollen: 
+    Ein Client stellt Anfragen, ein Server verarbeitet diese und liefert eine Antwort zurück. 
+    Das Client-Server-Modell bildet die Grundlage für nahezu alle webbasierten Anwendungen 
+    und ist unabhängig vom internen Aufbau der Serversoftware. \cite{fielding2000rest}
+
+    \item \textbf{Separation of Concerns:} 
+    Unterschiedliche Belange eines Systems, etwa Benutzeroberfläche, Geschäftslogik 
+    und Datenzugriff, sollen klar voneinander getrennt werden. 
+    Dies reduziert die Komplexität und erleichtert die unabhängige Weiterentwicklung 
+    einzelner Systembereiche. \cite{bass2012software}
+\end{itemize}
+
+\subsubsection{Architekturtypen}
+
+Auf Basis der beschriebenen Grundprinzipien haben sich in der Softwareentwicklung 
+unterschiedliche Architekturansätze etabliert, die jeweils verschiedene Anforderungen 
+hinsichtlich Skalierbarkeit, Wartbarkeit und Betrieb adressieren. 
+Die Wahl des geeigneten Architekturtyps hat weitreichende Konsequenzen für den 
+gesamten Lebenszyklus eines Systems und sollte daher frühzeitig im Entwicklungsprozess 
+auf Basis der fachlichen und technischen Anforderungen getroffen werden. \cite{bass2012software}
+
+\textbf{Monolithische Architektur}
+
+Die monolithische Architektur stellt den klassischen Ansatz der Softwareentwicklung dar. 
+Bei diesem Modell werden alle Funktionsbereiche einer Anwendung, also Benutzeroberfläche, 
+Geschäftslogik und Datenzugriff, in einer einzigen, eng gekoppelten Einheit zusammengefasst 
+und gemeinsam entwickelt, gebaut sowie als eine Einheit deployt. \cite{richardson2018microservices}
+
+Intern ist ein monolithisches System typischerweise in Schichten unterteilt, 
+beispielsweise eine Präsentationsschicht, eine Schicht für die Geschäftslogik 
+und eine Datenzugriffsschicht. Diese Schichten teilen sich jedoch denselben Prozessraum 
+und kommunizieren über direkte Funktionsaufrufe innerhalb desselben Laufzeitsystems. 
+Skalierung erfolgt bei monolithischen Anwendungen üblicherweise durch das Klonen 
+der gesamten Anwendung auf mehrere Server. \cite{sciencedirect2023monolithic}
+
+Monolithische Architekturen eignen sich besonders für kleinere bis mittelgroße Projekte, 
+bei denen Einfachheit und eine schnelle Markteinführung im Vordergrund stehen. 
+Etablierte Unternehmen in den Bereichen Banking, Versicherung oder öffentliche Verwaltung 
+betreiben bis heute umfangreiche monolithische Systeme, die über Jahrzehnte gewachsen sind 
+und missionskritische Prozesse abwickeln.
+Mit zunehmender Systemgröße entstehen jedoch typische Herausforderungen: 
+Änderungen an einer Komponente erfordern häufig Anpassungen im gesamten System, 
+die Deploymentzyklen werden länger und die technische Wartbarkeit nimmt ab. 
+Diese Einschränkungen haben maßgeblich zur Entwicklung alternativer Architekturansätze 
+beigetragen. \cite{sciencedirect2023monolithic}  \cite{techtarget2023monolithic}
+
+\textbf{Microservices-Architektur}
+
+Die Microservices-Architektur stellt einen grundlegend anderen Ansatz dar, 
+bei dem eine Anwendung in eine Vielzahl kleiner, unabhängiger Dienste aufgeteilt wird. 
+Jeder dieser Dienste erfüllt eine klar abgegrenzte fachliche Aufgabe, 
+verfügt über eine eigene Datenhaltung und kommuniziert mit anderen Diensten 
+ausschließlich über definierte Schnittstellen, häufig in Form von REST-APIs 
+oder nachrichtenbasierter Kommunikation. \cite{fowler2014microservices}
+
+Lewis und Fowler, die den Begriff maßgeblich geprägt haben, beschreiben den 
+Microservice-Architekturstil als einen Ansatz zur Entwicklung einer einzelnen Anwendung 
+als Suite kleiner Dienste, von denen jeder in einem eigenen Prozess läuft und über 
+leichtgewichtige Mechanismen kommuniziert. 
+Jeder Dienst kann unabhängig voneinander entwickelt, getestet, deployt und skaliert werden, 
+was Teams eine hohe Autonomie und kurze Releasezyklen ermöglicht. \cite{newman2015microservices} \cite{fowler2014microservices}
+
+Typische Einsatzbereiche für Microservices sind große, komplexe Systeme mit hohen 
+Skalierungsanforderungen, wie beispielsweise E-Commerce-Plattformen, 
+Streaming-Dienste oder Finanzanwendungen. 
+Namhafte Unternehmen wie Amazon, Netflix und eBay haben ihre ursprünglich monolithischen 
+Systeme auf Microservices-Architekturen migriert, um die Skalierbarkeit und 
+Entwicklungsgeschwindigkeit zu verbessern. 
+Dem gegenüber steht ein erhöhter Betriebsaufwand: Die Orchestrierung, Überwachung 
+und das Fehler-Management eines verteilten Systems stellen deutlich höhere 
+Anforderungen an die Infrastruktur und das Betriebsteam als ein einzelner Monolith. \cite{newman2015microservices} \cite{sciencedirect2023monolithic}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{3_theoretical_knowledge/Microservices_Architecture.png}
+    \caption{Microservices-Architektur \cite{ozkaya2024microservices}}
+    \label{fig:architektur_microservices}
+\end{figure}
+
+\textbf{Cloud-native Architektur und SaaS}
+
+Cloud-native Anwendungen sind von Grund auf für den Betrieb in der Cloud konzipiert 
+und nutzen deren spezifische Eigenschaften wie automatische Skalierung, 
+verwaltete Datenbanken, globale Verfügbarkeit und integrierte Sicherheitsmechanismen. 
+Das National Institute of Standards and Technology (NIST) definiert Cloud Computing 
+als ein Modell, das einen allgegenwärtigen, bequemen und bedarfsgesteuerten Netzwerkzugriff 
+auf einen gemeinsam genutzten Pool konfigurierbarer Computerressourcen ermöglicht. \cite{mell2011nist}
+
+Eine spezifische Ausprägung dieses Ansatzes ist Software-as-a-Service (SaaS). 
+Dabei stellt ein Anbieter eine fertige Anwendung über das Internet bereit, 
+die von den Nutzern über einen Webbrowser oder eine Programmierschnittstelle 
+genutzt werden kann, ohne dass diese die zugrundeliegende Infrastruktur 
+verwalten oder kontrollieren müssen. \cite{mell2011nist}
+Skalierung, Wartung, Sicherheitsupdates und Verfügbarkeit werden vollständig 
+vom Anbieter übernommen. \cite{liu2011nistarch} \cite{mell2011nist}
+
+SaaS-Lösungen werden in unterschiedlichsten Bereichen eingesetzt: 
+von Produktivitätswerkzeugen wie E-Mail- und Office-Anwendungen über 
+CRM-Systeme und Kollaborationsplattformen bis hin zu spezialisierten 
+Fachanwendungen in Bereichen wie Buchhaltung, Personalverwaltung oder 
+Dokumentenmanagement. 
+Der wesentliche Vorteil für Unternehmen liegt darin, dass keine eigene 
+Serverinfrastruktur betrieben werden muss und die Anwendung plattformunabhängig 
+über jeden modernen Webbrowser zugänglich ist. \cite{mell2011nist} \cite{liu2011nistarch}
+
+\newpage
+\textbf{Einordnung von SharePoint Online}
+
+Microsoft SharePoint Online ist als SaaS-Lösung in die Cloud-native Architekturkategorie 
+einzuordnen. Die Anwendung wird vollständig von Microsoft in der Azure-Cloud betrieben 
+und den Nutzern im Rahmen eines Microsoft-365-Abonnements bereitgestellt. 
+Skalierung, Verfügbarkeit und Sicherheitsupdates werden automatisch durch den Anbieter 
+gewährleistet, ohne dass eine eigene Serverinfrastruktur notwendig ist. \cite{Microsoft.2024.SharePointSupport}
+
+Für den Anwendungsfall einer unternehmensweiten Dokumentenablage bietet dieser Ansatz 
+entscheidende Vorteile: Die Plattform ist browserbasiert und damit betriebssystemunabhängig 
+zugänglich, skaliert automatisch mit wachsendem Datenvolumen und erfüllt durch die 
+Microsoft-Zertifizierungen hohe Sicherheitsanforderungen. \cite{Microsoft.2024.SharePointSupport}
+
+\subsubsection{Skalierbarkeit}
+Unter einer skalierbaren Systemarchitektur versteht man ein System, das sich problemlos an steigende Anforderungen anpassen lässt. Fehlende Skalierbarkeit führt 
+dazu, dass Systeme bei wachsender Nutzerzahl oder zunehmendem Datenvolumen spürbare Performanceprobleme entwickeln.
+Während des Entwicklungsprozess sind unterschiedliche Prinzipien zu beachten:
+
+\begin{table}[h]
+\centering
+\caption{Merkmale von Softwaresystemen}   
+\label{tab:merkmale}                      
+\begin{tabular}{p{4cm} p{10cm}}
+\textbf{Merkmal} & \textbf{Beschreibung} \\ \hline
+
+Modularität &
+Einzelne Komponenten der Software sollen unabhängig sein und sich flexibel aktualisieren oder erweitern lassen. \\
+\hline
+
+Flexibilität &
+Systeme müssen sich dynamisch an verändernde Anforderungen anpassen können. \\
+\hline
+
+Fehlertoleranz &
+Das System soll auf Fehler reagieren können und automatisch geeignete Maßnahmen ergreifen. \\
+\hline
+
+\end{tabular}
+\end{table}
+\hfill \cite{studysmarter2024skalierbare}
+
+Um eine skalierbare Architektur zu gewährleisten, sind Optimierungsfunktionen von Bedeutung, um die Effizienz und Leistung zu optimieren. 
+Wichtige Optimierungsstrategien sind unter anderem: 
+
+\begin{table}[h]
+\centering
+\caption{Techniken zur Leistungsoptimierung}
+\label{tab:optimierung}
+\begin{tabular}{p{4cm} p{10cm}}
+
+\textbf{Technik} & \textbf{Beschreibung} \\ \hline
+
+Load Balancing &
+Verteilung von Anfragen auf mehrere Server, um Überlastung zu vermeiden. \\
+\hline
+
+Caching &
+Speicherung häufig abgerufener Daten, um Zugriffszeiten zu verkürzen. \\
+\hline
+
+Partitioning &
+Aufteilung von Daten in kleinere Einheiten, die parallel verarbeitet werden können. \\
+\hline
+
+Asynchrone Verarbeitung &
+Ermöglicht es Systemen, Aufgaben im Hintergrund auszuführen, was die Reaktionszeit verbessert. \\
+\hline
+
+\end{tabular}
+\end{table}
+\hfill \cite{studysmarter2024skalierbare}
+
+Das Hauptziel einer skalierbaren Architektur besteht darin, auch bei steigender Nutzerzahl und wachsendem Datenvolumen eine hohe Verfügbarkeit 
+sowie eine konsistent hohe Leistung sicherzustellen. Gleichzeitig muss das System so gestaltet sein, dass es leicht wartbar und problemlos erweiterbar 
+bleibt, um zukünftige Anforderungen effizient integrieren zu können. Ohne diese Maßnahmen riskieren Systeme bei wachsender 
+Last messbare Einbußen in Verfügbarkeit und Antwortzeit.
+\cite{studysmarter2024skalierbare}
+
+\subsubsection{Plattformunabhängigkeit}
+
+Ein Computerprogramm benötigt eine Umgebung, in der es gestartet werden kann und während der gesamten Laufzeit stabil funktioniert.
+Ein Programm gilt als plattformunabhängig oder plattformübergreifend, wenn es auf verschiedenen Computersystemen ausgeführt
+werden kann, also auf Geräten mit unterschiedlicher Hardware, verschiedenen Prozessoren oder unterschiedlichen Betriebssystemen.
+Der Grad dieser Unabhängigkeit wird als Portierbarkeit (oder Portabilität) bezeichnet. 
+
+Die Portabilität kann z.\,B. geschätzt werden über
+\[
+  P = 1 - \frac{U + A}{E}
+\]
+
+mit
+\begin{itemize}
+  \item Übertragungsaufwand $U$ (insbesondere Neukompilierung),
+  \item Anpassungsaufwand $A$ (Änderung des Quellcodes, z.\,B. bei Austausch von
+        Betriebsschnittstellen),
+  \item Entwicklungsaufwand $E$ für Neuentwicklung.
+  \item[] \vspace{0.5em}
+\end{itemize}
+
+Eine Portabilität von \( P = 1 \) bedeutet vollständige Kompatibilität; 
+das Programm ist also ohne Änderungen auf dem Zielsystem lauffähig, 
+was genau dann gilt, wenn \( U = A = 0 \).
+
+Eine Quellcode-Portabilität liegt im Regelfall vor, wenn die Gesamt-Portabilität 
+über \( 90\% \) liegt. Dies entspricht einem Anpassungsaufwand von \( A = 0 \) 
+und einem Übertragungsaufwand von \( U < 0{,}1E \), da bei
+\[
+P = 1 - \frac{U}{E} > 0{,}9
+\]
+der Wert für \( U \) kleiner als ein Zehntel von \( E \) sein muss.
+Eine Portabilität nahe \( 0 \) entspricht hingegen einer nahezu vollständigen 
+Neuentwicklung des Programms, wobei in diesem Fall \( P \approx 0 \) 
+und somit \( U + A \approx E \) gilt. \cite{wikipedia2024plattformunabhaengigkeit}
+
+Portabilität ist kein Maß für die Lauffähigkeit eines Programms auf der
+Zielplattform, d.\,h.\ selbst eine Portabilität von 99\,\% bedeutet nicht
+unbedingt, dass das Programm nutzbar ist, sondern lediglich, dass eine
+Portierung im Vergleich zu einer Neuentwicklung deutlich weniger Aufwand
+erfordert. Damit ist nicht nur gemeint, dass 
+ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwand nötig ist, um es dafür anzupassen.
+Dieser Vorgang wird Portierung oder Migration genannt. 
+\cite{wikipedia2024plattformunabhaengigkeit}
+
+\newpage
+\subsection{Sharepoint}
+
+Dieses Unterkapitel gibt einen Überblick über SharePoint als Plattform für Dokumentenmanagement und Zusammenarbeit. Dabei werden die grundlegende Einordnung, die Architektur sowie zentrale Funktionen der Dokumentenverwaltung beschrieben.
+
+\subsubsection{Einordnung und Produkte}
+
+Microsoft SharePoint fungiert als webbasierte Kollaborationsplattform, die primär auf die Optimierung der teaminternen 
+Zusammenarbeit sowie ein effizientes Informationsmanagement ausgelegt ist. Durch die Bereitstellung zentraler Instanzen 
+zur Inhaltsverwaltung ermöglicht die Plattform eine strukturierte Ablage und Verteilung von Daten. Ziel ist es, durch 
+zusammenwirkende Kommunikation und medienbruchfreie Kooperation die organisatorische Produktivität zu steigern. \cite{Microsoft.2024.SharePointSupport}
+
+\begin{table}[h]
+\centering
+\caption{Überblick über SharePoint-Produkte}
+\begin{tabular}{p{4cm}p{10cm}}
+\textbf{Produkt} & \textbf{Kernmerkmale und Fokus} \\
+\hline
+SharePoint in Microsoft 365 & 
+Cloudbasierte Plattform (SaaS) zur zentralen Inhaltsverwaltung und teamübergreifenden Freigabe von Dokumenten. Nutzung erfolgt im Rahmen von Microsoft-365-Abonnements. \\
+\hline
+SharePoint Server & 
+On-Premise-Lösung für den Betrieb auf eigener IT-Infrastruktur. Ermöglicht volle Kontrolle über Datenhoheit und unterstützt hybride Szenarien mit der Cloud. \\
+\hline
+SharePoint Designer 2013 & 
+Spezialisiertes Werkzeug zur Erstellung deklarativer Workflows und zur Modellierung komplexer Geschäftsprozesse innerhalb der SharePoint-Umgebung. \\
+\hline
+OneDrive & 
+Schnittstelle zur Synchronisation von SharePoint-Bibliotheken mit lokalen Endgeräten. Ermöglicht die Offline-Bearbeitung und Dateiverwaltung im lokalen Dateisystem. \\
+\hline
+\end{tabular}
+\end{table}
+
+\hfill \cite{Microsoft.2024.SharePointSupport}
+
+\subsubsection{Architektur und Hierarchie}
+
+Die Struktur von SharePoint ist hierarchisch aufgebaut, um Inhalte logisch zu trennen und den Zugriff gezielt zu steuern. Den Kern dieser Architektur bildet die sogenannte Websitesammlung (Site Collection). \cite{Microsoft2023}
+
+Eine Websitesammlung besteht immer aus einer Website auf der obersten Ebene und allen darunterliegenden Websites. Sie dient als übergeordneter Container, in dem zentrale Einstellungen für die Sicherheit, das Design und verschiedene Funktionen festgelegt werden. Technisch gesehen landen alle Daten einer solchen Sammlung in einer einzigen Inhaltsdatenbank. Zwar kann eine Datenbank mehrere Websitesammlungen speichern, aber eine Sammlung kann nicht über mehrere Datenbanken verteilt werden. \cite{Microsoft2023}
+
+Bei der Planung der Struktur gibt Microsoft die Empfehlung ab, für jede Arbeitseinheit eine eigene Websitesammlung anzulegen, anstatt eine komplexe Verschachtelung mit vielen Unterwebsites zu bauen. Das hat den Vorteil, dass die Umgebung übersichtlich bleibt und später einfacher migriert werden kann. \cite{Microsoft2023}
+
+Innerhalb einer solchen Sammlung können Ressourcen wie Bilder, Vorlagen oder bestimmte Spaltentypen gemeinsam genutzt werden. Das sorgt dafür, dass die Navigation und das Erscheinungsbild für die Nutzer einheitlich bleiben. Bei der Benennung der URLs wird meistens auf pfadbasierte Adressen (wie z. B. „/sites/Projektname") gesetzt, da diese mit Tools wie der PowerShell am einfachsten zu verwalten sind. \cite{Microsoft2023}
+
+\subsubsection{Funktionale Elemente einer SharePoint-Website}
+
+Innerhalb einer Websitesammlung bestehen die einzelnen Websites aus verschiedenen funktionalen Elementen, die für die Organisation und Verwaltung der Daten zuständig sind:
+
+\begin{itemize}
+    \item \textbf{Dokumentbibliotheken (Document Libraries):} Diese stellen den primären Speicherort für Dateien dar. Im Gegensatz zu herkömmlichen Dateiordnern ermöglichen sie die Nutzung von erweiterten Funktionen wie Versionierung, Check-Out-Mechanismen und die Verwendung von Metadaten. \cite{microsoft_sharepoint_support}
+    \item \textbf{Listen (Lists):} Listen dienen der Erfassung strukturierter Daten, ähnlich einer Tabelle. Sie werden beispielsweise für Aufgabenlisten, Kontaktverzeichnisse oder Inventarlisten verwendet. \cite{microsoft_sharepoint_support}
+    \item \textbf{Seiten (Pages):} Diese bilden das visuelle Interface der Website. Informationen werden hier mithilfe von sogenannten Webparts (funktionalen Bausteinen) für den Endanwender aufbereitet. \cite{microsoft_sharepoint_support}
+    \item \textbf{Metadaten (Spalten):} Anstatt Dateien ausschließlich in starren Ordnerstrukturen zu sortieren, erlauben Spalten das Hinzufügen von Attributen wie „Dokumententyp" oder „Status". Dies verbessert die Filterbarkeit und Auffindbarkeit der Dokumente innerhalb der gemeinsamen Ablage erheblich. \cite{microsoft_sharepoint_support}
+\end{itemize} 
+
+\subsubsection{Kernfunktionen der Dokumentenverwaltung}
+
+SharePoint bietet eine Vielzahl von Funktionen, die speziell auf die Anforderungen der Dokumentenverwaltung zugeschnitten sind:
+
+\begin{itemize}
+    \item \textbf{Versionierung:} Jede Änderung an einem Dokument wird als separate Version gespeichert. Dadurch können Nutzer frühere Versionen wiederherstellen oder Änderungen nachverfolgen. \cite{microsoft_sharepoint_support}
+    
+    \item \textbf{Auschecken und Einchecken (Check-Out/In):} Um Bearbeitungskonflikte zu vermeiden, können Dokumente exklusiv für einen Nutzer gesperrt werden. Während eine Datei ausgecheckt ist, können andere Nutzer diese zwar lesen, aber keine Änderungen vornehmen, bis sie wieder eingecheckt wird. \cite{microsoft_sharepoint_support}
+    
+    \item \textbf{Gemeinsame Dokumenterstellung (Co-Authoring):} Diese Funktion erlaubt es mehreren Anwendern, zeitgleich an demselben Dokument (z.\,B. Word oder Excel) zu arbeiten. Änderungen werden in Echtzeit synchronisiert, was die kollaborative Zusammenarbeit beschleunigt. \cite{microsoft_sharepoint_support}
+\end{itemize}
+
+\subsection{Rollen- und Berechtigungssysteme}
+
+\subsubsection{Aufbau einer Berechtigung}
+
+Eine Berechtigung setzt sich grundsätzlich aus zwei zentralen Komponenten zusammen,
+die gemeinsam definieren, welcher Zugriff in einem System erlaubt oder untersagt ist.
+
+\begin{table}[h]
+\centering
+\caption{Komponenten einer Berechtigung}
+\label{tab:aufbau-berechtigung}
+\begin{tabular}{p{4cm} p{10cm}}
+\textbf{Komponente} & \textbf{Beschreibung} \\
+\hline
+Zu schützende Ressource &
+Beschreibt das Objekt, auf das sich eine Berechtigung bezieht.
+Dabei kann zwischen funktionalen und inhaltsbezogenen Ressourcen unterschieden werden.
+Die Definition der Ressource kann auf unterschiedlichen Granularitätsebenen erfolgen,
+beispielsweise global für ein gesamtes System oder atomar für einzelne Systembestandteile. \\
+\hline
+Zugehörige Operation auf der Ressource &
+Legt fest, welche konkrete Handlung in Bezug auf die definierte Ressource
+durch eine Berechtigung erlaubt oder eingeschränkt wird.
+Die Operation bestimmt, welche Aktionen eine Identität auf der jeweiligen
+Ressource ausführen darf. \\
+\hline
+\end{tabular}
+\end{table}
+\hfill \cite{tsolkas2017rollen}
+
+\subsubsection{Arten von Berechtigungen}
+
+Berechtigungskonzepte bilden eine wesentliche Grundlage für die Zugriffskontrolle
+in IT-Systemen. Die elementarste Form stellt dabei die \textit{binäre Berechtigung} dar.
+Sie beschreibt eine eindeutig definierte Zugriffserlaubnis, die sich jeweils auf ein
+konkretes Objekt und eine einzelne Operation bezieht. Der Zugriff ist entweder erlaubt
+oder verweigert, wodurch diese Berechtigungsform ausschließlich zwei mögliche Zustände
+kennt. \cite{tsolkas2017rollen}
+
+Aufgrund dieser klaren Struktur eignen sich binäre Berechtigungen besonders für die
+technische Überprüfung von Zugriffsrechten. Umfangreichere Berechtigungsmodelle, die
+mehrere Objekte oder Operationen umfassen, werden vor der eigentlichen Zugriffskontrolle
+in einzelne binäre Berechtigungen zerlegt. Die endgültige Zugriffsentscheidung erfolgt
+anschließend ausschließlich auf Basis dieser elementaren Berechtigungseinheiten.
+\cite{tsolkas2017rollen} \cite{ferraiolo1992rbac}
+
+Neben binären Berechtigungen existieren sogenannte \textit{Wertberechtigungen}, bei denen
+mehrere Einzelrechte in einem numerischen Wert zusammengefasst werden. Ein verbreitetes
+Anwendungsbeispiel hierfür ist das Berechtigungssystem von UNIX-Dateisystemen. Dort
+repräsentiert ein Zahlenwert die Kombination einzelner Zugriffsrechte wie Lesen, Schreiben
+und Ausführen. Der Wert 7 steht für den vollständigen Zugriff und ergibt sich aus der
+Addition der einzelnen Rechtewerte. \cite{tsolkas2017rollen}
+
+\subsubsection{Berechtigungsmodelle}
+
+In der Praxis werden Berechtigungen nicht als Einzelrechte verwaltet, sondern in
+strukturierten Modellen organisiert. Die wichtigsten Ansätze sind das rollenbasierte
+sowie das attributbasierte Zugriffsmodell, die sich hinsichtlich ihrer Flexibilität
+und ihres Verwaltungsaufwands grundlegend unterscheiden.
+\cite{sandhu1996rbac} \cite{hu2014abac}
+
+\textbf{Role-Based Access Control (RBAC)}
+
+Das Modell der rollenbasierten Zugriffskontrolle (RBAC) wurde 1992 von Ferraiolo und
+Kuhn als Alternative zu den bis dahin dominierenden Modellen der Mandatory Access
+Control (MAC) und Discretionary Access Control (DAC) eingeführt. Das Grundprinzip
+von RBAC besteht darin, Berechtigungen nicht direkt an einzelne Benutzer zu vergeben,
+sondern an Rollen – abstrakte Funktionseinheiten, die typischen Aufgabenprofilen in
+einer Organisation entsprechen. Benutzer werden diesen Rollen zugewiesen und erben
+damit automatisch alle zugehörigen Zugriffsrechte.
+\cite{ferraiolo1992rbac} \cite{sandhu1996rbac}
+
+Sandhu et al. greifen dieses Konzept im RBAC96-Modell auf und strukturieren es 
+in vier Referenzmodelle mit steigender Komplexität: von einem einfachen
+Flat-RBAC ohne Hierarchien bis hin zu einem Modell mit Rollenhierarchien und
+Aufgabentrennung (Separation of Duty). Diese Hierarchisierung ermöglicht es,
+übergeordneten Rollen automatisch die Rechte untergeordneter Rollen zu vererben,
+was den Verwaltungsaufwand in großen Organisationen erheblich reduziert.
+\cite{sandhu1996rbac} \cite{ferraiolo1992rbac}
+
+Für Dokumentensysteme wie SharePoint ist RBAC das zentrale Steuerungsmodell:
+Vordefinierte Rollen wie \textit{Besitzer}, \textit{Mitglied} oder \textit{Besucher}
+bündeln jeweils spezifische Berechtigungsstufen für Dokumentbibliotheken und Websites.
+Entra ID-Gruppen können diesen Rollen direkt zugewiesen werden, sodass die Verwaltung
+organisationsweit an zentraler Stelle erfolgt. \cite{tsolkas2017rollen} \cite{sandhu1996rbac}
+
+\textbf{Attribute-Based Access Control (ABAC)}
+
+Während RBAC auf feste Rollenzuweisungen setzt, ermöglicht das Modell der
+attributbasierten Zugriffskontrolle (ABAC) eine deutlich feinkörnigere Steuerung.
+Laut NIST Special Publication 800-162 wird bei ABAC die Zugriffserlaubnis anhand
+von Attributen des Subjekts, des Objekts sowie der Umgebungsbedingungen bewertet –
+nicht allein anhand der Rollenmitgliedschaft.
+\cite{hu2014abac}
+
+Typische Attribute sind etwa die Abteilungszugehörigkeit eines Nutzers, die
+Vertraulichkeitsstufe eines Dokuments oder der Standort, von dem der Zugriff erfolgt.
+ABAC eignet sich damit besonders für Szenarien, in denen kontextabhängige
+Zugriffsregeln notwendig sind, die mit starren Rollen nicht abbildbar wären –
+beispielsweise der Zugriff auf ein Dokument nur dann, wenn der Nutzer der zuständigen
+Abteilung angehört \textit{und} das Dokument noch nicht freigegeben ist.
+\cite{hu2014abac} \cite{sandhu1996rbac}
+
+In der Praxis werden RBAC und ABAC häufig kombiniert: Rollen liefern die
+Grundstruktur der Zugriffsverwaltung, während Attribute zusätzliche
+Einschränkungen oder Erweiterungen ermöglichen. Diese Kombination bietet
+sowohl Verwaltbarkeit als auch Flexibilität.
+\cite{hu2014abac} \cite{ferraiolo1992rbac}
+
+\subsubsection{Scope von Berechtigungen}
+
+Ein zentrales Kriterium bei der Konzeption und Platzierung von Berechtigungen ist
+die Festlegung, welche Zugriffsrechte durch eine Berechtigung gewährt werden sollen.
+In diesem Zusammenhang kommt dem Grad der Differenzierung von Berechtigungen,
+der als Granularität bezeichnet wird, eine besondere Bedeutung zu.
+\cite{tsolkas2017rollen}
+
+Die Grundlage für die Ausgestaltung von Berechtigungen bildet der Schutzbedarf der
+jeweiligen Ressource. Dieser wird üblicherweise im Rahmen einer Schutzbedarfsanalyse
+ermittelt, bei der unterschiedliche Einflussfaktoren berücksichtigt werden. Dazu
+zählen unter anderem die Relevanz der Ressource für Geschäftsprozesse sowie die
+Kritikalität ihrer Funktionen und Inhalte. \cite{tsolkas2017rollen} \cite{hu2014abac}
+
+Die ermittelten Schutzanforderungen fließen anschließend in die Berechtigungsplanung
+ein. Dabei wird festgelegt, auf welcher Detailebene der Zugriffsschutz umgesetzt
+werden muss und welche Funktionen durch entsprechende Berechtigungen abzusichern
+sind. Darüber hinaus wird bestimmt, wie stark der Zugriffsschutz ausgeprägt sein
+soll, beispielsweise ob der Einsatz erweiterter Authentifizierungsmechanismen
+erforderlich ist. \cite{tsolkas2017rollen}
+
+\subsubsection{Berechtigungsstufen}
+
+Anstatt jedem Nutzer individuelle Einzelrechte zuzuweisen, werden Berechtigungen in
+der Praxis häufig in abgestuften Niveaus zusammengefasst. Dies vereinfacht die
+Verwaltung erheblich, da einem Nutzer lediglich eine Stufe zugeordnet werden muss,
+die ein definiertes Bündel von Zugriffsrechten repräsentiert. Die folgende Einteilung
+orientiert sich an dem in der Literatur beschriebenen Prinzip der gestuften
+Zugriffsrechte und findet sich in vergleichbarer Form in vielen unternehmensweiten
+Systemen wieder:
+\cite{tsolkas2017rollen} \cite{sandhu1996rbac}
+
+\begin{itemize}
+    \item \textbf{Stufe 0: Kein Zugriff} \\ (Gar keine Rechte)
+    \item \textbf{Stufe 1: Nur lesen} \\ (Informationen ansehen)
+    \item \textbf{Stufe 2: Lesen und Hinzufügen} \\ (Daten ansehen und neue erstellen)
+    \item \textbf{Stufe 3: Ändern und Löschen} \\ (Bestehende Daten bearbeiten)
+    \item \textbf{Stufe 4: Vollzugriff} \\ (Alle Rechte, einschließlich Verwaltung)
+\end{itemize}
+
+In SharePoint entspricht dieses Stufenmodell den vordefinierten Berechtigungsstufen
+\textit{Lesen}, \textit{Beitragen}, \textit{Bearbeiten} und \textit{Vollzugriff},
+die direkt auf RBAC-Rollen abgebildet werden. Damit schließt das Berechtigungsmodell
+von SharePoint unmittelbar an die theoretischen Grundlagen von RBAC an und macht
+deutlich, warum die Wahl eines strukturierten Rollenmodells gegenüber einer
+individuellen Rechtevergabe in der Unternehmenspraxis klar bevorzugt wird.
+\cite{tsolkas2017rollen} \cite{ferraiolo1992rbac}
+
+\subsection{Microsoft Entra ID}
+
+Dieses Unterkapitel gibt einen Überblick über Microsoft Entra ID als zentrales System für Identitäts- und Zugriffsverwaltung. Dabei werden die Einordnung, zentrale Verwaltungsfunktionen sowie Authentifizierungs- und Integrationsmöglichkeiten beschrieben.
+
+\subsubsection{Begriff und Einordnung}
+
+Microsoft Entra beschreibt eine umfassende Produktfamilie für Identitätsmanagement und Netzwerkzugriff, die darauf ausgelegt ist, eine moderne Zero Trust-Sicherheitsstrategie in Organisationen zu etablieren. Das Ziel dieser Architektur ist die Schaffung einer Vertrauensstruktur, die Identitäten sowie Zugriffsbedingungen und Berechtigungen konsequent überprüft, Verbindungskanäle verschlüsselt und eine kontinuierliche Überwachung auf Kompromittierungen ermöglicht. Die hierarchische Struktur und die verschiedenen Säulen dieser Architektur sind in Abbildung \ref{fig:ms_entra_overview} dargestellt. \cite{msentra2025}
+
+Das zentrale Kernprodukt dieser Familie ist Microsoft Entra ID. Dabei handelt es sich um einen cloudbasierten Dienst zur Identitäts- und Zugriffsverwaltung, der die grundlegenden Funktionen für Authentifizierung und den Schutz von Benutzern, Geräten sowie Anwendungen bereitstellt. Eine wesentliche Besonderheit für Unternehmen im Microsoft-Umfeld besteht darin, dass Abonnenten von Diensten wie Microsoft 365 oder Azure automatisch einen Microsoft Entra-Mandanten nutzen und somit direkt mit der Verwaltung ihrer Cloud-Anwendungen beginnen können. Über das webbasierte Microsoft Entra Admin Center lassen sich diese Produkte zentral über eine einzige Benutzeroberfläche konfigurieren und verwalten. \cite{msentra2025}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra-product-family.png}
+    \caption{Übersicht der Microsoft Entra Produktfamilie \cite{msentra2025}}
+    \label{fig:ms_entra_overview}
+\end{figure}
+
+\subsubsection{Zentrale Identitätsverwaltung}
+
+Die zentrale Verwaltung innerhalb von Microsoft Entra sorgt dafür, dass Identitäten für unterschiedliche Nutzergruppen und Ressourcen an einem einzigen Ort kontrolliert werden. Dies umfasst nicht nur menschliche Identitäten wie Mitarbeitende, Partner oder Kundschaft, sondern schließt auch Geräte sowie sogenannte Workload-Identitäten (z. B. Anwendungen und Dienste) mit ein. \cite{msentra2025}
+ 
+Ein wesentlicher Bestandteil dieser Verwaltung ist die Microsoft Entra ID Governance. Diese ermöglicht es, den gesamten Lebenszyklus einer Identität zu automatisieren. So können beispielsweise Zugriffsanfragen, Zuweisungen von Lizenzen und regelmäßige Überprüfungen von Berechtigungen systemgesteuert erfolgen. Dies stellt sicher, dass neuen Mitarbeitern automatisch die benötigten Ressourcen zugewiesen werden und diese Zugänge beim Verlassen des Unternehmens ebenso zuverlässig wieder entfernt werden. \cite{msentra2025}
+
+Für die Verwaltung externer Nutzer bietet Microsoft Entra External ID eine sichere Methode zur Zusammenarbeit. Hiermit können Geschäftspartner oder Gäste gezielt Zugriff auf interne Ressourcen erhalten, während Kunden über Self-Service-Registrierungen (z. B. via Google- oder Facebook-Konten) angebunden werden können. \cite{msentra2025}
+
+\subsubsection{Authentifizierung und Autorisierung}
+
+Innerhalb von Microsoft Entra ID bilden Authentifizierung und Autorisierung die Grundlage für den sicheren Zugriff auf Ressourcen, folgen jedoch unterschiedlichen Prinzipien:
+
+\begin{itemize}
+    \item \textbf{Authentifizierung (Identity):} Dies ist der Prozess der Identitätsprüfung. Hierbei stellt das System sicher, dass ein Benutzer tatsächlich die Person ist, für die er sich ausgibt. Dies geschieht in der Regel durch die Abfrage von Anmeldedaten oder sicheren Methoden wie der Multi-Faktor-Authentifizierung (MFA). Microsoft Entra ID Protection unterstützt diesen Vorgang, indem es risikobasierte Richtlinien nutzt, um verdächtige Anmeldeversuche automatisch zu erkennen und zusätzliche Bestätigungen einzufordern. \cite{msentra2025}
+    
+    \item \textbf{Autorisierung (Permissions):} Nach einer erfolgreichen Anmeldung bestimmt die Autorisierung, welche spezifischen Zugriffsrechte der Benutzer besitzt. Es wird festgelegt, auf welche Anwendungen, Dateien oder Funktionen (z.\,B. innerhalb einer SharePoint-Website) zugegriffen werden darf. \cite{msentra2025}
+\end{itemize}
+
+\subsubsection{Single Sign-On (SSO)}
+
+Ein zentrales Leistungsmerkmal von Microsoft Entra ID ist das sogenannte Single Sign-On. Diese Funktion ermöglicht es Benutzern, sich mit nur einer einzigen Identität – bestehend aus einem Benutzernamen und einem Kennwort – einmalig anzumelden, um danach automatisch Zugriff auf alle für sie freigegebenen Cloud-Anwendungen sowie lokalen Ressourcen zu erhalten. \cite{msentra2025}
+
+Aus technischer Sicht bietet SSO zwei wesentliche Vorteile für das Unternehmen:
+
+\begin{itemize}
+    \item \textbf{Benutzerfreundlichkeit:} Da sich die Anwender nicht mehr für jede einzelne Anwendung (wie SharePoint, Teams oder externe Drittanbieter-Tools) unterschiedliche Zugangsdaten merken müssen, wird die tägliche Arbeit effizienter. Zudem sinkt die Anzahl an Support-Anfragen aufgrund vergessener Passwörter erheblich. \cite{msentra2025}
+    
+    \item \textbf{Sicherheit:} Da die Identität zentral an einer Stelle geprüft wird, können Sicherheitsrichtlinien, wie beispielsweise die Mehrfaktor-Authentifizierung (MFA), global für alle angebundenen Programme erzwungen werden. Zudem wird das Risiko minimiert, dass Nutzer unsichere Passwörter für mehrere Dienste gleichzeitig verwenden oder diese ungesichert notieren. \cite{msentra2025}
+\end{itemize}
+
+\subsubsection{Integration externer Anwendungen}
+
+Ein wesentlicher Vorteil von Microsoft Entra ID ist die Fähigkeit, über die Grenzen der Microsoft-Welt hinaus als zentrale Identitätsinstanz zu fungieren. Dies wird durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
+
+\begin{itemize}
+    \item \textbf{SaaS-Anwendungen:} Über vorkonfigurierte Schnittstellen lassen sich gängige Cloud-Dienste (wie Salesforce, Slack oder Dropbox) nahtlos anbinden. Dadurch profitieren auch diese externen Dienste von Sicherheitsfeatures wie Single Sign-On (SSO) und der Mehrfaktor-Authentifizierung. \cite{msentra2025}
+    
+    \item \textbf{Zentrale App-Verwaltung:} Administratoren können im Entra Admin Center exakt steuern, welche Benutzer oder Gruppen Zugriff auf bestimmte externe Software erhalten. Dies vereinfacht das Onboarding neuer Mitarbeiter, da Zugänge für verschiedene Plattformen an einer zentralen Stelle zugewiesen werden können. \cite{msentra2025}
+    
+    \item \textbf{Sicherer Internet- und Privatzugriff:} Moderne Komponenten wie der \textit{Microsoft Entra Internet Access} und \textit{Private Access} erweitern diesen Schutz. Sie ermöglichen einen sicheren Zugriff auf Internet-Ressourcen sowie interne Unternehmensnetzwerke, ohne dass klassische, oft unsicherere VPN-Verbindungen notwendig sind. \cite{msentra2025}
+\end{itemize}
+
+Die zentrale Rolle von Microsoft Entra ID als Vermittler zwischen lokalen Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung \ref{fig:entra_integration} verdeutlicht. Durch diese weitreichende Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die Komplexität für die Endanwender reduziert.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra_integration.png}
+    \caption{Integration von On-Premises- und Cloud-Anwendungen über Microsoft Entra ID \cite{msentra2025}}
+    \label{fig:entra_integration}
+\end{figure}
+
+\subsection{Suche und Filter-Architekturen}
 
 \subsubsection{Suchalgorithmen im Information Retrieval}
 
@@ -89,357 +645,3 @@ Die folgende Tabelle \ref{tab:vergleich_suche} stellt die in der Praxis wichtigs
 \textbf{Filterintegration} & Sehr gut mit Metadatenfiltern kombinierbar & Ebenfalls kombinierbar, teils mit speziellen ANN-Strategien & Standardmuster: Ranking + Filter + Facets \\ \hline
 \end{tabular}
 \end{table}
-
-
-\subsection{Rollen- und Berechtigungssysteme}
-
-Dieses Unterkapitel gibt einen Überblick über Rollen- und Berechtigungssysteme als Grundlage der Zugriffskontrolle. Dabei werden Aufbau, Arten, Granularität und Stufen von Berechtigungen beschrieben.
-
-\subsubsection{Aufbau einer Berechtigung}
-
-Eine Berechtigung setzt sich grundsätzlich aus zwei zentralen Komponenten zusammen, die gemeinsam definieren, welcher Zugriff in einem System erlaubt oder untersagt ist.
-
-\begin{table}[h]
-\centering
-\caption{Komponenten einer Berechtigung}
-\label{tab:aufbau-berechtigung}
-\begin{tabular}{p{4cm} p{10cm}}
-\textbf{Komponente} & \textbf{Beschreibung} \\
-\hline
-Zu schützende Ressource &
-Beschreibt das Objekt, auf das sich eine Berechtigung bezieht. 
-Dabei kann zwischen funktionalen und inhaltsbezogenen Ressourcen unterschieden werden. 
-Die Definition der Ressource kann auf unterschiedlichen Granularitätsebenen erfolgen, 
-beispielsweise global für ein gesamtes System oder atomar für einzelne Systembestandteile. \\
-\hline
-Zugehörige Operation auf der Ressource &
-Legt fest, welche konkrete Handlung in Bezug auf die definierte Ressource 
-durch eine Berechtigung erlaubt oder eingeschränkt wird. 
-Die Operation bestimmt, welche Aktionen eine Identität auf der jeweiligen Ressource ausführen darf. \\
-\hline
-\end{tabular}
-\end{table}
-\hfill \cite{tsolkas2017rollen}
-
-\subsubsection{Arten von Berechtigungen}
-
-Berechtigungskonzepte bilden eine wesentliche Grundlage für die Zugriffskontrolle in IT-Systemen. 
-Die elementarste Form stellt dabei die \textit{binäre Berechtigung} dar. 
-Sie beschreibt eine eindeutig definierte Zugriffserlaubnis, die sich jeweils auf ein konkretes Objekt 
-und eine einzelne Operation bezieht. Der Zugriff ist entweder erlaubt oder verweigert, wodurch diese 
-Berechtigungsform ausschließlich zwei mögliche Zustände kennt. \cite{tsolkas2017rollen}
-
-Aufgrund dieser klaren Struktur eignen sich binäre Berechtigungen besonders für die technische 
-Überprüfung von Zugriffsrechten. Umfangreichere Berechtigungsmodelle, die mehrere Objekte oder 
-Operationen umfassen, werden vor der eigentlichen Zugriffskontrolle in einzelne binäre Berechtigungen 
-zerlegt. Die endgültige Zugriffsentscheidung erfolgt anschließend ausschließlich auf Basis dieser 
-elementaren Berechtigungseinheiten. \cite{tsolkas2017rollen}
-
-Dieses Vorgehen findet auch bei weiterführenden Steuerungsmechanismen Anwendung, beispielsweise 
-bei der Verwendung von Rollen oder Profilen. Solche abstrakten Konzepte werden zunächst auf konkrete 
-Berechtigungen abgebildet und anschließend in mehrere binäre Einzelrechte aufgelöst, die festlegen, 
-ob eine bestimmte Handlung erlaubt oder untersagt ist. \cite{tsolkas2017rollen}
-
-Neben binären Berechtigungen existieren sogenannte \textit{Wertberechtigungen}, bei denen mehrere 
-Einzelrechte in einem numerischen Wert zusammengefasst werden. Ein verbreitetes Anwendungsbeispiel 
-hierfür ist das Berechtigungssystem von UNIX-Dateisystemen. Dort repräsentiert ein Zahlenwert die 
-Kombination einzelner Zugriffsrechte wie Lesen, Schreiben und Ausführen. Der Wert 7 steht für den 
-vollständigen Zugriff und ergibt sich aus der Addition der einzelnen Rechtewerte. \cite{tsolkas2017rollen}
-
-Wertberechtigungen stellen somit eine kompakte Darstellungsform mehrerer binärer Berechtigungen dar. 
-Obwohl sie die Verwaltung von Zugriffsrechten vereinfachen, basiert die tatsächliche Zugriffskontrolle 
-weiterhin auf der Auswertung der zugrunde liegenden binären Berechtigungen. \cite{tsolkas2017rollen}
-
-\subsubsection{Scope von Berechtigungen}
-
-Ein zentrales Kriterium bei der Konzeption und Platzierung von Berechtigungen ist die Festlegung, 
-welche Zugriffsrechte durch eine Berechtigung gewährt werden sollen. 
-In diesem Zusammenhang kommt dem Grad der Differenzierung von Berechtigungen, 
-der als Granularität bezeichnet wird, eine besondere Bedeutung zu. \cite{tsolkas2017rollen}
-
-Die Grundlage für die Ausgestaltung von Berechtigungen bildet der Schutzbedarf der jeweiligen Ressource. 
-Dieser wird üblicherweise im Rahmen einer Schutzbedarfsanalyse ermittelt, 
-bei der unterschiedliche Einflussfaktoren berücksichtigt werden. 
-Dazu zählen unter anderem die Relevanz der Ressource für Geschäftsprozesse 
-sowie die Kritikalität ihrer Funktionen und Inhalte. \cite{tsolkas2017rollen}
-
-Die ermittelten Schutzanforderungen fließen anschließend in die Berechtigungsplanung ein. 
-Dabei wird festgelegt, auf welcher Detailebene der Zugriffsschutz umgesetzt werden muss 
-und welche Funktionen durch entsprechende Berechtigungen abzusichern sind. 
-Darüber hinaus wird bestimmt, wie stark der Zugriffsschutz ausgeprägt sein soll, 
-beispielsweise ob der Einsatz erweiterter Authentifizierungsmechanismen erforderlich ist. \cite{tsolkas2017rollen}
-
-\subsubsection{Berechtigungsstufen}
-Anstatt jedem Nutzer komplizierte Einzelrechte zu geben, werden Berechtigungen in feste Stufen eingeteilt. Das macht die Verwaltung einfach: Man muss einem Nutzer nur noch eine \textbf{Ziffer} (die Stufe) zuweisen. \cite{tsolkas2017rollen}
-Die Skala reicht von \textit{keine Berechtigung} bis \textit{alle Berechtigungen}.
-
-\begin{itemize}
-    \item \textbf{Stufe 0: Kein Zugriff} \\ (Gar keine Rechte)
-    \item \textbf{Stufe 1: Nur lesen} \\ (Informationen ansehen)
-    \item \textbf{Stufe 2: Lesen und Hinzufügen} \\ (Daten ansehen und neue erstellen)
-    \item \textbf{Stufe 3: Ändern und Löschen} \\ (Bestehende Daten bearbeiten)
-    \item \textbf{Stufe 4: Vollzugriff} \\ (Alle Rechte)
-\end{itemize}
-
-\subsection{Skalierbare plattformunabhängige Systemarchitekturen}
-
-Dieses Unterkapitel gibt einen Überblick über zentrale Anforderungen an skalierbare und plattformunabhängige Systemarchitekturen. Dabei werden Grundlagen der Skalierbarkeit sowie Aspekte der Portabilität beschrieben.
-
-\subsubsection{Allgemeine Einordnung und Architekturarten}
-
-Allgemein versteht man unter skalierbaren plattformunabhängigen Systemarchitekturen solche Architekturen, die ihre Funktionen über klar abgegrenzte Komponenten und Schnittstellen bereitstellen und sich an wachsende Lasten sowie unterschiedliche technische Umgebungen anpassen lassen. Welche konkrete Architektur gewählt wird, hängt vom jeweiligen Anwendungskontext, den Sicherheitsanforderungen und der gewünschten Wartbarkeit ab.
-
-In der Literatur werden unter anderem folgende Architekturarten häufig beschrieben:
-\begin{itemize}
-    \item \textbf{Client-Server-Architektur:} Diese Architektur trennt die Benutzerinteraktion auf der Client-Seite von der Datenverarbeitung und Datenhaltung auf der Server-Seite. Dadurch können Oberflächen und Serverlogik weitgehend unabhängig weiterentwickelt werden, was sowohl die Portabilität als auch die Skalierbarkeit verbessert. \cite{fielding2000}
-    \item \textbf{Microservices-Architektur:} Hier wird ein System in mehrere kleine, fachlich abgegrenzte Dienste unterteilt. Diese Dienste können unabhängig entwickelt, bereitgestellt und skaliert werden, wodurch sich die Architektur besonders für wachsende und sich häufig ändernde Systeme eignet. \cite{dragoni2017microservices}
-    \item \textbf{Serviceorientierte Architektur (SOA):} Bei diesem Ansatz werden Funktionen als wiederverwendbare Services mit standardisierten Schnittstellen bereitgestellt. Dadurch lassen sich heterogene Systeme besser integrieren und organisatorisch getrennte Funktionen kontrolliert miteinander verbinden. \cite{papazoglou2006soa}
-\end{itemize}
-
-\subsubsection{Skalierbarkeit}
-Unter einer skalierbaren Systemarchitektur versteht man ein System, das sich problemlos an steigende Anforderungen anpassen lässt. Fehlende Skalierbarkeit führt 
-dazu, dass Systeme bei wachsender Nutzerzahl oder zunehmendem Datenvolumen spürbare Performanceprobleme entwickeln.
-Während des Entwicklungsprozess sind unterschiedliche Prinzipien zu beachten:
-
-\begin{table}[h]
-\centering
-\caption{Merkmale von Softwaresystemen}   
-\label{tab:merkmale}                      
-\begin{tabular}{p{4cm} p{10cm}}
-\textbf{Merkmal} & \textbf{Beschreibung} \\ \hline
-
-Modularität &
-Einzelne Komponenten der Software sollen unabhängig sein und sich flexibel aktualisieren oder erweitern lassen. \\
-\hline
-
-Flexibilität &
-Systeme müssen sich dynamisch an verändernde Anforderungen anpassen können. \\
-\hline
-
-Fehlertoleranz &
-Das System soll auf Fehler reagieren können und automatisch geeignete Maßnahmen ergreifen. \\
-\hline
-
-\end{tabular}
-\end{table}
-\hfill \cite{studysmarter2024skalierbare}
-
-Um eine skalierbare Architektur zu gewährleisten, sind Optimierungsfunktionen von Bedeutung, um die Effizienz und Leistung zu optimieren. 
-Wichtige Optimierungsstrategien sind unter anderem: 
-
-\begin{table}[h]
-\centering
-\caption{Techniken zur Leistungsoptimierung}
-\label{tab:optimierung}
-\begin{tabular}{p{4cm} p{10cm}}
-
-\textbf{Technik} & \textbf{Beschreibung} \\ \hline
-
-Load Balancing &
-Verteilung von Anfragen auf mehrere Server, um Überlastung zu vermeiden. \\
-\hline
-
-Caching &
-Speicherung häufig abgerufener Daten, um Zugriffszeiten zu verkürzen. \\
-\hline
-
-Partitioning &
-Aufteilung von Daten in kleinere Einheiten, die parallel verarbeitet werden können. \\
-\hline
-
-Asynchrone Verarbeitung &
-Ermöglicht es Systemen, Aufgaben im Hintergrund auszuführen, was die Reaktionszeit verbessert. \\
-\hline
-
-\end{tabular}
-\end{table}
-\hfill \cite{studysmarter2024skalierbare}
-
-Das Hauptziel einer skalierbaren Architektur besteht darin, auch bei steigender Nutzerzahl und wachsendem Datenvolumen eine hohe Verfügbarkeit 
-sowie eine konsistent hohe Leistung sicherzustellen. Gleichzeitig muss das System so gestaltet sein, dass es leicht wartbar und problemlos erweiterbar 
-bleibt, um zukünftige Anforderungen effizient integrieren zu können. Insgesamt ist eine durchdacht geplante skalierbare Architektur ein entscheidender 
-Faktor für die langfristige Stabilität, Flexibilität und den Erfolg moderner Softwaresysteme.
-\cite{studysmarter2024skalierbare}
-
-\subsubsection{Plattformunabhängigkeit}
-
-Ein Computerprogramm benötigt eine Umgebung, in der es gestartet werden kann und während der gesamten Laufzeit stabil funktioniert.
-Ein Programm gilt als plattformunabhängig oder plattformübergreifend, wenn es auf verschiedenen Computersystemen ausgeführt
-werden kann, also auf Geräten mit unterschiedlicher Hardware, verschiedenen Prozessoren oder unterschiedlichen Betriebssystemen.
-Der Grad dieser Unabhängigkeit wird als Portierbarkeit (oder Portabilität) bezeichnet. 
-
-Die Portabilität kann z.\,B. geschätzt werden über
-\[
-  P = 1 - \frac{U + A}{E}
-\]
-
-mit
-\begin{itemize}
-  \item Übertragungsaufwand $U$ (insbesondere Neukompilierung),
-  \item Anpassungsaufwand $A$ (Änderung des Quellcodes, z.\,B. bei Austausch von
-        Betriebsschnittstellen),
-  \item Entwicklungsaufwand $E$ für Neuentwicklung.
-  \item[] \vspace{0.5em}
-\end{itemize}
-
-Eine Portabilität von \( P = 1 \) bedeutet vollständige Kompatibilität; 
-das Programm ist also ohne Änderungen auf dem Zielsystem lauffähig, 
-was genau dann gilt, wenn \( U = A = 0 \).
-
-Eine Quellcode-Portabilität liegt im Regelfall vor, wenn die Gesamt-Portabilität 
-über \( 90\% \) liegt. Dies entspricht einem Anpassungsaufwand von \( A = 0 \) 
-und einem Übertragungsaufwand von \( U < 0{,}1E \), da bei
-\[
-P = 1 - \frac{U}{E} > 0{,}9
-\]
-der Wert für \( U \) kleiner als ein Zehntel von \( E \) sein muss.
-Eine Portabilität nahe \( 0 \) entspricht hingegen einer nahezu vollständigen 
-Neuentwicklung des Programms, wobei in diesem Fall \( P \approx 0 \) 
-und somit \( U + A \approx E \) gilt. \cite{wikipedia2024plattformunabhaengigkeit}
-
-Portabilität ist kein Maß für die Lauffähigkeit eines Programms auf der
-Zielplattform, d.\,h.\ selbst eine Portabilität von 99\,\% bedeutet nicht
-unbedingt, dass das Programm nutzbar ist, sondern lediglich, dass eine
-Portierung im Vergleich zu einer Neuentwicklung deutlich weniger Aufwand
-erfordert. Damit ist nicht nur gemeint, dass 
-ein Programm auf mehreren Plattformen laufen kann, sondern auch, wie viel Aufwand nötig ist, um es dafür anzupassen.
-Dieser Vorgang wird Portierung oder Migration genannt. 
-\cite{wikipedia2024plattformunabhaengigkeit}
-
-Für webbasierte Dokumentenablagen ergibt sich daraus ein konsistentes Architekturverständnis: Hohe Lasten und große Dokumentmengen lassen sich vor allem dann beherrschbar verarbeiten, wenn Verarbeitungsschritte modular getrennt, zustandsarme Dienste horizontal skalierbar, I/O-intensive Aufgaben asynchron ausführbar und häufig benötigte Daten gezielt gecacht oder partitioniert werden. Plattformunabhängigkeit wird dabei nicht allein durch die Wahl einer Laufzeit erreicht, sondern vor allem durch klar abgegrenzte Schnittstellen und eine geringe Kopplung an einzelne Infrastrukturkomponenten. Gleichzeitig darf Sicherheit nicht als nachträgliche Ergänzung behandelt werden, sondern muss über zentrale Identitätsverwaltung, klar definierte Autorisierung und konsistente Zugriffskontrollen als querschnittliche Eigenschaft der Gesamtarchitektur mitgeführt werden. \cite{studysmarter2024skalierbare,wikipedia2024plattformunabhaengigkeit,tsolkas2017rollen,msentra2025}
-
-\subsection{Sharepoint}
-
-Dieses Unterkapitel gibt einen Überblick über SharePoint als Plattform für Dokumentenmanagement und Zusammenarbeit. Dabei werden die grundlegende Einordnung, die Architektur sowie zentrale Funktionen der Dokumentenverwaltung beschrieben.
-
-\subsubsection{Einordnung und Produkte}
-
-Microsoft SharePoint fungiert als webbasierte Kollaborationsplattform, die primär auf die Optimierung der teaminternen 
-Zusammenarbeit sowie ein effizientes Informationsmanagement ausgelegt ist. Durch die Bereitstellung zentraler Instanzen 
-zur Inhaltsverwaltung ermöglicht die Plattform eine strukturierte Ablage und Verteilung von Daten. Ziel ist es, durch 
-zusammenwirkende Kommunikation und medienbruchfreie Kooperation die organisatorische Produktivität zu steigern. \cite{Microsoft.2024.SharePointSupport}
-
-\begin{table}[h]
-\centering
-\caption{Überblick über SharePoint-Produkte}
-\begin{tabular}{p{4cm}p{10cm}}
-\textbf{Produkt} & \textbf{Kernmerkmale und Fokus} \\
-\hline
-SharePoint in Microsoft 365 & 
-Cloudbasierte Plattform (SaaS) zur zentralen Inhaltsverwaltung und teamübergreifenden Freigabe von Dokumenten. Nutzung erfolgt im Rahmen von Microsoft-365-Abonnements. \\
-\hline
-SharePoint Server & 
-On-Premise-Lösung für den Betrieb auf eigener IT-Infrastruktur. Ermöglicht volle Kontrolle über Datenhoheit und unterstützt hybride Szenarien mit der Cloud. \\
-\hline
-SharePoint Designer 2013 & 
-Spezialisiertes Werkzeug zur Erstellung deklarativer Workflows und zur Modellierung komplexer Geschäftsprozesse innerhalb der SharePoint-Umgebung. \\
-\hline
-OneDrive & 
-Schnittstelle zur Synchronisation von SharePoint-Bibliotheken mit lokalen Endgeräten. Ermöglicht die Offline-Bearbeitung und Dateiverwaltung im lokalen Dateisystem. \\
-\hline
-\end{tabular}
-\end{table}
-
-\hfill \cite{Microsoft.2024.SharePointSupport}
-
-\subsubsection{Architektur und Hierarchie}
-
-Die Struktur von SharePoint ist hierarchisch aufgebaut, um Inhalte logisch zu trennen und den Zugriff gezielt zu steuern. Den Kern dieser Architektur bildet die sogenannte Websitesammlung (Site Collection). \cite{Microsoft2023}
-
-Eine Websitesammlung besteht immer aus einer Website auf der obersten Ebene und allen darunterliegenden Websites. Sie dient als übergeordneter Container, in dem zentrale Einstellungen für die Sicherheit, das Design und verschiedene Funktionen festgelegt werden. Technisch gesehen landen alle Daten einer solchen Sammlung in einer einzigen Inhaltsdatenbank. Zwar kann eine Datenbank mehrere Websitesammlungen speichern, aber eine Sammlung kann nicht über mehrere Datenbanken verteilt werden. \cite{Microsoft2023}
-
-Bei der Planung der Struktur gibt Microsoft die Empfehlung ab, für jede Arbeitseinheit eine eigene Websitesammlung anzulegen, anstatt eine komplexe Verschachtelung mit vielen Unterwebsites zu bauen. Das hat den Vorteil, dass die Umgebung übersichtlich bleibt und später einfacher migriert werden kann. \cite{Microsoft2023}
-
-Innerhalb einer solchen Sammlung können Ressourcen wie Bilder, Vorlagen oder bestimmte Spaltentypen gemeinsam genutzt werden. Das sorgt dafür, dass die Navigation und das Erscheinungsbild für die Nutzer einheitlich bleiben. Bei der Benennung der URLs wird meistens auf pfadbasierte Adressen (wie z. B. „/sites/Projektname“) gesetzt, da diese mit Tools wie der PowerShell am einfachsten zu verwalten sind. \cite{Microsoft2023}
-
-\subsubsection{Funktionale Elemente einer SharePoint-Website}
-
-Innerhalb einer Websitesammlung bestehen die einzelnen Websites aus verschiedenen funktionalen Elementen, die für die Organisation und Verwaltung der Daten zuständig sind:
-
-\begin{itemize}
-    \item \textbf{Dokumentbibliotheken (Document Libraries):} Diese stellen den primären Speicherort für Dateien dar. Im Gegensatz zu herkömmlichen Dateiordnern ermöglichen sie die Nutzung von erweiterten Funktionen wie Versionierung, Check-Out-Mechanismen und die Verwendung von Metadaten. \cite{microsoft_sharepoint_support}
-    \item \textbf{Listen (Lists):} Listen dienen der Erfassung strukturierter Daten, ähnlich einer Tabelle. Sie werden beispielsweise für Aufgabenlisten, Kontaktverzeichnisse oder Inventarlisten verwendet. \cite{microsoft_sharepoint_support}
-    \item \textbf{Seiten (Pages):} Diese bilden das visuelle Interface der Website. Informationen werden hier mithilfe von sogenannten Webparts (funktionalen Bausteinen) für den Endanwender aufbereitet. \cite{microsoft_sharepoint_support}
-    \item \textbf{Metadaten (Spalten):} Anstatt Dateien ausschließlich in starren Ordnerstrukturen zu sortieren, erlauben Spalten das Hinzufügen von Attributen wie „Dokumententyp“ oder „Status“. Dies verbessert die Filterbarkeit und Auffindbarkeit der Dokumente innerhalb der gemeinsamen Ablage erheblich. \cite{microsoft_sharepoint_support}
-\end{itemize} 
-
-\subsubsection{Kernfunktionen der Dokumentenverwaltung}
-
-SharePoint bietet eine Vielzahl von Funktionen, die speziell auf die Anforderungen der Dokumentenverwaltung zugeschnitten sind:
-
-\begin{itemize}
-    \item \textbf{Versionierung:} Jede Änderung an einem Dokument wird als separate Version gespeichert. Dadurch können Nutzer frühere Versionen wiederherstellen oder Änderungen nachverfolgen. \cite{microsoft_sharepoint_support}
-    
-    \item \textbf{Auschecken und Einchecken (Check-Out/In):} Um Bearbeitungskonflikte zu vermeiden, können Dokumente exklusiv für einen Nutzer gesperrt werden. Während eine Datei ausgecheckt ist, können andere Nutzer diese zwar lesen, aber keine Änderungen vornehmen, bis sie wieder eingecheckt wird. \cite{microsoft_sharepoint_support}
-    
-    \item \textbf{Gemeinsame Dokumenterstellung (Co-Authoring):} Diese Funktion erlaubt es mehreren Anwendern, zeitgleich an demselben Dokument (z.\,B. Word oder Excel) zu arbeiten. Änderungen werden in Echtzeit synchronisiert, was die kollaborative Zusammenarbeit beschleunigt. \cite{microsoft_sharepoint_support}
-\end{itemize}
-
-\subsection{Microsoft Entra ID}
-
-Dieses Unterkapitel gibt einen Überblick über Microsoft Entra ID als zentrales System für Identitäts- und Zugriffsverwaltung. Dabei werden die Einordnung, zentrale Verwaltungsfunktionen sowie Authentifizierungs- und Integrationsmöglichkeiten beschrieben.
-
-\subsubsection{Begriff und Einordnung}
-
-Microsoft Entra beschreibt eine umfassende Produktfamilie für Identitätsmanagement und Netzwerkzugriff, die darauf ausgelegt ist, eine moderne Zero Trust-Sicherheitsstrategie in Organisationen zu etablieren. Das Ziel dieser Architektur ist die Schaffung einer Vertrauensstruktur, die Identitäten sowie Zugriffsbedingungen und Berechtigungen konsequent überprüft, Verbindungskanäle verschlüsselt und eine kontinuierliche Überwachung auf Kompromittierungen ermöglicht. Die hierarchische Struktur und die verschiedenen Säulen dieser Architektur sind in Abbildung \ref{fig:ms_entra_overview} dargestellt. \cite{msentra2025}
-
-Das zentrale Kernprodukt dieser Familie ist Microsoft Entra ID. Dabei handelt es sich um einen cloudbasierten Dienst zur Identitäts- und Zugriffsverwaltung, der die grundlegenden Funktionen für Authentifizierung und den Schutz von Benutzern, Geräten sowie Anwendungen bereitstellt. Eine wesentliche Besonderheit für Unternehmen im Microsoft-Umfeld besteht darin, dass Abonnenten von Diensten wie Microsoft 365 oder Azure automatisch einen Microsoft Entra-Mandanten nutzen und somit direkt mit der Verwaltung ihrer Cloud-Anwendungen beginnen können. Über das webbasierte Microsoft Entra Admin Center lassen sich diese Produkte zentral über eine einzige Benutzeroberfläche konfigurieren und verwalten. \cite{msentra2025}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra-product-family.png}
-    \caption{Übersicht der Microsoft Entra Produktfamilie \cite{msentra2025}}
-    \label{fig:ms_entra_overview}
-\end{figure}
-
-\subsubsection{Zentrale Identitätsverwaltung}
-
-Die zentrale Verwaltung innerhalb von Microsoft Entra sorgt dafür, dass Identitäten für unterschiedliche Nutzergruppen und Ressourcen an einem einzigen Ort kontrolliert werden. Dies umfasst nicht nur menschliche Identitäten wie Mitarbeitende, Partner oder Kundschaft, sondern schließt auch Geräte sowie sogenannte Workload-Identitäten (z. B. Anwendungen und Dienste) mit ein. \cite{msentra2025}
- 
-Ein wesentlicher Bestandteil dieser Verwaltung ist die Microsoft Entra ID Governance. Diese ermöglicht es, den gesamten Lebenszyklus einer Identität zu automatisieren. So können beispielsweise Zugriffsanfragen, Zuweisungen von Lizenzen und regelmäßige Überprüfungen von Berechtigungen systemgesteuert erfolgen. Dies stellt sicher, dass neuen Mitarbeitern automatisch die benötigten Ressourcen zugewiesen werden und diese Zugänge beim Verlassen des Unternehmens ebenso zuverlässig wieder entfernt werden. \cite{msentra2025}
-
-Für die Verwaltung externer Nutzer bietet Microsoft Entra External ID eine sichere Methode zur Zusammenarbeit. Hiermit können Geschäftspartner oder Gäste gezielt Zugriff auf interne Ressourcen erhalten, während Kunden über Self-Service-Registrierungen (z. B. via Google- oder Facebook-Konten) angebunden werden können. \cite{msentra2025}
-
-\subsubsection{Authentifizierung und Autorisierung}
-
-Innerhalb von Microsoft Entra ID bilden Authentifizierung und Autorisierung die Grundlage für den sicheren Zugriff auf Ressourcen, folgen jedoch unterschiedlichen Prinzipien:
-
-\begin{itemize}
-    \item \textbf{Authentifizierung (Identity):} Dies ist der Prozess der Identitätsprüfung. Hierbei stellt das System sicher, dass ein Benutzer tatsächlich die Person ist, für die er sich ausgibt. Dies geschieht in der Regel durch die Abfrage von Anmeldedaten oder sicheren Methoden wie der Multi-Faktor-Authentifizierung (MFA). Microsoft Entra ID Protection unterstützt diesen Vorgang, indem es risikobasierte Richtlinien nutzt, um verdächtige Anmeldeversuche automatisch zu erkennen und zusätzliche Bestätigungen einzufordern. \cite{msentra2025}
-    
-    \item \textbf{Autorisierung (Permissions):} Nach einer erfolgreichen Anmeldung bestimmt die Autorisierung, welche spezifischen Zugriffsrechte der Benutzer besitzt. Es wird festgelegt, auf welche Anwendungen, Dateien oder Funktionen (z.\,B. innerhalb einer SharePoint-Website) zugegriffen werden darf. \cite{msentra2025}
-\end{itemize}
-
-
-\subsubsection{Single Sign-On (SSO)}
-
-Ein zentrales Leistungsmerkmal von Microsoft Entra ID ist das sogenannte Single Sign-On. Diese Funktion ermöglicht es Benutzern, sich mit nur einer einzigen Identität – bestehend aus einem Benutzernamen und einem Kennwort – einmalig anzumelden, um danach automatisch Zugriff auf alle für sie freigegebenen Cloud-Anwendungen sowie lokalen Ressourcen zu erhalten. \cite{msentra2025}
-
-Aus technischer Sicht bietet SSO zwei wesentliche Vorteile für das Unternehmen:
-
-\begin{itemize}
-    \item \textbf{Benutzerfreundlichkeit:} Da sich die Anwender nicht mehr für jede einzelne Anwendung (wie SharePoint, Teams oder externe Drittanbieter-Tools) unterschiedliche Zugangsdaten merken müssen, wird die tägliche Arbeit effizienter. Zudem sinkt die Anzahl an Support-Anfragen aufgrund vergessener Passwörter erheblich. \cite{msentra2025}
-    
-    \item \textbf{Sicherheit:} Da die Identität zentral an einer Stelle geprüft wird, können Sicherheitsrichtlinien, wie beispielsweise die Mehrfaktor-Authentifizierung (MFA), global für alle angebundenen Programme erzwungen werden. Zudem wird das Risiko minimiert, dass Nutzer unsichere Passwörter für mehrere Dienste gleichzeitig verwenden oder diese ungesichert notieren. \cite{msentra2025}
-\end{itemize}
-
-\subsubsection{Integration externer Anwendungen}
-
-Ein wesentlicher Vorteil von Microsoft Entra ID ist die Fähigkeit, über die Grenzen der Microsoft-Welt hinaus als zentrale Identitätsinstanz zu fungieren. Dies wird durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
-
-\begin{itemize}
-    \item \textbf{SaaS-Anwendungen:} Über vorkonfigurierte Schnittstellen lassen sich gängige Cloud-Dienste (wie Salesforce, Slack oder Dropbox) nahtlos anbinden. Dadurch profitieren auch diese externen Dienste von Sicherheitsfeatures wie Single Sign-On (SSO) und der Mehrfaktor-Authentifizierung. \cite{msentra2025}
-    
-    \item \textbf{Zentrale App-Verwaltung:} Administratoren können im Entra Admin Center exakt steuern, welche Benutzer oder Gruppen Zugriff auf bestimmte externe Software erhalten. Dies vereinfacht das Onboarding neuer Mitarbeiter, da Zugänge für verschiedene Plattformen an einer zentralen Stelle zugewiesen werden können. \cite{msentra2025}
-    
-    \item \textbf{Sicherer Internet- und Privatzugriff:} Moderne Komponenten wie der \textit{Microsoft Entra Internet Access} und \textit{Private Access} erweitern diesen Schutz. Sie ermöglichen einen sicheren Zugriff auf Internet-Ressourcen sowie interne Unternehmensnetzwerke, ohne dass klassische, oft unsicherere VPN-Verbindungen notwendig sind. \cite{msentra2025}
-\end{itemize}
-
-Die zentrale Rolle von Microsoft Entra ID als Vermittler zwischen lokalen Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung \ref{fig:entra_integration} verdeutlicht. Durch diese weitreichende Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die Komplexität für die Endanwender reduziert.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra_integration.png}
-    \caption{Integration von On-Premises- und Cloud-Anwendungen über Microsoft Entra ID \cite{msentra2025}}
-    \label{fig:entra_integration}
-\end{figure}
