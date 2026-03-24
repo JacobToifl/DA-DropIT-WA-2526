@@ -118,6 +118,8 @@ Merkmalsextraktion beschreibt die Umwandlung roher Daten in eine Form, die von L
 
 Je nach Datentyp kommen dafür unterschiedliche Repräsentationen zum Einsatz. In der Textverarbeitung zählen Bag-of-Words-, TF-IDF- oder Hashing-Verfahren zu den klassischen Ansätzen; neuere neuronale Verfahren lernen Merkmale dagegen direkt aus großen Datenbeständen. Unabhängig vom konkreten Verfahren besteht das Ziel darin, die für eine Aufgabe relevanten Informationen kompakt abzubilden und störende Varianz zu reduzieren. \cite{manning2008irbook,stanford_tfidf,sklearn_feature_extraction} \\
 
+\newpage
+
 Wie in Tabelle \ref{tab:Merkmalsextraktion} ersichtlich, werden im Folgenden wichtige Begriffe der Merkmalsextraktion mit kurzer Beschreibung dargestellt.
 
 \begin{table}[h]
@@ -191,12 +193,11 @@ Die räumliche Distanz dient damit als Maß für Ähnlichkeit.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.6\textwidth]{content/img/3_theoretical_knowledge/Vektordarstellung.png}
+    \includegraphics[width=0.5\textwidth]{content/img/3_theoretical_knowledge/Vektordarstellung.png}
     \caption{Übersicht der Vektordarstellung von Embeddings \cite{weaviate2023vectorembeddings}}
     \label{fig:Vektordarstellung}
 \end{figure}
 
-\newpage
 Für die Dokumentenverarbeitung ist ein besonders anschauliches Beispiel die semantische Suche: Ein Modell erzeugt Embeddings für Dokumenttitel, Absätze oder ganze Seiten, und eine Suchanfrage wird in denselben Vektorraum projiziert. Dokumente mit hoher Cosinus-Ähnlichkeit zur Anfrage können anschließend priorisiert, gruppiert oder einer tieferen Extraktion zugeführt werden. Genau dafür wurden Satz-Embeddings wie Sentence-BERT entwickelt, weil klassische BERT-Paarvergleiche für große Vergleichsmengen zu teuer wären. \cite{sentence_bert_2019,sbert_sts_docs}
 
 \subsubsection{Häufige Objekte für Embeddings}
