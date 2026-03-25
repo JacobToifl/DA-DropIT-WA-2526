@@ -11,7 +11,6 @@ Dokumentensysteme. Dabei werden insbesondere Such- und Filterarchitekturen sowie
 Rollen- und Berechtigungssysteme als wesentliche Grundlagen für den Aufbau solcher
 Systeme beschrieben.
 
-
 % ------------------------------------------------------------
 %  1. Skalierbare plattformunabhängige Systemarchitekturen
 % ------------------------------------------------------------
@@ -58,7 +57,7 @@ Zu den grundlegenden Prinzipien der Softwarearchitektur zählen:
           Antwort zurück.
           Das Client-Server-Modell bildet die Grundlage für nahezu alle webbasierten
           Anwendungen und ist unabhängig vom internen Aufbau der Serversoftware.
-          \cite{fielding2000rest}
+          \cite{fielding2000rest,kitrum_client_server}
 
     \item \textbf{Separation of Concerns:}
           Unterschiedliche Belange eines Systems, etwa Benutzeroberfläche,
@@ -67,7 +66,6 @@ Zu den grundlegenden Prinzipien der Softwarearchitektur zählen:
           Weiterentwicklung einzelner Systembereiche. \cite{bass2012software}
 
 \end{itemize}
-
 
 % --- 1.2 Architekturtypen ---
 \subsubsection{Architekturtypen}
@@ -105,8 +103,17 @@ Mit zunehmender Systemgröße entstehen jedoch typische Herausforderungen:
 Änderungen an einer Komponente erfordern häufig Anpassungen im gesamten System,
 die Deploymentzyklen werden länger und die technische Wartbarkeit nimmt ab.
 Diese Einschränkungen haben maßgeblich zur Entwicklung alternativer
-Architekturansätze beigetragen.
-\cite{sciencedirect2023monolithic} \cite{techtarget2023monolithic}
+Architekturansätze beigetragen. Der schematische Aufbau einer monolithischen
+Architektur ist in Abbildung \ref{fig:architektur_monolith} dargestellt.
+\cite{sciencedirect2023monolithic,techtarget2023monolithic}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.45\textwidth]{3_theoretical_knowledge/monolithic_architecture.png}
+    \caption{Schematischer Aufbau einer monolithischen Architektur
+             \cite{kitrum_client_server}}
+    \label{fig:architektur_monolith}
+\end{figure}
 
 % ~ Microservices-Architektur ~
 \textbf{Microservices-Architektur}
@@ -124,7 +131,7 @@ Anwendung als Suite kleiner Dienste, von denen jeder in einem eigenen Prozess l�
 und über leichtgewichtige Mechanismen kommuniziert.
 Jeder Dienst kann unabhängig voneinander entwickelt, getestet, deployt und skaliert
 werden, was Teams eine hohe Autonomie und kurze Releasezyklen ermöglicht.
-\cite{newman2015microservices} \cite{fowler2014microservices}
+\cite{newman2015microservices,fowler2014microservices}
 
 Typische Einsatzbereiche für Microservices sind große, komplexe Systeme mit hohen
 Skalierungsanforderungen, wie beispielsweise E-Commerce-Plattformen,
@@ -135,12 +142,14 @@ Skalierbarkeit und Entwicklungsgeschwindigkeit zu verbessern.
 Dem gegenüber steht ein erhöhter Betriebsaufwand: Die Orchestrierung, Überwachung
 und das Fehler-Management eines verteilten Systems stellen deutlich höhere
 Anforderungen an die Infrastruktur und das Betriebsteam als ein einzelner Monolith.
-\cite{newman2015microservices} \cite{sciencedirect2023monolithic}
+Abbildung \ref{fig:architektur_microservices} zeigt den typischen Aufbau einer
+Microservices-Architektur.
+\cite{newman2015microservices,sciencedirect2023monolithic,dragoni2017microservices}
 
-\begin{figure}[h]
+\begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.80\textwidth]{3_theoretical_knowledge/Microservices_Architecture.png}
-    \caption{Microservices-Architektur \cite{ozkaya2024microservices}}
+    \includegraphics[width=0.6\textwidth]{3_theoretical_knowledge/microservice_architecture.png}
+    \caption{Microservices-Architektur \cite{kitrum_client_server}}
     \label{fig:architektur_microservices}
 \end{figure}
 
@@ -161,7 +170,7 @@ den Nutzern über einen Webbrowser oder eine Programmierschnittstelle genutzt we
 kann, ohne dass diese die zugrundeliegende Infrastruktur verwalten oder kontrollieren
 müssen. \cite{mell2011nist}
 Skalierung, Wartung, Sicherheitsupdates und Verfügbarkeit werden vollständig vom
-Anbieter übernommen. \cite{liu2011nistarch} \cite{mell2011nist}
+Anbieter übernommen. \cite{liu2011nistarch,mell2011nist}
 
 SaaS-Lösungen werden in unterschiedlichsten Bereichen eingesetzt: von
 Produktivitätswerkzeugen wie E-Mail- und Office-Anwendungen über CRM-Systeme und
@@ -170,7 +179,7 @@ wie Buchhaltung, Personalverwaltung oder Dokumentenmanagement.
 Der wesentliche Vorteil für Unternehmen liegt darin, dass keine eigene
 Serverinfrastruktur betrieben werden muss und die Anwendung plattformunabhängig
 über jeden modernen Webbrowser zugänglich ist.
-\cite{mell2011nist} \cite{liu2011nistarch}
+\cite{mell2011nist,liu2011nistarch}
 
 % ~ Einordnung von SharePoint Online ~
 \textbf{Einordnung von SharePoint Online}
@@ -189,78 +198,77 @@ betriebssystemunabhängig zugänglich, skaliert automatisch mit wachsendem
 Datenvolumen und erfüllt durch die Microsoft-Zertifizierungen hohe
 Sicherheitsanforderungen. \cite{Microsoft.2024.SharePointSupport}
 
-
-% --- 1.3 Skalierbarkeit ---
 \subsubsection{Skalierbarkeit}
-
+ 
 Unter einer skalierbaren Systemarchitektur versteht man ein System, das sich
 problemlos an steigende Anforderungen anpassen lässt. Fehlende Skalierbarkeit führt
 dazu, dass Systeme bei wachsender Nutzerzahl oder zunehmendem Datenvolumen spürbare
 Performanceprobleme entwickeln.
-Während des Entwicklungsprozesses sind unterschiedliche Prinzipien zu beachten:
-
-\begin{table}[h]
+Während des Entwicklungsprozesses sind unterschiedliche Prinzipien zu beachten.
+Tabelle~\ref{tab:merkmale} fasst die zentralen Merkmale skalierbarer
+Softwaresysteme zusammen.
+\cite{studysmarter2024skalierbare}
+ 
+\begin{table}[H]
     \centering
     \caption{Merkmale von Softwaresystemen \cite{studysmarter2024skalierbare}}
     \label{tab:merkmale}
     \begin{tabular}{p{4cm} p{10cm}}
         \textbf{Merkmal} & \textbf{Beschreibung} \\ \hline
-
+ 
         Modularität &
         Einzelne Komponenten der Software sollen unabhängig sein und sich flexibel
         aktualisieren oder erweitern lassen. \\ \hline
-
+ 
         Flexibilität &
         Systeme müssen sich dynamisch an verändernde Anforderungen anpassen können.
         \\ \hline
-
+ 
         Fehlertoleranz &
         Das System soll auf Fehler reagieren können und automatisch geeignete
         Maßnahmen ergreifen. \\ \hline
     \end{tabular}
 \end{table}
-
+ 
 Um eine skalierbare Architektur zu gewährleisten, sind Optimierungsfunktionen von
 Bedeutung, um die Effizienz und Leistung zu optimieren.
-Wichtige Optimierungsstrategien sind unter anderem:
-
-\begin{table}[h]
+Wichtige Optimierungsstrategien sind in Tabelle~\ref{tab:optimierung} dargestellt.
+ 
+\begin{table}[H]
     \centering
     \caption{Techniken zur Leistungsoptimierung \cite{studysmarter2024skalierbare}}
     \label{tab:optimierung}
     \begin{tabular}{p{4cm} p{10cm}}
         \textbf{Technik} & \textbf{Beschreibung} \\ \hline
-
+ 
         Load Balancing &
         Verteilung von Anfragen auf mehrere Server, um Überlastung zu vermeiden.
         \\ \hline
-
+ 
         Caching &
         Speicherung häufig abgerufener Daten, um Zugriffszeiten zu verkürzen.
         \\ \hline
-
+ 
         Partitioning &
         Aufteilung von Daten in kleinere Einheiten, die parallel verarbeitet werden
         können. \\ \hline
-
+ 
         Asynchrone Verarbeitung &
         Ermöglicht es Systemen, Aufgaben im Hintergrund auszuführen, was die
         Reaktionszeit verbessert. \\ \hline
     \end{tabular}
 \end{table}
-
-Das Hauptziel einer skalierbaren Architektur besteht darin, auch bei steigender
-Nutzerzahl und wachsendem Datenvolumen eine hohe Verfügbarkeit sowie eine konsistent
-hohe Leistung sicherzustellen. Gleichzeitig muss das System so gestaltet sein, dass
-es leicht wartbar und problemlos erweiterbar bleibt, um zukünftige Anforderungen
-effizient integrieren zu können. Ohne diese Maßnahmen riskieren Systeme bei
-wachsender Last messbare Einbußen in Verfügbarkeit und Antwortzeit.
+ 
+Ziel einer skalierbaren Architektur ist es, auch bei steigender Nutzerzahl und
+wachsendem Datenvolumen eine hohe Verfügbarkeit sowie eine konsistente Leistung
+sicherzustellen. Das System muss zudem wartbar und erweiterbar bleiben, damit
+zukünftige Anforderungen integriert werden können. Ohne die genannten Maßnahmen
+drohen bei wachsender Last messbare Einbußen in Verfügbarkeit und Antwortzeit.
 \cite{studysmarter2024skalierbare}
-
-
+ 
 % --- 1.4 Plattformunabhängigkeit ---
 \subsubsection{Plattformunabhängigkeit}
-
+ 
 Ein Computerprogramm benötigt eine Umgebung, in der es gestartet werden kann und
 während der gesamten Laufzeit stabil funktioniert.
 Ein Programm gilt als plattformunabhängig oder plattformübergreifend, wenn es auf
@@ -269,8 +277,8 @@ unterschiedlicher Hardware, verschiedenen Prozessoren oder unterschiedlichen
 Betriebssystemen.
 Der Grad dieser Unabhängigkeit wird als Portierbarkeit (oder Portabilität)
 bezeichnet.
-\cite{boehm1976quality} \cite{isoiec25010}
-
+\cite{boehm1976quality,isoiec25010}
+ 
 Die Portabilität kann z.\,B. geschätzt werden über
 \[
     P = 1 - \frac{U + A}{E}
@@ -283,7 +291,7 @@ mit
     \item Entwicklungsaufwand $E$ für Neuentwicklung.
     \item[] \vspace{0.5em}
 \end{itemize}
-
+ 
 Eine Portabilität von \( P = 1 \) bedeutet vollständige Kompatibilität; das Programm
 ist also ohne Änderungen auf dem Zielsystem lauffähig, was genau dann gilt, wenn
 \( U = A = 0 \).
@@ -297,8 +305,8 @@ der Wert für \( U \) kleiner als ein Zehntel von \( E \) sein muss.
 Eine Portabilität nahe \( 0 \) entspricht hingegen einer nahezu vollständigen
 Neuentwicklung des Programms, wobei in diesem Fall \( P \approx 0 \) und somit
 \( U + A \approx E \) gilt.
-\cite{wikipedia2024plattformunabhaengigkeit} \cite{mooney1997portability}
-
+\cite{wikipedia2024plattformunabhaengigkeit,mooney1997portability}
+ 
 Portabilität ist kein Maß für die Lauffähigkeit eines Programms auf der
 Zielplattform, d.\,h.\ selbst eine Portabilität von 99\,\% bedeutet nicht
 unbedingt, dass das Programm nutzbar ist, sondern lediglich, dass eine Portierung im
@@ -306,8 +314,7 @@ Vergleich zu einer Neuentwicklung deutlich weniger Aufwand erfordert. Damit ist 
 nur gemeint, dass ein Programm auf mehreren Plattformen laufen kann, sondern auch,
 wie viel Aufwand nötig ist, um es dafür anzupassen.
 Dieser Vorgang wird Portierung oder Migration genannt.
-\cite{wikipedia2024plattformunabhaengigkeit} \cite{boehm1976quality}
-
+\cite{wikipedia2024plattformunabhaengigkeit,boehm1976quality}
 
 % ------------------------------------------------------------
 %  2. SharePoint
@@ -318,7 +325,6 @@ Dieses Unterkapitel gibt einen Überblick über SharePoint als Plattform für
 Dokumentenmanagement und Zusammenarbeit. Dabei werden die grundlegende Einordnung,
 die Architektur sowie zentrale Funktionen der Dokumentenverwaltung beschrieben.
 
-
 % --- 2.1 Einordnung und Produkte ---
 \subsubsection{Einordnung und Produkte}
 
@@ -328,9 +334,9 @@ Informationsmanagement ausgelegt ist. Durch die Bereitstellung zentraler Instanz
 zur Inhaltsverwaltung ermöglicht die Plattform eine strukturierte Ablage und
 Verteilung von Daten. Ziel ist es, durch zusammenwirkende Kommunikation und
 medienbruchfreie Kooperation die organisatorische Produktivität zu steigern.
-\cite{Microsoft.2024.SharePointSupport}
+\cite{Microsoft.2024.SharePointSupport,kampffmeyer2006ecm}
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Überblick über SharePoint-Produkte \cite{Microsoft.2024.SharePointSupport}}
     \begin{tabular}{p{4cm} p{10cm}}
@@ -358,13 +364,12 @@ medienbruchfreie Kooperation die organisatorische Produktivität zu steigern.
     \end{tabular}
 \end{table}
 
-
 % --- 2.2 Architektur und Hierarchie ---
 \subsubsection{Architektur und Hierarchie}
 
 Die Struktur von SharePoint ist hierarchisch aufgebaut, um Inhalte logisch zu
 trennen und den Zugriff gezielt zu steuern. Den Kern dieser Architektur bildet die
-sogenannte Websitesammlung (Site Collection). \cite{Microsoft2023}
+sogenannte Websitesammlung (Site Collection). \cite{Microsoft2023,kampffmeyer2006ecm}
 
 Eine Websitesammlung besteht immer aus einer Website auf der obersten Ebene und
 allen darunterliegenden Websites. Sie dient als übergeordneter Container, in dem
@@ -387,7 +392,6 @@ Benennung der URLs wird meistens auf pfadbasierte Adressen
 (wie z.\,B. „/sites/Projektname") gesetzt, da diese mit Tools wie der PowerShell am
 einfachsten zu verwalten sind. \cite{Microsoft2023}
 
-
 % --- 2.3 Funktionale Elemente einer SharePoint-Website ---
 \subsubsection{Funktionale Elemente einer SharePoint-Website}
 
@@ -401,7 +405,7 @@ sind:
           Diese stellen den primären Speicherort für Dateien dar. Im Gegensatz zu
           herkömmlichen Dateiordnern ermöglichen sie die Nutzung von erweiterten
           Funktionen wie Versionierung, Check-Out-Mechanismen und die Verwendung
-          von Metadaten. \cite{microsoft_sharepoint_support}
+          von Metadaten. \cite{microsoft_sharepoint_support,kampffmeyer2006ecm}
 
     \item \textbf{Listen (Lists):}
           Listen dienen der Erfassung strukturierter Daten, ähnlich einer Tabelle.
@@ -422,7 +426,6 @@ sind:
 
 \end{itemize}
 
-
 % --- 2.4 Kernfunktionen der Dokumentenverwaltung ---
 \subsubsection{Kernfunktionen der Dokumentenverwaltung}
 
@@ -434,7 +437,7 @@ der Dokumentenverwaltung zugeschnitten sind:
     \item \textbf{Versionierung:}
           Jede Änderung an einem Dokument wird als separate Version gespeichert.
           Dadurch können Nutzer frühere Versionen wiederherstellen oder Änderungen
-          nachverfolgen. \cite{microsoft_sharepoint_support}
+          nachverfolgen. \cite{microsoft_sharepoint_support,kampffmeyer2006ecm}
 
     \item \textbf{Auschecken und Einchecken (Check-Out/In):}
           Um Bearbeitungskonflikte zu vermeiden, können Dokumente exklusiv für einen
@@ -449,8 +452,6 @@ der Dokumentenverwaltung zugeschnitten sind:
           \cite{microsoft_sharepoint_support}
 
 \end{itemize}
-
-
 % ------------------------------------------------------------
 %  3. Rollen- und Berechtigungssysteme
 % ------------------------------------------------------------
@@ -462,7 +463,7 @@ der Dokumentenverwaltung zugeschnitten sind:
 Eine Berechtigung setzt sich grundsätzlich aus zwei zentralen Komponenten zusammen,
 die gemeinsam definieren, welcher Zugriff in einem System erlaubt oder untersagt ist.
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Komponenten einer Berechtigung \cite{tsolkas2017rollen}}
     \label{tab:aufbau-berechtigung}
@@ -485,12 +486,11 @@ die gemeinsam definieren, welcher Zugriff in einem System erlaubt oder untersagt
     \end{tabular}
 \end{table}
 
-
 % --- 3.2 Arten von Berechtigungen ---
 \subsubsection{Arten von Berechtigungen}
 
 Berechtigungskonzepte bilden eine wesentliche Grundlage für die Zugriffskontrolle
-in IT-Systemen. Die elementarste Form stellt dabei die \textit{binäre Berechtigung}
+in IT-Systemen. Die elementarste Form stellt dabei die binäre Berechtigung
 dar. Sie beschreibt eine eindeutig definierte Zugriffserlaubnis, die sich jeweils auf
 ein konkretes Objekt und eine einzelne Operation bezieht. Der Zugriff ist entweder
 erlaubt oder verweigert, wodurch diese Berechtigungsform ausschließlich zwei mögliche
@@ -502,16 +502,15 @@ mehrere Objekte oder Operationen umfassen, werden vor der eigentlichen
 Zugriffskontrolle in einzelne binäre Berechtigungen zerlegt. Die endgültige
 Zugriffsentscheidung erfolgt anschließend ausschließlich auf Basis dieser elementaren
 Berechtigungseinheiten.
-\cite{tsolkas2017rollen} \cite{ferraiolo1992rbac}
+\cite{tsolkas2017rollen,ferraiolo1992rbac}
 
-Neben binären Berechtigungen existieren sogenannte \textit{Wertberechtigungen}, bei
+Neben binären Berechtigungen existieren sogenannte Wertberechtigungen, bei
 denen mehrere Einzelrechte in einem numerischen Wert zusammengefasst werden. Ein
 verbreitetes Anwendungsbeispiel hierfür ist das Berechtigungssystem von
 UNIX-Dateisystemen. Dort repräsentiert ein Zahlenwert die Kombination einzelner
 Zugriffsrechte wie Lesen, Schreiben und Ausführen. Der Wert 7 steht für den
 vollständigen Zugriff und ergibt sich aus der Addition der einzelnen Rechtewerte.
 \cite{tsolkas2017rollen}
-
 
 % --- 3.3 Berechtigungsmodelle ---
 \subsubsection{Berechtigungsmodelle}
@@ -520,7 +519,7 @@ In der Praxis werden Berechtigungen nicht als Einzelrechte verwaltet, sondern in
 strukturierten Modellen organisiert. Die wichtigsten Ansätze sind das rollenbasierte
 sowie das attributbasierte Zugriffsmodell, die sich hinsichtlich ihrer Flexibilität
 und ihres Verwaltungsaufwands grundlegend unterscheiden.
-\cite{sandhu1996rbac} \cite{hu2014abac}
+\cite{sandhu1996rbac,hu2014abac}
 
 % ~ RBAC ~
 \textbf{Role-Based Access Control (RBAC)}
@@ -532,7 +531,7 @@ von RBAC besteht darin, Berechtigungen nicht direkt an einzelne Benutzer zu verg
 sondern an Rollen – abstrakte Funktionseinheiten, die typischen Aufgabenprofilen in
 einer Organisation entsprechen. Benutzer werden diesen Rollen zugewiesen und erben
 damit automatisch alle zugehörigen Zugriffsrechte.
-\cite{ferraiolo1992rbac} \cite{sandhu1996rbac}
+\cite{ferraiolo1992rbac,sandhu1996rbac}
 
 Sandhu et al. greifen dieses Konzept im RBAC96-Modell auf und strukturieren es in
 vier Referenzmodelle mit steigender Komplexität: von einem einfachen Flat-RBAC ohne
@@ -540,15 +539,15 @@ Hierarchien bis hin zu einem Modell mit Rollenhierarchien und Aufgabentrennung
 (Separation of Duty). Diese Hierarchisierung ermöglicht es, übergeordneten Rollen
 automatisch die Rechte untergeordneter Rollen zu vererben, was den
 Verwaltungsaufwand in großen Organisationen erheblich reduziert.
-\cite{sandhu1996rbac} \cite{ferraiolo1992rbac}
+\cite{sandhu1996rbac,ferraiolo1992rbac}
 
 Für Dokumentensysteme wie SharePoint ist RBAC das zentrale Steuerungsmodell:
-Vordefinierte Rollen wie \textit{Besitzer}, \textit{Mitglied} oder
-\textit{Besucher} bündeln jeweils spezifische Berechtigungsstufen für
+Vordefinierte Rollen wie Besitzer, Mitglied oder
+Besucher bündeln jeweils spezifische Berechtigungsstufen für
 Dokumentbibliotheken und Websites. Entra ID-Gruppen können diesen Rollen direkt
 zugewiesen werden, sodass die Verwaltung organisationsweit an zentraler Stelle
 erfolgt.
-\cite{tsolkas2017rollen} \cite{sandhu1996rbac}
+\cite{tsolkas2017rollen,sandhu1996rbac}
 
 % ~ ABAC ~
 \textbf{Attribute-Based Access Control (ABAC)}
@@ -564,16 +563,15 @@ Vertraulichkeitsstufe eines Dokuments oder der Standort, von dem der Zugriff
 erfolgt. ABAC eignet sich damit besonders für Szenarien, in denen
 kontextabhängige Zugriffsregeln notwendig sind, die mit starren Rollen nicht
 abbildbar wären – beispielsweise der Zugriff auf ein Dokument nur dann, wenn der
-Nutzer der zuständigen Abteilung angehört \textit{und} das Dokument noch nicht
+Nutzer der zuständigen Abteilung angehört und das Dokument noch nicht
 freigegeben ist.
-\cite{hu2014abac} \cite{sandhu1996rbac}
+\cite{hu2014abac,sandhu1996rbac}
 
 In der Praxis werden RBAC und ABAC häufig kombiniert: Rollen liefern die
 Grundstruktur der Zugriffsverwaltung, während Attribute zusätzliche Einschränkungen
 oder Erweiterungen ermöglichen. Diese Kombination bietet sowohl Verwaltbarkeit als
 auch Flexibilität.
-\cite{hu2014abac} \cite{ferraiolo1992rbac}
-
+\cite{hu2014abac,ferraiolo1992rbac}
 
 % --- 3.4 Scope von Berechtigungen ---
 \subsubsection{Scope von Berechtigungen}
@@ -589,7 +587,7 @@ jeweiligen Ressource. Dieser wird üblicherweise im Rahmen einer
 Schutzbedarfsanalyse ermittelt, bei der unterschiedliche Einflussfaktoren
 berücksichtigt werden. Dazu zählen unter anderem die Relevanz der Ressource für
 Geschäftsprozesse sowie die Kritikalität ihrer Funktionen und Inhalte.
-\cite{tsolkas2017rollen} \cite{hu2014abac}
+\cite{tsolkas2017rollen,hu2014abac}
 
 Die ermittelten Schutzanforderungen fließen anschließend in die
 Berechtigungsplanung ein. Dabei wird festgelegt, auf welcher Detailebene der
@@ -597,7 +595,6 @@ Zugriffsschutz umgesetzt werden muss und welche Funktionen durch entsprechende
 Berechtigungen abzusichern sind. Darüber hinaus wird bestimmt, wie stark der
 Zugriffsschutz ausgeprägt sein soll, beispielsweise ob der Einsatz erweiterter
 Authentifizierungsmechanismen erforderlich ist. \cite{tsolkas2017rollen}
-
 
 % --- 3.5 Berechtigungsstufen ---
 \subsubsection{Berechtigungsstufen}
@@ -609,7 +606,7 @@ die ein definiertes Bündel von Zugriffsrechten repräsentiert. Die folgende
 Einteilung orientiert sich an dem in der Literatur beschriebenen Prinzip der
 gestuften Zugriffsrechte und findet sich in vergleichbarer Form in vielen
 unternehmensweiten Systemen wieder:
-\cite{tsolkas2017rollen} \cite{sandhu1996rbac}
+\cite{tsolkas2017rollen,sandhu1996rbac}
 
 \begin{itemize}
     \item \textbf{Stufe 0: Kein Zugriff}   \\ (Gar keine Rechte)
@@ -620,14 +617,13 @@ unternehmensweiten Systemen wieder:
 \end{itemize}
 
 In SharePoint entspricht dieses Stufenmodell den vordefinierten Berechtigungsstufen
-\textit{Lesen}, \textit{Beitragen}, \textit{Bearbeiten} und \textit{Vollzugriff},
+Lesen, Beitragen, Bearbeiten und Vollzugriff,
 die direkt auf RBAC-Rollen abgebildet werden. Damit schließt das
 Berechtigungsmodell von SharePoint unmittelbar an die theoretischen Grundlagen von
 RBAC an und macht deutlich, warum die Wahl eines strukturierten Rollenmodells
 gegenüber einer individuellen Rechtevergabe in der Unternehmenspraxis klar
 bevorzugt wird.
-\cite{tsolkas2017rollen} \cite{ferraiolo1992rbac}
-
+\cite{tsolkas2017rollen,ferraiolo1992rbac}
 
 % ------------------------------------------------------------
 %  4. Microsoft Entra ID
@@ -638,7 +634,6 @@ Dieses Unterkapitel gibt einen Überblick über Microsoft Entra ID als zentrales
 System für Identitäts- und Zugriffsverwaltung. Dabei werden die Einordnung, zentrale
 Verwaltungsfunktionen sowie Authentifizierungs- und Integrationsmöglichkeiten
 beschrieben.
-
 
 % --- 4.1 Begriff und Einordnung ---
 \subsubsection{Begriff und Einordnung}
@@ -651,7 +646,7 @@ Zugriffsbedingungen und Berechtigungen konsequent überprüft, Verbindungskanäl
 verschlüsselt und eine kontinuierliche Überwachung auf Kompromittierungen
 ermöglicht. Die hierarchische Struktur und die verschiedenen Säulen dieser
 Architektur sind in Abbildung \ref{fig:ms_entra_overview} dargestellt.
-\cite{msentra2025}
+\cite{msentra2025,rose2020zerotrust}
 
 Das zentrale Kernprodukt dieser Familie ist Microsoft Entra ID. Dabei handelt es
 sich um einen cloudbasierten Dienst zur Identitäts- und Zugriffsverwaltung, der die
@@ -670,7 +665,6 @@ eine einzige Benutzeroberfläche konfigurieren und verwalten. \cite{msentra2025}
     \label{fig:ms_entra_overview}
 \end{figure}
 
-
 % --- 4.2 Zentrale Identitätsverwaltung ---
 \subsubsection{Zentrale Identitätsverwaltung}
 
@@ -678,7 +672,8 @@ Die zentrale Verwaltung innerhalb von Microsoft Entra sorgt dafür, dass Identit
 für unterschiedliche Nutzergruppen und Ressourcen an einem einzigen Ort kontrolliert
 werden. Dies umfasst nicht nur menschliche Identitäten wie Mitarbeitende, Partner
 oder Kundschaft, sondern schließt auch Geräte sowie sogenannte
-Workload-Identitäten (z.\,B. Anwendungen und Dienste) mit ein. \cite{msentra2025}
+Workload-Identitäten (z.\,B. Anwendungen und Dienste) mit ein.
+\cite{msentra2025,tsolkas2017rollen}
 
 Ein wesentlicher Bestandteil dieser Verwaltung ist die Microsoft Entra ID
 Governance. Diese ermöglicht es, den gesamten Lebenszyklus einer Identität zu
@@ -686,14 +681,14 @@ automatisieren. So können beispielsweise Zugriffsanfragen, Zuweisungen von Lize
 und regelmäßige Überprüfungen von Berechtigungen systemgesteuert erfolgen. Dies
 stellt sicher, dass neuen Mitarbeitern automatisch die benötigten Ressourcen
 zugewiesen werden und diese Zugänge beim Verlassen des Unternehmens ebenso
-zuverlässig wieder entfernt werden. \cite{msentra2025}
+zuverlässig wieder entfernt werden.
+\cite{msentra2025,tsolkas2017rollen}
 
 Für die Verwaltung externer Nutzer bietet Microsoft Entra External ID eine sichere
 Methode zur Zusammenarbeit. Hiermit können Geschäftspartner oder Gäste gezielt
 Zugriff auf interne Ressourcen erhalten, während Kunden über
 Self-Service-Registrierungen (z.\,B. via Google- oder Facebook-Konten) angebunden
 werden können. \cite{msentra2025}
-
 
 % --- 4.3 Authentifizierung und Autorisierung ---
 \subsubsection{Authentifizierung und Autorisierung}
@@ -712,7 +707,7 @@ Prinzipien:
           Microsoft Entra ID Protection unterstützt diesen Vorgang, indem es
           risikobasierte Richtlinien nutzt, um verdächtige Anmeldeversuche
           automatisch zu erkennen und zusätzliche Bestätigungen einzufordern.
-          \cite{msentra2025}
+          \cite{msentra2025,grassi2017nist80063}
 
     \item \textbf{Autorisierung (Permissions):}
           Nach einer erfolgreichen Anmeldung bestimmt die Autorisierung, welche
@@ -722,7 +717,6 @@ Prinzipien:
 
 \end{itemize}
 
-
 % --- 4.4 Single Sign-On (SSO) ---
 \subsubsection{Single Sign-On (SSO)}
 
@@ -730,7 +724,8 @@ Ein zentrales Leistungsmerkmal von Microsoft Entra ID ist das sogenannte Single
 Sign-On. Diese Funktion ermöglicht es Benutzern, sich mit nur einer einzigen
 Identität – bestehend aus einem Benutzernamen und einem Kennwort – einmalig
 anzumelden, um danach automatisch Zugriff auf alle für sie freigegebenen
-Cloud-Anwendungen sowie lokalen Ressourcen zu erhalten. \cite{msentra2025}
+Cloud-Anwendungen sowie lokalen Ressourcen zu erhalten.
+\cite{msentra2025,grassi2017nist80063}
 
 Aus technischer Sicht bietet SSO zwei wesentliche Vorteile für das Unternehmen:
 
@@ -749,10 +744,10 @@ Aus technischer Sicht bietet SSO zwei wesentliche Vorteile für das Unternehmen:
           Mehrfaktor-Authentifizierung (MFA), global für alle angebundenen
           Programme erzwungen werden. Zudem wird das Risiko minimiert, dass Nutzer
           unsichere Passwörter für mehrere Dienste gleichzeitig verwenden oder diese
-          ungesichert notieren. \cite{msentra2025}
+          ungesichert notieren.
+          \cite{msentra2025,tsolkas2017rollen}
 
 \end{itemize}
-
 
 % --- 4.5 Integration externer Anwendungen ---
 \subsubsection{Integration externer Anwendungen}
@@ -767,7 +762,8 @@ durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
           Über vorkonfigurierte Schnittstellen lassen sich gängige Cloud-Dienste
           (wie Salesforce, Slack oder Dropbox) nahtlos anbinden. Dadurch profitieren
           auch diese externen Dienste von Sicherheitsfeatures wie Single Sign-On
-          (SSO) und der Mehrfaktor-Authentifizierung. \cite{msentra2025}
+          (SSO) und der Mehrfaktor-Authentifizierung.
+          \cite{msentra2025,tsolkas2017rollen}
 
     \item \textbf{Zentrale App-Verwaltung:}
           Administratoren können im Entra Admin Center exakt steuern, welche
@@ -777,8 +773,8 @@ durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
           können. \cite{msentra2025}
 
     \item \textbf{Sicherer Internet- und Privatzugriff:}
-          Moderne Komponenten wie der \textit{Microsoft Entra Internet Access} und
-          \textit{Private Access} erweitern diesen Schutz. Sie ermöglichen einen
+          Moderne Komponenten wie der Microsoft Entra Internet Access und
+          Private Access erweitern diesen Schutz. Sie ermöglichen einen
           sicheren Zugriff auf Internet-Ressourcen sowie interne
           Unternehmensnetzwerke, ohne dass klassische, oft unsicherere
           VPN-Verbindungen notwendig sind. \cite{msentra2025}
@@ -791,8 +787,7 @@ Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung
 Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die
 gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die
 Komplexität für die Endanwender reduziert.
-
-\newpage
+\cite{msentra2025}
 
 \begin{figure}
     \centering
@@ -802,13 +797,11 @@ Komplexität für die Endanwender reduziert.
     \label{fig:entra_integration}
 \end{figure}
 
-
 % ------------------------------------------------------------
 %  5. Suche und Filter-Architekturen
 % ------------------------------------------------------------
 \subsection{Suche und Filter-Architekturen}
 
-% --- 5.1 Suchalgorithmen im Information Retrieval ---
 \subsubsection{Suchalgorithmen im Information Retrieval}
 
 Suche und Filter bilden in Dokumentensystemen eine gemeinsame Architekturaufgabe:
@@ -816,18 +809,14 @@ Die Suche identifiziert relevante Kandidaten, während Filter die Ergebnisliste 
 fachlich gültige Teilmengen einschränken.
 Im Information Retrieval (IR) hat sich dafür eine mehrstufige Verarbeitung
 etabliert, die Abfrageinterpretation, Kandidatenfindung, Ranking und nachgelagerte
-Einschränkungen kombiniert.
-\cite{manning2008irbook} \cite{elastic_query_filter_context}
-
-Für unternehmensweite Dokumentplattformen ist diese Trennung besonders wichtig,
+Einschränkungen kombiniert. Für unternehmensweite Dokumentplattformen ist diese Trennung besonders wichtig,
 weil dieselbe Anfrage häufig sowohl unstrukturierte Textfelder als auch strukturierte
 Metadaten (z.\,B. Dokumenttyp, Zeitraum, Abteilung) adressiert.
 Eine belastbare Sucharchitektur muss daher Ranking- und Filterlogik technisch klar
 trennen, aber in einer gemeinsamen Query-Pipeline ausführbar machen.
-\cite{elastic_query_filter_context}
+\cite{elastic_query_filter_context,manning2008irbook}
+ 
 
-
-% --- 5.2 Lexikalische Suchverfahren (Keyword Search) ---
 \subsubsection{Lexikalische Suchverfahren (Keyword Search)}
 
 Die lexikalische Suche ist der klassische IR-Ansatz und basiert auf dem Abgleich
@@ -835,63 +824,52 @@ von Termen zwischen Query und Dokumentbestand.
 Sie ist besonders stark bei exakten Treffern, etwa bei IDs, normierten Begriffen,
 Produktcodes oder eindeutig benannten Entitäten. \cite{manning2008irbook}
 
-\subsubsection*{Inverted Index und TF-IDF}
+\textbf{Inverted Index und TF-IDF}
 
 Die technische Basis lexikalischer Systeme ist der Inverted Index: Für jeden Term
 wird eine Postings-Liste der zugehörigen Dokumente geführt, sodass Anfragen nicht
 über alle Dokumente sequentiell laufen müssen.
 Diese Datenstruktur ist in IR-Systemen der Standard, weil sie Suchanfragen in großen
-Korpora effizient auswertbar macht. \cite{manning2008irbook}
-
-Auf Ranking-Ebene wird häufig mit termbasierten Gewichtungen gearbeitet. Ein
+Korpora effizient auswertbar macht. Auf Ranking-Ebene wird häufig mit termbasierten Gewichtungen gearbeitet. Ein
 klassisches Schema ist TF-IDF, bei dem ein Term höher gewichtet wird, wenn er in
 einem Dokument häufig vorkommt, aber im Gesamtkorpus vergleichsweise selten ist.
 Dadurch erhalten diskriminierende Begriffe mehr Einfluss auf die Relevanzbewertung
-als sehr häufige, wenig informative Terme. \cite{stanford_tfidf}
+als sehr häufige, wenig informative Terme. \cite{stanford_tfidf,manning2008irbook}
 
-\subsubsection*{BM25}
+\textbf{BM25}
 
 In praktischen Suchsystemen ist BM25 der verbreitete Standard für lexikalisches
 Ranking.
 Das Modell erweitert den reinen TF-IDF-Gedanken um Termfrequenz-Sättigung und
 Längennormalisierung und reduziert damit typische Verzerrungen zugunsten sehr langer
-Dokumente. \cite{robertson2009bm25}
-
-Dass BM25 nicht nur theoretisch, sondern auch produktiv relevant ist, zeigt sich in
+Dokumente. Dass BM25 nicht nur theoretisch, sondern auch produktiv relevant ist, zeigt sich in
 verbreiteten Suchbibliotheken: Lucene führt BM25 als zentrale Similarity-Variante
 und erlaubt zusätzlich die Parametrisierung über \(k_1\) und \(b\) für
-unterschiedliche Korpuscharakteristika. \cite{lucene_similarity}
+unterschiedliche Korpuscharakteristika. \cite{lucene_similarity,robertson2009bm25}
 
-
-% --- 5.3 Semantische Suchverfahren (Vector Search) ---
 \subsubsection{Semantische Suchverfahren (Vector Search)}
 
 Semantische Suchverfahren adressieren eine zentrale Schwäche rein lexikalischer
 Verfahren: relevante Treffer enthalten häufig nicht exakt dieselben Terme wie die
 Suchanfrage, sind aber inhaltlich nahe verwandt.
 Daher werden Query und Dokumente in einen gemeinsamen Vektorraum überführt und über
-Distanz- bzw. Ähnlichkeitsmaße verglichen. \cite{elastic_knn_search}
-
-Embeddings werden in dieser Arbeit bereits in Abschnitt
+Distanz- bzw. Ähnlichkeitsmaße verglichen. Embeddings werden in dieser Arbeit bereits in Abschnitt
 \ref{subsec:merkmalsextraktion_embedding} eingeführt und dort detailliert erklärt.
 Für die Sucharchitektur ist hier nur relevant: Die Qualität der semantischen Suche
 hängt davon ab, dass Query- und Dokumentvektoren mit kompatiblen Modellen und
-identischen Dimensionsannahmen erzeugt werden. \cite{elastic_knn_search}
+identischen Dimensionsannahmen erzeugt werden. \cite{elastic_knn_search}  
 
-\subsubsection*{Suche mittels k-NN und HNSW}
+\textbf{Suche mittels k-NN und HNSW}
 
 Das grundlegende Suchproblem in Vektorräumen ist k-NN (k-nearest neighbors):
 Gesucht werden die \(k\) nächsten Dokumentvektoren zur Query.
 Da exakte k-NN-Suche bei großen Datenmengen teuer wird, setzen produktive Systeme
 meist auf ANN-Methoden (Approximate Nearest Neighbor), die Rechenzeit gegen eine
-kontrollierte Recall-Abweichung tauschen. \cite{elastic_knn_search}
-
-Ein verbreiteter ANN-Ansatz ist HNSW (Hierarchical Navigable Small World).
+kontrollierte Recall-Abweichung tauschen.Ein verbreiteter ANN-Ansatz ist HNSW (Hierarchical Navigable Small World).
 Der Algorithmus organisiert Vektoren in einer hierarchischen
 Navigationsstruktur und erreicht dadurch hohe Suchgeschwindigkeit bei gleichzeitig
 guter Trefferqualität, was ihn für große Dokumentindizes praktikabel macht.
-\cite{malkov2018hnsw}
-
+\cite{malkov2018hnsw,elastic_knn_search}
 
 % --- 5.4 Hybride Suchansätze (Hybrid Search) ---
 \subsubsection{Hybride Suchansätze (Hybrid Search)}
@@ -901,15 +879,11 @@ In realen Dokumentanwendungen deckt weder ein rein lexikalischer noch ein rein
 semantischer Retriever alle Abfragetypen optimal ab.
 Hybrid Search kombiniert deshalb beide Signale in einer gemeinsamen
 Retrieval-Pipeline und erhöht so die Robustheit gegenüber unterschiedlichen
-Query-Formen. \cite{elastic_knn_search}
-
-Eine verbreitete Fusionsstrategie ist Reciprocal Rank Fusion (RRF).
+Query-Formen. Eine verbreitete Fusionsstrategie ist Reciprocal Rank Fusion (RRF).
 RRF kombiniert mehrere Ergebnislisten rein rangbasiert und benötigt keine aufwändige
 Score-Normalisierung zwischen unterschiedlichen Retrievalmethoden, was die praktische
-Integration deutlich vereinfacht. \cite{elastic_rrf}
+Integration deutlich vereinfacht. \cite{elastic_rrf,elastic_knn_search}
 
-
-% --- 5.5 Filter- und Facettenarchitekturen ---
 \subsubsection{Filter- und Facettenarchitekturen}
 
 Filter sind kein Ersatz für Ranking, sondern eine komplementäre
@@ -918,15 +892,14 @@ In Elasticsearch wird diese Trennung explizit als Query Context (scored) versus
 Filter Context (binär, nicht-scorebasiert) modelliert; insbesondere
 \texttt{bool.filter}-Klauseln werden ohne Relevanzbewertung ausgeführt und für
 wiederholte Nutzung gecacht.
-\cite{elastic_query_filter_context} \cite{elastic_bool_query}
+\cite{elastic_query_filter_context,elastic_bool_query}
 
 Für fachliche Navigation in großen Trefferlisten werden zusätzlich Facetten bzw.
 Aggregationen eingesetzt.
 Typische Muster sind Terms-Buckets (z.\,B. Dokumenttyp, Abteilung) und zeitliche
 Buckets (Date Histogram), die eine schrittweise Eingrenzung der Suchergebnisse
 ermöglichen.
-\cite{elastic_bucket_aggregation} \cite{elastic_terms_aggregation}
-\cite{elastic_date_histogram}
+\cite{elastic_bucket_aggregation,elastic_terms_aggregation,elastic_date_histogram}
 
 Dass diese Logik plattformübergreifend etabliert ist, zeigt auch der Solr-Ansatz:
 Faceting wird dort als Kategorisierung von Suchresultaten über indizierte Terme
@@ -947,14 +920,13 @@ Verantwortlichkeiten:
 
     \item \textbf{Filter-/Facet-Schicht}
           für fachliche Constraints und UI-gestützte Eingrenzung.
-          \cite{elastic_query_filter_context} \cite{elastic_terms_aggregation}
+          \cite{elastic_query_filter_context,elastic_terms_aggregation}
 \end{enumerate}
 
 Diese Schichtung verbessert Wartbarkeit und Skalierbarkeit, weil Relevanzmodelle,
 Filterregeln und Navigationslogik unabhängig weiterentwickelt werden können.
 Gerade in Dokumentensystemen mit häufig wechselnden Metadatenanforderungen ist
 diese Entkopplung ein zentraler Qualitätsfaktor. \cite{elastic_query_filter_context}
-
 
 % --- 5.6 Vergleich der Verfahren ---
 \subsubsection{Vergleich der Verfahren}
@@ -966,7 +938,7 @@ Unterschiede zwischen lexikalischer, semantischer und hybrider Suche gegenüber.
 \begin{table}[h]
     \centering
     \caption{Vergleich von Suchansätzen in Dokumentsystemen
-             \cite{robertson2009bm25} \cite{elastic_knn_search} \cite{elastic_rrf}}
+             \cite{robertson2009bm25,elastic_knn_search,elastic_rrf}}
     \label{tab:vergleich_suche}
     \begin{tabular}{p{3cm} p{4cm} p{4cm} p{3cm}}
         \textbf{Kriterium} &
@@ -988,10 +960,5 @@ Unterschiede zwischen lexikalischer, semantischer und hybrider Suche gegenüber.
         Schwach bei semantischer Varianz &
         Abhängig von Embedding-Qualität und Indexparametern &
         Höherer Integrations- und Betriebsaufwand \\ \hline
-
-        \textbf{Filterintegration} &
-        Sehr gut mit Metadatenfiltern kombinierbar &
-        Ebenfalls kombinierbar, teils mit speziellen ANN-Strategien &
-        Standardmuster: Ranking + Filter + Facets \\ \hline
     \end{tabular}
 \end{table}
