@@ -626,6 +626,216 @@ Die implementierte Dokumentensuche kombiniert:
 Damit ist die Suche sowohl funktional als auch sicherheitstechnisch in die Gesamtarchitektur integriert und für den produktiven Einsatz mit mandanten-/benutzerbezogenen Daten geeignet.
 
 \subsection{Benutzer- und Rollenverwaltung}
+
+Die Benutzer- und Rollenverwaltung basiert auf Microsoft Entra ID. Eine lokale
+Benutzerverwaltung mit eigenen Passwörtern ist in der aktuellen Lösung nicht
+vorgesehen. Stattdessen übernimmt Entra ID die Anmeldung, stellt die
+Identitäts-Claims bereit und liefert damit die Grundlage für geschützte
+UI-Bereiche sowie autorisierte API-Aufrufe.
+
+\subsubsection{Authentifizierter Zugriff auf Webanwendung und Dienste}
+
+Die Webanwendung ist so konfiguriert, dass die Anmeldung über Microsoft Entra ID
+erfolgt und nach erfolgreicher Authentifizierung Zugriffstoken für
+nachgelagerte APIs angefordert werden können. Gleichzeitig werden die zentralen
+UI-Komponenten nur für angemeldete Benutzer gerendert. Auf Serverseite
+validieren insbesondere Zone- und Search-Service die mitgesendeten JWT-Tokens
+und schützen ihre Endpunkte über \texttt{RequireAuthorization()}.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Authentifizierte Webanwendung mit geschütztem UI-Zugriff},label={lst:user-auth-web}]
+builder.Services
+    .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddInMemoryTokenCaches();
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
+    .RequireAuthorization();
+\end{lstlisting}
+
+Durch diese Kopplung von Anmeldung und Tokenbeschaffung fungiert die
+Webanwendung als zentraler Einstiegspunkt für den Benutzer, während die
+Fachdienste getrennt und zielgerichtet angesprochen werden können.
+
+\subsubsection{Benutzerkontext aus Entra-Claims}
+
+Für die fachliche Verarbeitung wird aus den Entra-Claims ein technischer
+Benutzerkontext gebildet. Relevant sind vor allem Tenant-ID und Object-ID, da
+diese Identifikatoren im weiteren Verlauf für benutzerbezogene Datenzugriffe
+verwendet werden. Zusätzlich werden Anzeigename und E-Mail aus den Claims
+übernommen.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Ermittlung des Benutzerkontexts aus Entra-Claims},label={lst:user-context-claims}]
+public string TenantId =>
+    U.FindFirstValue("tid") ??
+    U.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value ??
+    "";
+
+public string ObjectId =>
+    U.FindFirstValue("oid") ??
+    U.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value ??
+    U.FindFirstValue(ClaimTypes.NameIdentifier) ??
+    "";
+\end{lstlisting}
+
+In der Zone-API wird dieser Kontext beispielsweise verwendet, um Zonen pro
+Mandant und Benutzer zu laden oder Dateien einem konkreten Eigentümer
+zuzuordnen. Auch die Suche greift auf die übermittelte \texttt{oid} zurück, um
+nur jene Dokumente zurückzugeben, die für den aktuellen Benutzer freigegeben
+sind.
+
+\subsubsection{Rollenauflösung im Frontend}
+
+Neben der reinen Benutzeridentität werden auch Rollen aus dem Anmeldekontext
+ausgewertet. Dazu liest der \texttt{CurrentUserService} die Claims
+\texttt{roles} und \texttt{ClaimTypes.Role} aus. Falls im Token keine explizite
+Rolle enthalten ist, wird standardmäßig die Rolle \texttt{Mitarbeiter}
+verwendet.
+
+\begin{lstlisting}[language={[Sharp]C},caption={Rollenauflösung mit Standardrolle},label={lst:user-roles-default}]
+public async Task<IReadOnlyList<string>> GetRolesAsync()
+{
+    var user = await GetUserAsync();
+    var roles = new List<string>();
+
+    if (user.Identity?.IsAuthenticated == true)
+    {
+        roles.AddRange(user.FindAll("roles").Select(c => c.Value));
+        roles.AddRange(user.FindAll(ClaimTypes.Role).Select(c => c.Value));
+    }
+
+    if (roles.Count == 0)
+    {
+        roles.Add(DefaultRole);
+    }
+
+    return roles.Distinct().ToList();
+}
+\end{lstlisting}
+
+Die ermittelten Rollen werden im Frontend derzeit vor allem für die
+Benutzeranzeige verwendet, etwa im Benutzer-Popover der Navigationsleiste. Eine
+umfangreiche fachliche Differenzierung mehrerer Rollen ist in der aktuellen
+Ausbaustufe jedoch nur vorbereitet und noch nicht als durchgängige
+Berechtigungslogik umgesetzt.
+
+\subsubsection{Benutzerbezogene Zugriffskontrolle in den Diensten}
+
+Die wirksame Zugriffskontrolle erfolgt in der aktuellen Implementierung primär
+benutzerbezogen. Geschützte Endpunkte in der Zone- und Search-API verlangen eine
+gültige Authentifizierung, während die konkrete Datenfreigabe über die
+Entra-Identität des aufrufenden Benutzers erfolgt. So werden Suchtreffer in der
+Search-API anhand der \texttt{oid} eingeschränkt, und in der Documents-API wird
+die Eigentümerzuordnung über die übergebene Benutzer-ID
+(\texttt{X-User-Oid}) abgesichert.
+
+Diese Kombination aus geschütztem Zugriff, Claim-basierter
+Benutzeridentifikation und vorbereiteter Rollenauflösung schafft eine solide
+Grundlage für ein erweiterbares Berechtigungssystem. Gleichzeitig bleibt die
+aktuelle Lösung technisch überschaubar, da die operative Freigabelogik noch
+nicht auf komplexe Rollenmatrizen angewiesen ist.
+
+\subsubsection{Zusammenfassung der Implementierung}
+
+Die implementierte Benutzer- und Rollenverwaltung kombiniert:
+\begin{itemize}
+    \item zentrale Anmeldung über Microsoft Entra ID,
+    \item Token-basierte Absicherung von Webanwendung und APIs,
+    \item Extraktion von Benutzeridentitäten aus Claims,
+    \item eine einfache Rollenauflösung mit Standardrolle,
+    \item sowie benutzerbezogene Freigaben in Suche, Zonen- und Dokumentdiensten.
+\end{itemize}
+
+Damit ist die Benutzer- und Rollenverwaltung bereits in die technische
+Gesamtarchitektur integriert und bietet eine belastbare Basis für spätere,
+feingranularere Rollen- und Berechtigungserweiterungen.
+
 \subsection{API-Endpunkte}
-\subsection{Fehlerbehandlung und Ausnahmen}
-\subsection{Sicherheitsfunktionen}
+
+Dieses Unterkapitel gibt einen kompakten Überblick über die wichtigsten
+API-Endpunkte der einzelnen Services. Im Fokus stehen dabei jene Endpunkte, die
+im tatsächlichen Ablauf von Upload, Dokumentverwaltung, Suche und
+Benutzerzugriff verwendet werden.
+
+\subsubsection{Zone-Service}
+
+Der Zone-Service stellt die zentrale fachliche API des Systems bereit. Er
+verwaltet Upload-Zonen, steuert den Upload-Prozess und bildet die Brücke zu
+SharePoint sowie zu den nachgelagerten Dokument- und Suchdiensten.
+
+\begin{itemize}
+    \item \texttt{GET /zones}: Lädt alle Zonen des aktuell angemeldeten Benutzers.
+    \item \texttt{POST /zones}: Legt eine neue Zone an und initialisiert den zugehörigen SharePoint-Ordner.
+    \item \texttt{PUT /zones/\{id\}}: Aktualisiert Eigenschaften einer bestehenden Zone, z. B. Name oder Aktiv-Status.
+    \item \texttt{DELETE /zones/\{id\}}: Entfernt eine Zone aus der benutzerbezogenen Zonenkonfiguration.
+    \item \texttt{GET /zones/folders}: Liest verfügbare Ordner aus SharePoint und unterstützt damit die Auswahl eines Zielpfads.
+    \item \texttt{POST /zones/\{zoneId\}/upload/preflight}: Übergibt eine Datei an den KI-Dienst und erzeugt einen temporären Upload mit erkannten Metadaten.
+    \item \texttt{POST /zones/\{zoneId\}/upload/\{uploadId\}/commit}: Schreibt die bestätigte Datei nach SharePoint, persistiert Metadaten und stößt die Suchindex-Aktualisierung an.
+    \item \texttt{POST /zones/sync-all}: Prüft SharePoint und Datenbank auf Konsistenz und entfernt verwaiste Dokumenteinträge.
+    \item \texttt{GET /zones/documents/\{id\}/download}: Lädt eine Datei über die SharePoint-Referenz des Dokuments herunter.
+    \item \texttt{GET /zones/documents/\{id\}/folder-link}: Liefert den Web-Link auf den übergeordneten SharePoint-Ordner des Dokuments.
+    \item \texttt{GET /zones/documents/\{id\}/file-link}: Liefert den direkten Web-Link zur Datei in SharePoint.
+\end{itemize}
+
+Damit bündelt der Zone-Service die operative Hauptlogik der Anwendung in einer
+zentralen API.
+
+\subsubsection{Documents-Service}
+
+Der Documents-Service verwaltet die persistenten Metadaten der Dokumente in der
+PostgreSQL-Datenbank. Während die eigentlichen Dateien in SharePoint liegen,
+werden hier strukturierte Informationen wie Dokumenttyp, Jahr, Partner oder
+Eigentümer gespeichert.
+
+\begin{itemize}
+    \item \texttt{POST /documents}: Registriert ein neues Dokument nach dem Commit in SharePoint und speichert dessen Metadaten.
+    \item \texttt{GET /documents/by-zone/\{zoneId\}}: Liefert alle Dokumentreferenzen einer Zone für einen bestimmten Benutzer.
+    \item \texttt{DELETE /documents/\{id\}}: Löscht einen Dokumenteintrag aus der Datenbank.
+    \item \texttt{GET /api/documents/\{id\}}: Gibt die Detaildaten eines einzelnen Dokuments zurück.
+    \item \texttt{GET /api/documents/recent}: Liefert zuletzt erfasste Dokumente eines Benutzers, etwa für Dashboard und Erinnerungsansicht.
+\end{itemize}
+
+Der Service ist damit für die fachliche Verwaltung der Dokumentdaten zuständig,
+während Dateiinhalt und Dateispeicherung bewusst ausgelagert bleiben.
+
+\subsubsection{Search-Service}
+
+Der Search-Service kapselt die Anbindung an Azure AI Search. Er stellt einerseits
+die eigentliche Suchfunktion für das Frontend bereit und andererseits interne
+Endpunkte zur Pflege des Suchindexes.
+
+\begin{itemize}
+    \item \texttt{POST /search}: Führt eine benutzerbezogene Suche mit Suchtext, Filtern und Facetten aus.
+    \item \texttt{POST /internal/index}: Übernimmt ein Dokument in den Suchindex; dieser Endpunkt wird intern vom Zone-Service verwendet.
+    \item \texttt{DELETE /internal/index/\{id\}}: Entfernt ein Dokument aus dem Suchindex, etwa wenn es aus dem System gelöscht oder als verwaist erkannt wurde.
+\end{itemize}
+
+Dadurch ist die Suche klar vom übrigen System getrennt und kann unabhängig
+indiziert sowie abgefragt werden.
+
+\subsubsection{AI-Service}
+
+Der AI-Service übernimmt die automatische Dokumentklassifikation vor dem finalen
+Upload. Er ist bewusst schlank gehalten und stellt derzeit im Wesentlichen einen
+zentralen Fachendpunkt bereit.
+
+\begin{itemize}
+    \item \texttt{POST /ai/classify}: Nimmt eine PDF-Datei entgegen, analysiert sie mit dem KI-Modell und liefert erkannte Metadaten wie Dokumenttyp, Jahr, Partner oder Ablaufdatum zurück.
+\end{itemize}
+
+Dieser Endpunkt wird im Upload-Preflight verwendet, um dem Benutzer vor dem
+finalen Commit bereits einen strukturierten Vorschlag anzuzeigen.
+
+\subsubsection{Zusammenfassung der Implementierung}
+
+Die API-Landschaft von DropIT ist damit serviceorientiert aufgeteilt:
+\begin{itemize}
+    \item Der Zone-Service steuert die fachlichen Hauptabläufe rund um Zonen, Upload und SharePoint.
+    \item Der Documents-Service verwaltet die strukturierten Dokument-Metadaten.
+    \item Der Search-Service stellt Suche und Indexpflege bereit.
+    \item Der AI-Service übernimmt die automatische Voranalyse hochgeladener Dokumente.
+\end{itemize}
+
+Dadurch bleiben die Endpunkte pro Verantwortungsbereich übersichtlich, während
+die Services klar voneinander getrennt und unabhängig erweiterbar sind.

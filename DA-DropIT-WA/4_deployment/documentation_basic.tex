@@ -15,6 +15,20 @@ Zur persistenten Speicherung der Daten kommt das relationale Datenbankmanagement
 \subsection*{Suchtechnologie}
 Für die Dokumentensuche wird \textbf{Azure AI Search} eingesetzt. Dieser Dienst ermöglicht die Indizierung großer Dokumentbestände sowie eine performante Volltextsuche mit Filter- und Facettenfunktionen. Dadurch können Dokumente anhand von Suchbegriffen und strukturierten Metadaten effizient aufgefunden werden.
 
+\subsection*{Microsoft Entra ID}
+Für die Benutzeranmeldung und Zugriffsverwaltung wird \textbf{Microsoft Entra ID} verwendet. Der Dienst übernimmt die Authentifizierung der Benutzer und stellt den Benutzerkontext für geschützte Zugriffe auf die Anwendung und angebundene Microsoft-Dienste wie SharePoint bereit.
+
+Die registrierte Anwendung \textbf{DropIT.Core} fungiert dabei als zentrale Client-App der Webanwendung und fordert Zugriffstoken für die getrennt registrierten Dienste \textbf{DropIT.Zones.Api}, \textbf{DropIT.Documents.Api} und \textbf{DropIT.Search.Api} an. \textbf{DropIT.Zones.Api} wird für die Zonenverwaltung sowie für Zugriffe auf SharePoint verwendet, \textbf{DropIT.Documents.Api} für die Verwaltung der Dokument-Metadaten und \textbf{DropIT.Search.Api} für die abgesicherte Suchfunktion. Die Aufteilung auf mehrere App-Registrierungen ermöglicht es, Berechtigungen pro Dienst getrennt zu vergeben und die einzelnen Systemteile klar voneinander abzugrenzen.
+
+Die in Microsoft Entra registrierten Anwendungen des Systems sind in Abbildung \ref{fig:entra_apps} dargestellt.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{4_deployment/entra.png}
+    \caption{In Microsoft Entra registrierte Anwendungen von DropIT}
+    \label{fig:entra_apps}
+\end{figure}
+
 \subsection*{Frontend und Design}
 Das Frontend wurde mit einem \textbf{Blazor WebAssembly} realisiert. Dieses Framework ermöglicht die Entwicklung interaktiver Webanwendungen unter Verwendung von C\#, wobei der Anwendungscode direkt im Browser des Clients ausgeführt wird. Dadurch kann ein Teil der Verarbeitungslogik clientseitig erfolgen, was zu einer verbesserten Benutzerinteraktion führt.
 
