@@ -1,0 +1,137 @@
+Dieses Kapitel beschreibt die vollständige Einrichtung der DropIT-Umgebung.
+Die Einrichtung gliedert sich in drei Bereiche: die Registrierung der
+Anwendungen im Microsoft Entra Admin Center, die Bereitstellung der
+erforderlichen Azure-Dienste sowie den abschließenden Start aller Services
+über Docker Compose.
+ 
+% ------------------------------------------------------------
+\section{Registrierung im Microsoft Entra Admin Center}
+% ------------------------------------------------------------
+ 
+Damit sich Benutzer über Microsoft Single Sign-On anmelden können und die
+Backend-Services sicher mit der Microsoft-Infrastruktur kommunizieren,
+müssen im Entra Admin Center insgesamt vier App-Registrierungen angelegt
+werden: eine für den Client (\texttt{DropIT.Core}) sowie jeweils eine für
+die drei Backend-APIs.
+ 
+\subsection{DropIT.Core}
+ 
+Im Entra Admin Center zu \textbf{Identität $\to$ Anwendungen $\to$
+App-Registrierungen} navigieren und auf \textbf{+ Neue Registrierung}
+klicken. Als Name \texttt{DropIT.Core} eintragen, als unterstützte
+Kontotypen \textbf{Nur Konten in diesem Organisationsverzeichnis
+(Nur ein Mandant -- DropIT)} wählen und mit \textbf{Registrieren} bestätigen.
+ 
+Anschließend wird ein Client Secret angelegt. Dazu unter
+\textbf{Zertifikate \& Geheimnisse $\to$ Clientgeheimnisse} auf
+\textbf{+ Neuer geheimer Clientschlüssel} klicken, eine Beschreibung
+(z.\,B.\ \texttt{Entwicklung-Key}) sowie ein Ablaufdatum vergeben und mit
+\textbf{Hinzufügen} bestätigen. \textbf{Der angezeigte Wert muss sofort
+kopiert werden, da er nur einmalig angezeigt wird und später nicht mehr
+abrufbar ist.}
+ 
+Zuletzt werden die API-Berechtigungen konfiguriert. Unter
+\textbf{API-Berechtigungen $\to$ + Berechtigung hinzufügen $\to$
+Von meiner Organisation verwendete APIs} werden nacheinander folgende
+Scopes hinzugefügt:
+ 
+\begin{itemize}
+    \item \texttt{DropIT.Documents.Api} -- Scope: \texttt{Documents}
+    \item \texttt{DropIT.Search.Api} -- Scope: \texttt{Search}
+    \item \texttt{DropIT.Zones.Api} -- Scope: \texttt{Zones}
+\end{itemize}
+ 
+\subsection{Backend-APIs}
+ 
+Für die drei Backend-Services \texttt{DropIT.Documents.API},
+\texttt{DropIT.Zones.API} und \texttt{DropIT.Search.API} wird das
+folgende Vorgehen jeweils identisch wiederholt.
+ 
+Unter \textbf{App-Registrierungen} auf \textbf{+ Neue Registrierung}
+klicken. Als Name das Schema \texttt{DropIT.<name>.API} verwenden,
+als Kontotyp \textbf{Nur ein Mandant (DropIT)} wählen und die
+Umleitungs-URI leer lassen. Mit \textbf{Registrieren} bestätigen.
+ 
+Anschließend unter \textbf{Eine API verfügbar machen $\to$
++ Bereich hinzufügen} den Bereichsnamen \texttt{access\_as\_user}
+eintragen, die Einwilligung für \textbf{Administratoren und Benutzer}
+freigeben und den Status auf \textbf{Aktiviert} setzen.
+ 
+Zusätzlich benötigen zwei der APIs spezifische Graph-Berechtigungen,
+die unter \textbf{API-Berechtigungen} hinzugefügt werden:
+ 
+\begin{itemize}
+    \item \texttt{DropIT.Zones.API}: \texttt{Files.ReadWrite}, \texttt{Sites.Read.All}
+    \item \texttt{DropIT.Documents.API}: \texttt{Sites.Read.All}, \texttt{Sites.ReadWrite}
+\end{itemize}
+ 
+% ------------------------------------------------------------
+\section{Azure-Ressourcen einrichten}
+% ------------------------------------------------------------
+ 
+\subsection{Ressourcengruppe}
+ 
+Im Azure Portal das Menü \textbf{Ressourcengruppen} öffnen und auf
+\textbf{+ Erstellen} klicken. Als Ressourcengruppenname empfiehlt sich
+ein einheitliches Schema wie \texttt{rg-dropit-core-dev}. Als Region
+einen geeigneten Standort wählen (z.\,B.\ \texttt{Germany West Central})
+und mit \textbf{Überprüfen + erstellen} und \textbf{Erstellen} abschließen.
+ 
+\subsection{Azure AI Search}
+ 
+Über \textbf{Ressource erstellen} nach \textbf{Azure AI Search} suchen
+und den Dienst auswählen. Die zuvor angelegte Ressourcengruppe auswählen
+und dieselbe Region wie die übrigen Services verwenden, um Latenzen zu
+minimieren. \textbf{Der Dienstname muss global eindeutig sein}, da er
+Teil der öffentlichen URL wird. Den Tarif entsprechend des Bedarfs wählen
+und mit \textbf{Überprüfen + erstellen} und \textbf{Erstellen} bestätigen.
+Falls die gewählte Region keine freien Kapazitäten meldet, kann auf eine
+alternative Region ausgewichen werden.
+ 
+% ------------------------------------------------------------
+\section{Start mit Docker Compose}
+% ------------------------------------------------------------
+ 
+Für den vollständigen Betrieb aller DropIT-Services steht eine fertige
+\texttt{docker-compose.yml} bereit, die das Frontend, die Zones-API,
+die Documents-API, die Search-API, den AI-Service sowie die
+PostgreSQL-Datenbank gemeinsam startet.
+ 
+Vor dem ersten Start müssen alle Zugangsdaten in einer \texttt{.env}-Datei
+im Wurzelverzeichnis des Projekts eingetragen werden.
+Tabelle~\ref{tab:env-variablen} listet alle erforderlichen Variablen auf.
+ 
+\begin{table}[h]
+\centering
+\caption{Erforderliche Umgebungsvariablen in der \texttt{.env}-Datei}
+\label{tab:env-variablen}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Variable} & \textbf{Beschreibung} \\
+\midrule
+\texttt{ENTRA\_TENANT\_ID}          & Tenant-ID des Microsoft Entra Mandanten \\
+\texttt{ENTRA\_CLIENT\_ID}          & Client-ID der \texttt{DropIT.Core}-Registrierung \\
+\texttt{ENTRA\_CLIENT\_SECRET}      & Das zuvor erstellte Client Secret \\
+\texttt{DOCUMENTS\_API\_CLIENT\_ID} & Client-ID der \texttt{DropIT.Documents.API}-Registrierung \\
+\texttt{ZONES\_API\_CLIENT\_ID}     & Client-ID der \texttt{DropIT.Zones.API}-Registrierung \\
+\texttt{SEARCH\_API\_CLIENT\_ID}    & Client-ID der \texttt{DropIT.Search.API}-Registrierung \\
+\texttt{AZURE\_SEARCH\_ENDPOINT}    & URL des Azure AI Search Dienstes \\
+\texttt{AZURE\_SEARCH\_KEY}         & Admin-Schlüssel des Azure AI Search Dienstes \\
+\texttt{SHAREPOINT\_DRIVE\_ID}      & Drive-ID der SharePoint-Dokumentbibliothek \\
+\texttt{OPENAI\_API\_KEY}           & API-Schlüssel für die Dokumentklassifikation \\
+\texttt{POSTGRES\_PASSWORD}         & Passwort für die PostgreSQL-Datenbank \\
+\texttt{SEARCH\_INTERNAL\_API\_KEY} & Interner Schlüssel für die serviceübergreifende Indexierung \\
+\bottomrule
+\end{tabularx}
+\end{table}
+ 
+Sind alle Werte eingetragen, genügt folgender Befehl, um die gesamte
+Anwendung zu starten:
+ 
+\begin{lstlisting}[language=bash, caption={Start aller Services via Docker Compose}]
+docker compose up --build
+\end{lstlisting}
+ 
+Alle Services starten dann automatisch in isolierten Containern, die
+Datenbank wird initialisiert, und das Frontend ist anschließend im
+Browser erreichbar.

@@ -1,8 +1,20 @@
 \section{Grundlagen}
 Dieses Kapitel beschreibt die grundlegenden technischen Rahmenbedingungen der umgesetzten Lösung. Dabei werden die Systemarchitektur sowie die verwendeten Technologien als Basis für die nachfolgenden Implementierungs- und Funktionsbeschreibungen vorgestellt.
 
-\subsection{Systemarchitektur}
-\subsection{Technologien}
+\subsection{Systemarchitektur}\label{subsec:systemarchitektur}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{content/img/4_deployment/systemarchitektur.png}
+    \caption{Übersicht der Systemarchitektur}
+    \label{fig:Systemarchitektur}
+\end{figure}
+
+Die dargestellte Systemarchitektur in Abbildung \ref{fig:Systemarchitektur} ist serviceorientiert aufgebaut und trennt Benutzeroberfläche, Identitätsverwaltung, Fachlogik und externe Systeme voneinander. Die Blazor Web App dient als Client und kommuniziert über REST-Schnittstellen mit den Backend-Services, wobei die Authentifizierung und Tokenbereitstellung über Microsoft Entra ID erfolgt.
+
+Der Zone-Service übernimmt die zentrale Orchestrierung der Geschäftslogik. Er steuert den Upload-Prozess, die KI-gestützte Klassifikation über den AI-Service, die Speicherung von Metadaten im Documents-Service sowie die Indexierung im Search-Service. Die eigentliche Dokumentablage erfolgt in SharePoint Online, während PostgreSQL für strukturierte Metadaten und Azure AI Search für Suchanfragen verwendet wird. Dadurch entsteht eine klar getrennte und erweiterbare Systemarchitektur.
+
+\subsection{Technologien}\label{subsec:technologien}
 
 Dieses Unterkapitel gibt einen Überblick über die zentralen Technologien, die für die Umsetzung des Systems verwendet wurden. Dabei werden insbesondere Backend, Datenhaltung, Suchtechnologie sowie Frontend-nahe Technologien kurz eingeordnet.
 
