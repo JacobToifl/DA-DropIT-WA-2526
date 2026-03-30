@@ -1,2 +1,34 @@
 \section{Zusammenfassung}
-Zusammenfassend war diese Diplomarbeit ein sehr lehrreiches Projekt, bei dem wir viele neue Erfahrungen gemacht haben. ...
+Zusammenfassend war diese Diplomarbeit ein lehrreiches Projekt, bei dem viele neue
+Erfahrungen gesammelt wurden. Gleichzeitig befasst sich diese Diplomarbeit mit der Konzeption,
+Implementierung und Dokumentation des Systems \textbf{DropIT}, einer webbasierten
+Lösung zur strukturierten, sicheren und effizienten Verwaltung digitaler
+Dokumente. Ziel der Arbeit war es, die Ablage, Klassifikation, Suche und
+Organisation von Dokumenten in einer einheitlichen Anwendung zu bündeln und
+dabei sowohl technische als auch organisatorische Anforderungen moderner
+Dokumentenverwaltung zu berücksichtigen.
+
+Im Rahmen der Arbeit wurde eine serviceorientierte Systemarchitektur umgesetzt,
+die Benutzeroberfläche, Fachlogik, Identitätsverwaltung und externe Dienste
+klar voneinander trennt. Die Webanwendung basiert auf Blazor und wird über
+Microsoft Entra ID authentifiziert. Für die eigentliche Dokumentablage wird
+SharePoint Online verwendet, während strukturierte Metadaten in PostgreSQL
+gespeichert und Suchanfragen über Azure AI Search verarbeitet werden. Die
+zentrale Orchestrierung der Geschäftslogik erfolgt über den Zone-Service, der
+den Upload-Prozess, die Metadatenverarbeitung sowie die Anbindung der weiteren
+Backend-Dienste steuert.
+
+Ein wesentlicher Funktionsbaustein von DropIT ist die KI-gestützte
+Dokumentenklassifikation. Über den AI-Service werden hochgeladene PDF-Dokumente
+analysiert, automatisch einem Dokumenttyp zugeordnet und um relevante Metadaten
+wie Jahr, Vertragstyp, Partner oder Ablaufdatum ergänzt. Dadurch wird der
+manuelle Erfassungsaufwand reduziert und eine konsistentere Weiterverarbeitung
+der Dokumente ermöglicht. Ergänzend dazu wurde eine Sucharchitektur realisiert,
+die Volltextsuche, Metadatenfilter und benutzerbezogene Zugriffskontrolle
+kombiniert, um Dokumente schnell und zielgerichtet auffindbar zu machen.
+
+Die Arbeit zeigt damit, wie sich Microsoft-Dienste, moderne Webtechnologien und
+KI-gestützte Dokumentenanalyse zu einer praxistauglichen Gesamtlösung verbinden
+lassen. DropIT stellt eine belastbare Grundlage für eine zentrale
+Dokumentenverwaltung dar und verdeutlicht, wie Automatisierung, Suchbarkeit und
+Sicherheit in einem gemeinsamen System zusammengeführt werden können.

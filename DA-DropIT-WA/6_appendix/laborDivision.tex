@@ -1,16 +1,35 @@
 % chktex-file 2
 \section{Arbeitsteilung}
-Kurze Beschreibung, wer was gemacht hat (Überblick).
+
+Jacob Toifl:
+\begin{itemize}
+    \item Integration von Microsoft SharePoint und Entra ID
+    \item Entwicklung der Upload-Funktionalität
+    \item Entwicklung des Erinnerungssystem
+    \item Implementierung der Benutzeroberfläche
+    \item Konzeption der Datenbankstruktur
+\end{itemize}
+
+\vspace{0.5cm}
+Michael Schaider:
+\begin{itemize}
+    \item Implementierung der KI-gestützten Dokumentenerkennung
+    \item Integration von Azure AI Search
+    \item Implementierung der Such- und Filterarchitektur
+    \item Implementierung der Benutzeroberfläche
+    \item Konzeption der Datenbankstruktur
+\end{itemize}
+
 \section{Kapitelverzeichnis}
-\begin{longtable}{p{0.65\textwidth}|p{0.25\textwidth}}
+\begin{longtable}{p{0.12\textwidth}|p{0.32\textwidth}}
  \\
 % Definition des Tabellenkopfes auf der ersten Seite
-Kapitel & Editor  \\
+Kapitel & Name  \\
 \cline{1-2}
 \endfirsthead% Erster Kopf zu Ende
 % Definition des Tabellenkopfes auf den folgenden Seiten
-\caption{Kapaitelverzeichnis Fortsetzung}\\
-Kapitel & 2 Editor \\
+\caption{Kapitelverzeichnis Fortsetzung}\\
+Kapitel & Name \\
 \cline{1-2}
 \endhead% Zweiter Kopf ist zu Ende
 \multicolumn{2}{r}{Weiter auf der nächste Seite \ldots }\\
@@ -19,6 +38,19 @@ Kapitel & 2 Editor \\
 \caption{Kapitelverzeichnis}
 \endlastfoot%letze Fußzeile
 % Ab hier kommt der Inhalt der Tabelle
-\ref{chapter:loesung1}~\nameref{chapter:loesung1}& Max Mustermann \\
-\ref{chapter:loesung2}~\nameref{chapter:loesung2}& Mex Musterjuan \\
+\ref{chapter:praeambel} & Jacob Toifl \\
+\ref{chapter:Ausgangslage} & Michael Schaider \\
+\ref{subsec:dynamische_zugriffskontrolle_und_skalierbarkeit} & Jacob Toifl \\
+\ref{subsec:automatisierte_dokumentenanalyse_und_suchoptimierung} & Michael Schaider \\
+\ref{chapter:kuenstliche_intelligenz_zur_dokumentenverarbeitung} & Michael Schaider \\
+\ref{chapter:Architekturen_fuer_Dokumentensysteme} & Jacob Toifl \\
+\ref{subsec:systemarchitektur} & Michael Schaider \\
+\ref{subsec:technologien} & Jacob Toifl \\
+\ref{subsec:dokumenten_upload} & Jacob Toifl \\
+\ref{subsec:dokumenten_klassifikation} & Michael Schaider \\
+\ref{subsec:benutzer_und_rollenverwaltung} & Jacob Toifl \\
+\ref{subsec:api_endpunkte} & Michael Schaider \\
+\ref{chapter:beurteilung} & Jacob Toifl / Michael Schaider \\
+\ref{chapter:installation} & Jacob Toifl \\
+\ref{chapter:zusammenfassung_und_ausblick} & Michael Schaider \\
 \end{longtable}

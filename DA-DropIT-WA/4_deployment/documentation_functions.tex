@@ -2,7 +2,7 @@
 
 Dieses Kapitel gibt einen Überblick über die zentralen Funktionen des umgesetzten Systems. Dabei werden insbesondere der Dokumenten-Upload, die Dokumenten-Klassifikation sowie die Dokumenten-Suche und deren technischer Ablauf beschrieben.
 
-\subsection{Dokumenten-Upload}
+\subsection{Dokumenten-Upload}\label{subsec:dokumenten_upload}
 
 Dieses Kapitel dokumentiert den vollständigen Upload-Flow von der Anlage einer Upload-Zone bis zur finalen Speicherung des Dokuments in SharePoint inklusive Metadatenpersistenz und Suchindex-Aktualisierung.
 
@@ -326,7 +326,7 @@ Zusätzlich führen Fehler in Preflight, Commit oder Metadatenpersistenz zu klar
 Die Upload-Implementierung verbindet Benutzerführung, KI-Voranalyse und Persistenz in einem durchgängigen Prozess.
 Durch die Trennung in Preflight und Commit bleiben KI-Ergebnisse vor dem endgültigen Speichern überprüfbar. Datenhaltung und Suchindexierung werden danach konsistent aktualisiert.
 
-\subsection{Dokumenten-Klassifikation}
+\subsection{Dokumenten-Klassifikation}\label{subsec:dokumenten_klassifikation}
 
 Dieses Kapitel dokumentiert die implementierte Dokumenten-Klassifikation und beschreibt den technischen Ablauf vom API-Endpunkt bis zur Nachvalidierung der Ergebnisse.
 
@@ -625,7 +625,7 @@ Die implementierte Dokumentensuche kombiniert:
 
 Damit ist die Suche sowohl funktional als auch sicherheitstechnisch in die Gesamtarchitektur integriert und für den produktiven Einsatz mit mandanten-/benutzerbezogenen Daten geeignet.
 
-\subsection{Benutzer- und Rollenverwaltung}
+\subsection{Benutzer- und Rollenverwaltung}\label{subsec:benutzer_und_rollenverwaltung}
 
 Die Benutzer- und Rollenverwaltung basiert auf Microsoft Entra ID. Eine lokale
 Benutzerverwaltung mit eigenen Passwörtern ist in der aktuellen Lösung nicht
@@ -751,7 +751,7 @@ Damit ist die Benutzer- und Rollenverwaltung bereits in die technische
 Gesamtarchitektur integriert und bietet eine belastbare Basis für spätere,
 feingranularere Rollen- und Berechtigungserweiterungen.
 
-\subsection{API-Endpunkte}
+\subsection{API-Endpunkte}\label{subsec:api_endpunkte}
 
 Dieses Unterkapitel gibt einen kompakten Überblick über die wichtigsten
 API-Endpunkte der einzelnen Services. Im Fokus stehen dabei jene Endpunkte, die
@@ -836,6 +836,3 @@ Die API-Landschaft von DropIT ist damit serviceorientiert aufgeteilt:
     \item Der Search-Service stellt Suche und Indexpflege bereit.
     \item Der AI-Service übernimmt die automatische Voranalyse hochgeladener Dokumente.
 \end{itemize}
-
-Dadurch bleiben die Endpunkte pro Verantwortungsbereich übersichtlich, während
-die Services klar voneinander getrennt und unabhängig erweiterbar sind.

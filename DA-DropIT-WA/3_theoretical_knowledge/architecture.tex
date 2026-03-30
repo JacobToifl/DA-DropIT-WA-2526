@@ -1,5 +1,3 @@
-\newpage
-
 % ============================================================
 %  KAPITEL: Architekturen für Dokumentensysteme
 % ============================================================
@@ -15,6 +13,12 @@ Systeme beschrieben.
 %  1. Skalierbare plattformunabhängige Systemarchitekturen
 % ------------------------------------------------------------
 \subsection{Skalierbare plattformunabhängige Systemarchitekturen}
+
+Dieses Unterkapitel gibt einen Überblick über grundlegende Architekturansätze
+skalierbarer und plattformunabhängiger Softwaresysteme. Dabei werden zentrale
+Prinzipien der Softwarearchitektur, unterschiedliche Architekturtypen sowie die
+Bedeutung von Skalierbarkeit und Portabilität für moderne Dokumentensysteme
+beschrieben.
 
 % --- 1.1 Grundlagen von Softwarearchitektur ---
 \subsubsection{Grundlagen von Softwarearchitektur}
@@ -109,7 +113,7 @@ Architektur ist in Abbildung \ref{fig:architektur_monolith} dargestellt.
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.45\textwidth]{3_theoretical_knowledge/monolithic_architecture.png}
+    \includegraphics[width=0.38\textwidth]{3_theoretical_knowledge/monolithic_architecture.png}
     \caption{Schematischer Aufbau einer monolithischen Architektur
              \cite{kitrum_client_server}}
     \label{fig:architektur_monolith}
@@ -148,7 +152,7 @@ Microservices-Architektur.
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.6\textwidth]{3_theoretical_knowledge/microservice_architecture.png}
+    \includegraphics[width=0.5\textwidth]{3_theoretical_knowledge/microservice_architecture.png}
     \caption{Microservices-Architektur \cite{kitrum_client_server}}
     \label{fig:architektur_microservices}
 \end{figure}
@@ -456,6 +460,12 @@ der Dokumentenverwaltung zugeschnitten sind:
 %  3. Rollen- und Berechtigungssysteme
 % ------------------------------------------------------------
 \subsection{Rollen- und Berechtigungssysteme}
+
+Dieses Unterkapitel gibt einen Überblick über die Grundlagen von Rollen- und
+Berechtigungssystemen in IT-Anwendungen. Dabei werden der Aufbau einzelner
+Berechtigungen, zentrale Berechtigungsmodelle sowie typische
+Berechtigungsstufen beschrieben, die für den kontrollierten Zugriff auf
+Dokumente und Funktionen relevant sind.
 
 % --- 3.1 Aufbau einer Berechtigung ---
 \subsubsection{Aufbau einer Berechtigung}
@@ -801,6 +811,11 @@ Komplexität für die Endanwender reduziert.
 %  5. Suche und Filter-Architekturen
 % ------------------------------------------------------------
 \subsection{Suche und Filter-Architekturen}
+
+Dieses Unterkapitel gibt einen Überblick über zentrale Such- und
+Filterarchitekturen in modernen Dokumentensystemen. Dabei werden lexikalische,
+semantische und hybride Suchverfahren sowie die Rolle von Filtern und Facetten
+für eine präzise und skalierbare Informationssuche beschrieben.
 
 \subsubsection{Suchalgorithmen im Information Retrieval}
 
