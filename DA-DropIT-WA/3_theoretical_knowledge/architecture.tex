@@ -85,7 +85,7 @@ getroffen werden. \cite{bass2012software}
 % ~ Monolithische Architektur ~
 \textbf{Monolithische Architektur}
 
-Die monolithische Architektur stellt den klassischen Ansatz der Softwareentwicklung
+Die monolithische Architektur (\gls{monolith}) stellt den klassischen Ansatz der Softwareentwicklung
 dar. Bei diesem Modell werden alle Funktionsbereiche einer Anwendung, also
 Benutzeroberfläche, Geschäftslogik und Datenzugriff, in einer einzigen, eng
 gekoppelten Einheit zusammengefasst und gemeinsam entwickelt, gebaut sowie als eine
@@ -98,7 +98,7 @@ und kommunizieren über direkte Funktionsaufrufe innerhalb desselben Laufzeitsys
 Skalierung erfolgt bei monolithischen Anwendungen üblicherweise durch das Klonen der
 gesamten Anwendung auf mehrere Server. \cite{sciencedirect2023monolithic}
 
-Monolithische Architekturen eignen sich besonders für kleinere bis mittelgroße
+Monolithische Architekturen (\gls{monolith}) eignen sich besonders für kleinere bis mittelgroße
 Projekte, bei denen Einfachheit und eine schnelle Markteinführung im Vordergrund
 stehen. Etablierte Unternehmen in den Bereichen Banking, Versicherung oder
 öffentliche Verwaltung betreiben bis heute umfangreiche monolithische Systeme, die
@@ -122,11 +122,11 @@ Architektur ist in Abbildung \ref{fig:architektur_monolith} dargestellt.
 % ~ Microservices-Architektur ~
 \textbf{Microservices-Architektur}
 
-Die Microservices-Architektur stellt einen grundlegend anderen Ansatz dar, bei dem
+Die \gls{microservices}-Architektur stellt einen grundlegend anderen Ansatz dar, bei dem
 eine Anwendung in eine Vielzahl kleiner, unabhängiger Dienste aufgeteilt wird.
 Jeder dieser Dienste erfüllt eine klar abgegrenzte fachliche Aufgabe, verfügt über
 eine eigene Datenhaltung und kommuniziert mit anderen Diensten ausschließlich über
-definierte Schnittstellen, häufig in Form von REST-APIs oder nachrichtenbasierter
+definierte Schnittstellen, häufig in Form von \acrshort{rest}-\acrshort{api}s oder nachrichtenbasierter
 Kommunikation. \cite{fowler2014microservices}
 
 Lewis und Fowler, die den Begriff maßgeblich geprägt haben, beschreiben den
@@ -137,15 +137,15 @@ Jeder Dienst kann unabhängig voneinander entwickelt, getestet, deployt und skal
 werden, was Teams eine hohe Autonomie und kurze Releasezyklen ermöglicht.
 \cite{newman2015microservices,fowler2014microservices}
 
-Typische Einsatzbereiche für Microservices sind große, komplexe Systeme mit hohen
+Typische Einsatzbereiche für \gls{microservices} sind große, komplexe Systeme mit hohen
 Skalierungsanforderungen, wie beispielsweise E-Commerce-Plattformen,
 Streaming-Dienste oder Finanzanwendungen.
 Namhafte Unternehmen wie Amazon, Netflix und eBay haben ihre ursprünglich
-monolithischen Systeme auf Microservices-Architekturen migriert, um die
+monolithischen Systeme auf \gls{microservices}-Architekturen migriert, um die
 Skalierbarkeit und Entwicklungsgeschwindigkeit zu verbessern.
 Dem gegenüber steht ein erhöhter Betriebsaufwand: Die Orchestrierung, Überwachung
 und das Fehler-Management eines verteilten Systems stellen deutlich höhere
-Anforderungen an die Infrastruktur und das Betriebsteam als ein einzelner Monolith.
+Anforderungen an die Infrastruktur und das Betriebsteam als ein einzelner \gls{monolith}.
 Abbildung \ref{fig:architektur_microservices} zeigt den typischen Aufbau einer
 Microservices-Architektur.
 \cite{newman2015microservices,sciencedirect2023monolithic,dragoni2017microservices}
@@ -163,20 +163,20 @@ Microservices-Architektur.
 Cloud-native Anwendungen sind von Grund auf für den Betrieb in der Cloud konzipiert
 und nutzen deren spezifische Eigenschaften wie automatische Skalierung, verwaltete
 Datenbanken, globale Verfügbarkeit und integrierte Sicherheitsmechanismen.
-Das National Institute of Standards and Technology (NIST) definiert Cloud Computing
+Das \acrlong{nist} (\acrshort{nist}) definiert Cloud Computing
 als ein Modell, das einen allgegenwärtigen, bequemen und bedarfsgesteuerten
 Netzwerkzugriff auf einen gemeinsam genutzten Pool konfigurierbarer
 Computerressourcen ermöglicht. \cite{mell2011nist}
 
-Eine spezifische Ausprägung dieses Ansatzes ist Software-as-a-Service (SaaS).
+Eine spezifische Ausprägung dieses Ansatzes ist \acrlong{saas} (\acrshort{saas}).
 Dabei stellt ein Anbieter eine fertige Anwendung über das Internet bereit, die von
-den Nutzern über einen Webbrowser oder eine Programmierschnittstelle genutzt werden
+den Nutzern über einen Webbrowser oder eine Programmierschnittstelle (\acrshort{api}) genutzt werden
 kann, ohne dass diese die zugrundeliegende Infrastruktur verwalten oder kontrollieren
 müssen. \cite{mell2011nist}
 Skalierung, Wartung, Sicherheitsupdates und Verfügbarkeit werden vollständig vom
 Anbieter übernommen. \cite{liu2011nistarch,mell2011nist}
 
-SaaS-Lösungen werden in unterschiedlichsten Bereichen eingesetzt: von
+\acrshort{saas}-Lösungen werden in unterschiedlichsten Bereichen eingesetzt: von
 Produktivitätswerkzeugen wie E-Mail- und Office-Anwendungen über CRM-Systeme und
 Kollaborationsplattformen bis hin zu spezialisierten Fachanwendungen in Bereichen
 wie Buchhaltung, Personalverwaltung oder Dokumentenmanagement.
@@ -188,7 +188,7 @@ Serverinfrastruktur betrieben werden muss und die Anwendung plattformunabhängig
 % ~ Einordnung von SharePoint Online ~
 \textbf{Einordnung von SharePoint Online}
 
-Microsoft SharePoint Online ist als SaaS-Lösung in die Cloud-native
+Microsoft \gls{sharepoint} Online ist als \acrshort{saas}-Lösung in die Cloud-native
 Architekturkategorie einzuordnen. Die Anwendung wird vollständig von Microsoft in
 der Azure-Cloud betrieben und den Nutzern im Rahmen eines
 Microsoft-365-Abonnements bereitgestellt.
@@ -332,7 +332,7 @@ die Architektur sowie zentrale Funktionen der Dokumentenverwaltung beschrieben.
 % --- 2.1 Einordnung und Produkte ---
 \subsubsection{Einordnung und Produkte}
 
-Microsoft SharePoint fungiert als webbasierte Kollaborationsplattform, die primär
+Microsoft \gls{sharepoint} fungiert als webbasierte Kollaborationsplattform, die primär
 auf die Optimierung der teaminternen Zusammenarbeit sowie ein effizientes
 Informationsmanagement ausgelegt ist. Durch die Bereitstellung zentraler Instanzen
 zur Inhaltsverwaltung ermöglicht die Plattform eine strukturierte Ablage und
@@ -371,7 +371,7 @@ medienbruchfreie Kooperation die organisatorische Produktivität zu steigern.
 % --- 2.2 Architektur und Hierarchie ---
 \subsubsection{Architektur und Hierarchie}
 
-Die Struktur von SharePoint ist hierarchisch aufgebaut, um Inhalte logisch zu
+Die Struktur von \gls{sharepoint} ist hierarchisch aufgebaut, um Inhalte logisch zu
 trennen und den Zugriff gezielt zu steuern. Den Kern dieser Architektur bildet die
 sogenannte Websitesammlung (Site Collection). \cite{Microsoft2023,kampffmeyer2006ecm}
 
@@ -433,7 +433,7 @@ sind:
 % --- 2.4 Kernfunktionen der Dokumentenverwaltung ---
 \subsubsection{Kernfunktionen der Dokumentenverwaltung}
 
-SharePoint bietet eine Vielzahl von Funktionen, die speziell auf die Anforderungen
+\gls{sharepoint} bietet eine Vielzahl von Funktionen, die speziell auf die Anforderungen
 der Dokumentenverwaltung zugeschnitten sind:
 
 \begin{itemize}
@@ -534,10 +534,10 @@ und ihres Verwaltungsaufwands grundlegend unterscheiden.
 % ~ RBAC ~
 \textbf{Role-Based Access Control (RBAC)}
 
-Das Modell der rollenbasierten Zugriffskontrolle (RBAC) wurde 1992 von Ferraiolo und
+Das Modell der rollenbasierten Zugriffskontrolle (\acrshort{rbac}) wurde 1992 von Ferraiolo und
 Kuhn als Alternative zu den bis dahin dominierenden Modellen der Mandatory Access
 Control (MAC) und Discretionary Access Control (DAC) eingeführt. Das Grundprinzip
-von RBAC besteht darin, Berechtigungen nicht direkt an einzelne Benutzer zu vergeben,
+von \acrshort{rbac} besteht darin, Berechtigungen nicht direkt an einzelne Benutzer zu vergeben,
 sondern an Rollen – abstrakte Funktionseinheiten, die typischen Aufgabenprofilen in
 einer Organisation entsprechen. Benutzer werden diesen Rollen zugewiesen und erben
 damit automatisch alle zugehörigen Zugriffsrechte.
@@ -551,10 +551,10 @@ automatisch die Rechte untergeordneter Rollen zu vererben, was den
 Verwaltungsaufwand in großen Organisationen erheblich reduziert.
 \cite{sandhu1996rbac,ferraiolo1992rbac}
 
-Für Dokumentensysteme wie SharePoint ist RBAC das zentrale Steuerungsmodell:
+Für Dokumentensysteme wie \gls{sharepoint} ist \acrshort{rbac} das zentrale Steuerungsmodell:
 Vordefinierte Rollen wie Besitzer, Mitglied oder
 Besucher bündeln jeweils spezifische Berechtigungsstufen für
-Dokumentbibliotheken und Websites. Entra ID-Gruppen können diesen Rollen direkt
+Dokumentbibliotheken und Websites. \gls{entraid}-Gruppen können diesen Rollen direkt
 zugewiesen werden, sodass die Verwaltung organisationsweit an zentraler Stelle
 erfolgt.
 \cite{tsolkas2017rollen,sandhu1996rbac}
@@ -563,21 +563,21 @@ erfolgt.
 \textbf{Attribute-Based Access Control (ABAC)}
 
 Während RBAC auf feste Rollenzuweisungen setzt, ermöglicht das Modell der
-attributbasierten Zugriffskontrolle (ABAC) eine deutlich feinkörnigere Steuerung.
-Laut NIST Special Publication 800-162 wird bei ABAC die Zugriffserlaubnis anhand
+attributbasierten Zugriffskontrolle (\acrshort{abac}) eine deutlich feinkörnigere Steuerung.
+Laut \acrshort{nist} Special Publication 800-162 wird bei \acrshort{abac} die Zugriffserlaubnis anhand
 von Attributen des Subjekts, des Objekts sowie der Umgebungsbedingungen bewertet –
 nicht allein anhand der Rollenmitgliedschaft. \cite{hu2014abac}
 
 Typische Attribute sind etwa die Abteilungszugehörigkeit eines Nutzers, die
 Vertraulichkeitsstufe eines Dokuments oder der Standort, von dem der Zugriff
-erfolgt. ABAC eignet sich damit besonders für Szenarien, in denen
+erfolgt. \acrshort{abac} eignet sich damit besonders für Szenarien, in denen
 kontextabhängige Zugriffsregeln notwendig sind, die mit starren Rollen nicht
 abbildbar wären – beispielsweise der Zugriff auf ein Dokument nur dann, wenn der
 Nutzer der zuständigen Abteilung angehört und das Dokument noch nicht
 freigegeben ist.
 \cite{hu2014abac,sandhu1996rbac}
 
-In der Praxis werden RBAC und ABAC häufig kombiniert: Rollen liefern die
+In der Praxis werden \acrshort{rbac} und \acrshort{abac} häufig kombiniert: Rollen liefern die
 Grundstruktur der Zugriffsverwaltung, während Attribute zusätzliche Einschränkungen
 oder Erweiterungen ermöglichen. Diese Kombination bietet sowohl Verwaltbarkeit als
 auch Flexibilität.
@@ -626,11 +626,11 @@ unternehmensweiten Systemen wieder:
     \item \textbf{Stufe 4: Vollzugriff}     \\ (Alle Rechte, einschließlich Verwaltung)
 \end{itemize}
 
-In SharePoint entspricht dieses Stufenmodell den vordefinierten Berechtigungsstufen
+In \gls{sharepoint} entspricht dieses Stufenmodell den vordefinierten Berechtigungsstufen
 Lesen, Beitragen, Bearbeiten und Vollzugriff,
-die direkt auf RBAC-Rollen abgebildet werden. Damit schließt das
+die direkt auf \acrshort{rbac}-Rollen abgebildet werden. Damit schließt das
 Berechtigungsmodell von SharePoint unmittelbar an die theoretischen Grundlagen von
-RBAC an und macht deutlich, warum die Wahl eines strukturierten Rollenmodells
+\acrshort{rbac} an und macht deutlich, warum die Wahl eines strukturierten Rollenmodells
 gegenüber einer individuellen Rechtevergabe in der Unternehmenspraxis klar
 bevorzugt wird.
 \cite{tsolkas2017rollen,ferraiolo1992rbac}
@@ -650,7 +650,7 @@ beschrieben.
 
 Microsoft Entra beschreibt eine umfassende Produktfamilie für
 Identitätsmanagement und Netzwerkzugriff, die darauf ausgelegt ist, eine moderne
-Zero Trust-Sicherheitsstrategie in Organisationen zu etablieren. Das Ziel dieser
+\gls{zerotrust}-Sicherheitsstrategie in Organisationen zu etablieren. Das Ziel dieser
 Architektur ist die Schaffung einer Vertrauensstruktur, die Identitäten sowie
 Zugriffsbedingungen und Berechtigungen konsequent überprüft, Verbindungskanäle
 verschlüsselt und eine kontinuierliche Überwachung auf Kompromittierungen
@@ -658,7 +658,7 @@ ermöglicht. Die hierarchische Struktur und die verschiedenen Säulen dieser
 Architektur sind in Abbildung \ref{fig:ms_entra_overview} dargestellt.
 \cite{msentra2025,rose2020zerotrust}
 
-Das zentrale Kernprodukt dieser Familie ist Microsoft Entra ID. Dabei handelt es
+Das zentrale Kernprodukt dieser Familie ist Microsoft \gls{entraid}. Dabei handelt es
 sich um einen cloudbasierten Dienst zur Identitäts- und Zugriffsverwaltung, der die
 grundlegenden Funktionen für Authentifizierung und den Schutz von Benutzern,
 Geräten sowie Anwendungen bereitstellt. Eine wesentliche Besonderheit für
@@ -670,7 +670,7 @@ eine einzige Benutzeroberfläche konfigurieren und verwalten. \cite{msentra2025}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{3_theoretical_knowledge/entra-product-family.png}
+    \includegraphics[width=0.65\textwidth]{3_theoretical_knowledge/entra-product-family.png}
     \caption{Übersicht der Microsoft Entra Produktfamilie \cite{msentra2025}}
     \label{fig:ms_entra_overview}
 \end{figure}
@@ -703,7 +703,7 @@ werden können. \cite{msentra2025}
 % --- 4.3 Authentifizierung und Autorisierung ---
 \subsubsection{Authentifizierung und Autorisierung}
 
-Innerhalb von Microsoft Entra ID bilden Authentifizierung und Autorisierung die
+Innerhalb von Microsoft \gls{entraid} bilden Authentifizierung und Autorisierung die
 Grundlage für den sicheren Zugriff auf Ressourcen, folgen jedoch unterschiedlichen
 Prinzipien:
 
@@ -730,7 +730,7 @@ Prinzipien:
 % --- 4.4 Single Sign-On (SSO) ---
 \subsubsection{Single Sign-On (SSO)}
 
-Ein zentrales Leistungsmerkmal von Microsoft Entra ID ist das sogenannte Single
+Ein zentrales Leistungsmerkmal von Microsoft \gls{entraid} ist das sogenannte Single
 Sign-On. Diese Funktion ermöglicht es Benutzern, sich mit nur einer einzigen
 Identität – bestehend aus einem Benutzernamen und einem Kennwort – einmalig
 anzumelden, um danach automatisch Zugriff auf alle für sie freigegebenen
@@ -762,7 +762,7 @@ Aus technischer Sicht bietet SSO zwei wesentliche Vorteile für das Unternehmen:
 % --- 4.5 Integration externer Anwendungen ---
 \subsubsection{Integration externer Anwendungen}
 
-Ein wesentlicher Vorteil von Microsoft Entra ID ist die Fähigkeit, über die Grenzen
+Ein wesentlicher Vorteil von Microsoft \gls{entraid} ist die Fähigkeit, über die Grenzen
 der Microsoft-Welt hinaus als zentrale Identitätsinstanz zu fungieren. Dies wird
 durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
 
@@ -794,7 +794,7 @@ durch die Integration externer Anwendungen (Third-Party-Apps) realisiert:
 Die zentrale Rolle von Microsoft Entra ID als Vermittler zwischen lokalen
 Infrastrukturen, Cloud-Applikationen und externen Identitäten wird in Abbildung
 \ref{fig:entra_integration} verdeutlicht. Durch diese weitreichende
-Integrationsfähigkeit wird Microsoft Entra ID zum zentralen Kontrollpunkt für die
+Integrationsfähigkeit wird Microsoft \gls{entraid} zum zentralen Kontrollpunkt für die
 gesamte IT-Infrastruktur einer Organisation, was die Sicherheit erhöht und die
 Komplexität für die Endanwender reduziert.
 \cite{msentra2025}
@@ -806,6 +806,8 @@ Komplexität für die Endanwender reduziert.
              ID \cite{msentra2025}}
     \label{fig:entra_integration}
 \end{figure}
+
+\newpage
 
 % ------------------------------------------------------------
 %  5. Suche und Filter-Architekturen

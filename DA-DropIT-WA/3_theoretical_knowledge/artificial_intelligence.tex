@@ -1,16 +1,16 @@
 \section{Künstliche Intelligenz zur Dokumentenverarbeitung}\label{chapter:kuenstliche_intelligenz_zur_dokumentenverarbeitung}
 
-Dieses Kapitel beschreibt die theoretischen Grundlagen für den Einsatz von künstlicher Intelligenz in der Dokumentenverarbeitung. Zunächst wird erläutert, wie Dokumente mit KI klassifiziert und externe KI-Dienste in Systeme eingebunden werden können. Anschließend werden zentrale Konzepte der Merkmalsextraktion und von Embeddings erklärt, bevor darauf aufbauend verschiedene Modellfamilien zur Dokumenttypenerkennung sowie Anforderungen an die Datenaufbereitung dargestellt werden.
+Dieses Kapitel beschreibt die theoretischen Grundlagen für den Einsatz von \gls{ki} in der Dokumentenverarbeitung. Zunächst wird erläutert, wie Dokumente mit KI klassifiziert und externe KI-Dienste in Systeme eingebunden werden können. Anschließend werden zentrale Konzepte der \gls{merkmalsextraktion} und von \gls{embedding}s erklärt, bevor darauf aufbauend verschiedene Modellfamilien zur Dokumenttypenerkennung sowie Anforderungen an die Datenaufbereitung dargestellt werden.
 
 \subsection{KI-gestützte Dokumentenklassifikation}
 
-Dieses Unterkapitel gibt einen Überblick über die Grundlagen der KI-gestützten Dokumentenklassifikation. Dabei werden die Definition, die Abgrenzung zur Textklassifikation sowie der typische Ablauf eines KI-basierten Klassifikationssystems beschrieben.
+Dieses Unterkapitel gibt einen Überblick über die Grundlagen der KI-gestützten \gls{dokumentenklassifikation}. Dabei werden die Definition, die Abgrenzung zur Textklassifikation sowie der typische Ablauf eines KI-basierten Klassifikationssystems beschrieben.
 
 \subsubsection{Definition von Dokumentenklassifikation}
 
-Bei der Dokumentenklassifikation werden eingehende Unterlagen vordefinierten Klassen zugeordnet, damit sie anschließend passend gespeichert, weiterverarbeitet oder an nachgelagerte Workflows übergeben werden können. Allgemein beschreibt Klassifikation die Aufgabe, für ein Objekt aus einer Menge definierter Klassen die passende Klasse zu bestimmen. Im Unterschied zur reinen Textklassifikation berücksichtigt Dokumentenklassifikation jedoch nicht nur den sprachlichen Inhalt, sondern zusätzlich Layout, Seitenstruktur und bei gescannten Unterlagen auch visuelle Merkmale. \cite{manning2008irbook,aws_comprehend_training_classification_models,azure_document_intelligence_custom_classifier,vrdcu_survey_2024}
+Bei der \gls{dokumentenklassifikation} werden eingehende Unterlagen vordefinierten Klassen zugeordnet, damit sie anschließend passend gespeichert, weiterverarbeitet oder an nachgelagerte Workflows übergeben werden können. Allgemein beschreibt Klassifikation die Aufgabe, für ein Objekt aus einer Menge definierter Klassen die passende Klasse zu bestimmen. Im Unterschied zur reinen Textklassifikation berücksichtigt \gls{dokumentenklassifikation} jedoch nicht nur den sprachlichen Inhalt, sondern zusätzlich Layout, Seitenstruktur und bei gescannten Unterlagen auch visuelle Merkmale. \cite{manning2008irbook,aws_comprehend_training_classification_models,azure_document_intelligence_custom_classifier,vrdcu_survey_2024}
 
-Für digitale oder gescannte Dokumente ist daher häufig eine vorgelagerte Analyse notwendig. OCR- und Layout-Verfahren lesen gedruckten oder handschriftlichen Text aus, erkennen Tabellen, Formularelemente und Seitenstrukturen und stellen diese Informationen für die eigentliche Klassifikation bereit. Offizielle Plattformdokumentationen von Microsoft, Amazon und Google beschreiben Dokumentenklassifikation entsprechend nicht als reine Textanalyse, sondern als Kombination aus Texterkennung, Strukturverständnis und anschließender Zuordnung zu Dokumenttypen. \cite{azure_document_intelligence_overview,aws_comprehend_document_processing,aws_textract_whatis,googlecloud_documentai_custom_classifier}\\
+Für digitale oder gescannte Dokumente ist daher häufig eine vorgelagerte Analyse notwendig. \acrshort{ocr}- und Layout-Verfahren lesen gedruckten oder handschriftlichen Text aus, erkennen Tabellen, Formularelemente und Seitenstrukturen und stellen diese Informationen für die eigentliche Klassifikation bereit. Offizielle Plattformdokumentationen von Microsoft, Amazon und Google beschreiben Dokumentenklassifikation entsprechend nicht als reine Textanalyse, sondern als Kombination aus Texterkennung (\acrshort{ocr}), Strukturverständnis und anschließender Zuordnung zu Dokumenttypen. \cite{azure_document_intelligence_overview,aws_comprehend_document_processing,aws_textract_whatis,googlecloud_documentai_custom_classifier}\\
 
 Die Begriffe Dokumentklassifizierung und Textklassifizierung werden häufig synonym verwendet, weisen jedoch einige Unterschiede auf, wie in Tabelle \ref{tab:klassifizierung} ersichtlich.
 
@@ -40,7 +40,7 @@ Kombination aus NLP, Computer Vision und OCR. \\ \hline
 \end{tabular}
 \end{table}
 
-Im Allgemeinen lässt sich sagen, dass Textklassifizierung eine Teilmenge der Dokumentenklassifizierung ist, die sich ausschließlich auf den Textinhalt konzentriert, während Dokumentenklassifizierung den Merkmalsraum um Layout- und Bildinformationen erweitert. Dieser multimodale Ansatz wird auch in der Forschung zu \glqq visually rich documents\grqq{} als zentral beschrieben, weil sich viele Dokumenttypen nicht allein über ihren Wortlaut, sondern zusätzlich über Positionen, Tabellen, Überschriften und Formularstrukturen unterscheiden. \cite{vrdcu_survey_2024,layoutlm_2020,layoutlmv2_2021}
+Im Allgemeinen lässt sich sagen, dass Textklassifizierung eine Teilmenge der \gls{dokumentenklassifikation} ist, die sich ausschließlich auf den Textinhalt konzentriert, während Dokumentenklassifizierung den Merkmalsraum um Layout- und Bildinformationen erweitert. Dieser multimodale Ansatz wird auch in der Forschung zu \glqq visually rich documents\grqq{} als zentral beschrieben, weil sich viele Dokumenttypen nicht allein über ihren Wortlaut, sondern zusätzlich über Positionen, Tabellen, Überschriften und Formularstrukturen unterscheiden. \cite{vrdcu_survey_2024,layoutlm_2020,layoutlmv2_2021}
 
 
 \newpage
@@ -57,11 +57,11 @@ Die Dokumentenklassifizierung kann manuell, regelbasiert oder automatisiert erfo
 
 \subsubsection{Funktion der KI-basierten Dokumentenklassifizierung}
 
-Die automatisierte Klassifizierung von Dokumenten mit KI erfolgt typischerweise in mehreren aufeinanderfolgenden Schritten:
+Die automatisierte Klassifizierung von Dokumenten mit \gls{ki} erfolgt typischerweise in mehreren aufeinanderfolgenden Schritten:
 
 \begin{enumerate}
     \item \textbf{Datensammlung und Beschriftung} \\ Die Basis sind qualitativ hochwertige, gelabelte Trainingsdaten. Dafür werden Dokumente je Klasse gesammelt, mit Labels versehen und in Trainings- und Testmengen aufgeteilt. Microsoft nennt mindestens zwei Klassen und fünf Beispieldokumente pro Klasse als Untergrenze, Google empfiehlt pro Label getrennte Trainings- und Testdokumente und verweist darauf, dass sich ähnliche Klassen durch zusätzliche Beispiele robuster unterscheiden lassen. \cite{azure_document_intelligence_custom_classifier,googlecloud_documentai_custom_classifier}
-    \item \textbf{Vorverarbeitung und Feature-Erzeugung} \\ Liegt ein Dokument als Scan, Bild oder PDF vor, wird der enthaltene Text zunächst ausgelesen. Amazon Comprehend führt dafür je nach Dokumenttyp automatische Textverarbeitung durch und greift bei gescannten Dokumenten auf Textract zurück. Azure Document Intelligence ergänzt diese Vorverarbeitung um Read- und Layout-Modelle, die Text, Tabellen und Seitenstruktur extrahieren. Auf dieser Basis entstehen Text-, Layout- und Bildmerkmale für die Klassifikation. \cite{aws_comprehend_document_processing,aws_textract_whatis,azure_document_intelligence_overview}
+    \item \textbf{Vorverarbeitung und Feature-Erzeugung} \\ Liegt ein Dokument als Scan, Bild oder \acrshort{pdf} vor, wird der enthaltene Text zunächst ausgelesen. Amazon Comprehend führt dafür je nach Dokumenttyp automatische Textverarbeitung durch und greift bei gescannten Dokumenten auf Textract zurück. Azure Document Intelligence ergänzt diese Vorverarbeitung um Read- und Layout-Modelle, die Text, Tabellen und Seitenstruktur extrahieren. Auf dieser Basis entstehen Text-, Layout- und Bildmerkmale für die Klassifikation. \cite{aws_comprehend_document_processing,aws_textract_whatis,azure_document_intelligence_overview}
     \item \textbf{Training des Klassifikationsmodells} \\ Anschließend werden überwachte Modelle mit den gelabelten Beispielen trainiert. In der Praxis reicht das Spektrum von textbasierten Klassifikatoren bis zu multimodalen Modellen, die Text, Layout und visuelle Informationen gemeinsam verarbeiten. Die Forschungslinie um LayoutLM und LayoutLMv2 zeigt, dass diese gemeinsame Modellierung die Leistung auf Aufgaben der Dokumentklassifikation und des Dokumentverständnisses messbar verbessert. \cite{aws_comprehend_training_classification_models,azure_document_intelligence_custom_classifier,layoutlm_2020,layoutlmv2_2021}
     \item \textbf{Evaluation und Feintuning} \\ Im Anschluss wird das Modell mit bislang unbekannten Testdaten geprüft. In der Praxis werden dabei Kennzahlen wie Präzision, Recall, F1-Score und Konfidenzwerte betrachtet, um die Trennschärfe zwischen Klassen zu bewerten. Google stellt diese Metriken direkt in der Evaluationsansicht bereit; Microsoft empfiehlt zusätzlich die Nutzung von Konfidenzschwellen, wenn unbekannte Dokumenttypen im Produktivbetrieb auftreten können. \cite{googlecloud_documentai_custom_classifier,azure_document_intelligence_custom_classifier}
     \item \textbf{Produktivbetrieb und laufende Anpassung} \\ Nach der Bereitstellung ordnet das Modell neue Dokumente automatisch zu und kann über neue Beispiele fortlaufend verbessert werden. Google unterstützt dafür Auto-Labeling und erneutes Training, Microsoft zusätzlich inkrementelles Training auf Basis eines bestehenden Klassifikators. Dadurch lassen sich neue Klassen oder veränderte Dokumentmuster schrittweise in den laufenden Betrieb übernehmen. \cite{googlecloud_documentai_custom_classifier,azure_document_intelligence_custom_classifier}
@@ -73,7 +73,7 @@ Dieses Unterkapitel gibt einen Überblick über zentrale Architekturansätze zur
 
 \subsubsection{Grundidee der Integration externer KI-Dienste}
 
-Externe KI-Dienstleister stellen ihre Modelle typischerweise als verwaltete Cloud- oder API-Dienste bereit. Für Unternehmen reduziert das den Aufwand für den Eigenbetrieb komplexer Modelle, beschleunigt die Einführung neuer KI-Funktionen und ermöglicht einen schnellen Zugriff auf aktuelle Modellgenerationen. Gleichzeitig verlagert sich ein Teil der Systemarchitektur von der Modellimplementierung hin zur sauberen Integration externer Abhängigkeiten, etwa für Authentifizierung, Quotensteuerung, Fehlertoleranz und Kostenkontrolle. \cite{griesch2024ki,azure_ai_gateway_apim}
+Externe KI-Dienstleister stellen ihre Modelle typischerweise als verwaltete Cloud- oder \acrshort{api}-Dienste bereit. Für Unternehmen reduziert das den Aufwand für den Eigenbetrieb komplexer Modelle, beschleunigt die Einführung neuer KI-Funktionen und ermöglicht einen schnellen Zugriff auf aktuelle Modellgenerationen. Gleichzeitig verlagert sich ein Teil der Systemarchitektur von der Modellimplementierung hin zur sauberen Integration externer Abhängigkeiten, etwa für Authentifizierung, Quotensteuerung, Fehlertoleranz und Kostenkontrolle. \cite{griesch2024ki,azure_ai_gateway_apim}
 
 \subsubsection{Direkte Kopplung und Vermittlungsschicht}
 
@@ -83,11 +83,11 @@ Ein zentrales Gateway übernimmt in diesem Zusammenhang nicht nur die Weiterleit
 
 \subsubsection{Asynchrone Integrationsmuster}
 
-Für dokumentenbezogene KI-Anwendungsfälle ist eine rein synchrone Kommunikation oft nicht ausreichend. OCR, Klassifikation, Extraktion oder mehrstufige Prompt-Ketten können zu längeren Laufzeiten führen, die eine direkte Request-Response-Kommunikation unnötig blockieren würden. Das Architekturpattern \glqq Asynchronous Request-Reply\grqq{} entkoppelt deshalb die Annahme einer Anfrage von ihrer eigentlichen Verarbeitung: Der Client erhält zunächst eine Bestätigung, während die Verarbeitung in einer Queue oder einer nachgelagerten Komponente stattfindet und der Status später über Polling, Redirects oder Benachrichtigungsmechanismen abgefragt wird. Dadurch steigen Reaktionsfähigkeit, Parallelität und Skalierbarkeit der Gesamtlösung. \cite{azure_async_request_reply}
+Für dokumentenbezogene KI-Anwendungsfälle ist eine rein synchrone Kommunikation oft nicht ausreichend. \acrshort{ocr}, Klassifikation, Extraktion oder mehrstufige Prompt-Ketten können zu längeren Laufzeiten führen, die eine direkte Request-Response-Kommunikation unnötig blockieren würden. Das Architekturpattern \glqq Asynchronous Request-Reply\grqq{} entkoppelt deshalb die Annahme einer Anfrage von ihrer eigentlichen Verarbeitung: Der Client erhält zunächst eine Bestätigung, während die Verarbeitung in einer Queue oder einer nachgelagerten Komponente stattfindet und der Status später über Polling, Redirects oder Benachrichtigungsmechanismen abgefragt wird. Dadurch steigen Reaktionsfähigkeit, Parallelität und Skalierbarkeit der Gesamtlösung. \cite{azure_async_request_reply}
 
 \subsubsection{Sicherheit, Governance und Datenhoheit}
 
-Sobald externe KI-Dienstleister in produktive Systeme eingebunden werden, wird die Sicherheitsarchitektur zu einem eigenständigen Entwurfsbereich. Ein Gateway erlaubt es, Zugangsdaten an zentraler Stelle zu terminieren und gegenüber dem externen Dienst mit einer eigenen Identität aufzutreten. Microsoft empfiehlt hierfür insbesondere Managed Identities, damit API-Schlüssel nicht in Anwendungen, Konfigurationsdateien oder Quellcode verteilt werden müssen. Darüber hinaus lassen sich über die Vermittlungsschicht Protokollierung, Content-Safety-Policies und feinere Zugriffskontrollen umsetzen. \cite{azure_ai_gateway_apim,azure_openai_gateway_multi_backend}
+Sobald externe KI-Dienstleister in produktive Systeme eingebunden werden, wird die Sicherheitsarchitektur zu einem eigenständigen Entwurfsbereich. Ein Gateway erlaubt es, Zugangsdaten an zentraler Stelle zu terminieren und gegenüber dem externen Dienst mit einer eigenen Identität aufzutreten. Microsoft empfiehlt hierfür insbesondere Managed Identities, damit \acrshort{api}-Schlüssel nicht in Anwendungen, Konfigurationsdateien oder Quellcode verteilt werden müssen. Darüber hinaus lassen sich über die Vermittlungsschicht Protokollierung, Content-Safety-Policies und feinere Zugriffskontrollen umsetzen. \cite{azure_ai_gateway_apim,azure_openai_gateway_multi_backend}
 
 Hinzu kommt die Frage der Datenhoheit. Bei KI-Services, die über mehrere Instanzen, Regionen oder Anbieter verteilt werden, müssen Architekturentscheidungen auch unter Compliance- und Residency-Gesichtspunkten betrachtet werden. Microsoft weist ausdrücklich darauf hin, dass active-active- oder active-passive-Strategien nur innerhalb der zulässigen geopolitischen Grenzen angewendet werden sollten, wenn Datenresidenz eine Anforderung darstellt. Für sensible Dokumentensysteme bedeutet das, dass Routing- und Failover-Logik nicht nur nach Verfügbarkeit, sondern auch nach regulatorischen Vorgaben entworfen werden muss. \cite{azure_openai_gateway_multi_backend}
 
@@ -95,7 +95,7 @@ Hinzu kommt die Frage der Datenhoheit. Bei KI-Services, die über mehrere Instan
 
 Externe KI-Dienste sind aus Sicht der eigenen Anwendung entfernte Ressourcen und damit grundsätzlich anfällig für temporäre Fehler wie Timeouts, Überlastung oder kurzzeitige Nichterreichbarkeit. Das Retry-Pattern adressiert solche vorübergehenden Störungen, indem fehlgeschlagene Aufrufe kontrolliert wiederholt werden. Die Dokumentation des Azure Architecture Center empfiehlt dabei insbesondere verzögerte und bei Bedarf exponentiell ansteigende Wiederholungen, um ausgelastete Dienste nicht zusätzlich zu belasten. Für Integrationen mit KI-Dienstleistern ist diese Logik zentral, weil Lastspitzen und Quotenengpässe in der Praxis regelmäßig auftreten können. \cite{azure_retry_pattern}
 
-Nicht jeder Fehler ist jedoch nur kurzfristig. Dauert eine Störung länger an, reicht Wiederholen allein nicht aus. Das Circuit-Breaker-Pattern verhindert in diesem Fall weitere Aufrufe an eine wahrscheinlich fehlerhafte Abhängigkeit und ermöglicht so eine sanfte Degradation des Gesamtsystems. Gerade bei der Einbindung externer KI-APIs schützt dieses Muster davor, dass ein gestörter Anbieter die gesamte Anwendung blockiert oder nachgelagerte Komponenten überlastet. Microsoft beschreibt explizit die Kombination von Retry und Circuit Breaker als robusten Ansatz zur Fehlerbehandlung in verteilten Systemen. \cite{azure_circuit_breaker,azure_retry_pattern}
+Nicht jeder Fehler ist jedoch nur kurzfristig. Dauert eine Störung länger an, reicht Wiederholen allein nicht aus. Das Circuit-Breaker-Pattern verhindert in diesem Fall weitere Aufrufe an eine wahrscheinlich fehlerhafte Abhängigkeit und ermöglicht so eine sanfte Degradation des Gesamtsystems. Gerade bei der Einbindung externer KI-\acrshort{api}s schützt dieses Muster davor, dass ein gestörter Anbieter die gesamte Anwendung blockiert oder nachgelagerte Komponenten überlastet. Microsoft beschreibt explizit die Kombination von Retry und Circuit Breaker als robusten Ansatz zur Fehlerbehandlung in verteilten Systemen. \cite{azure_circuit_breaker,azure_retry_pattern}
 
 \subsubsection{Performance-, Kosten- und Routingoptimierung}
 
@@ -105,18 +105,18 @@ Ein weiterer Optimierungshebel ist Caching auf Prompt-Ebene. OpenAI dokumentiert
 
 \subsubsection{Einordnung für Dokumentenverarbeitungssysteme}
 
-Für Systeme zur Dokumentenverarbeitung ergibt sich daraus ein klares Zielbild: Externe KI-Dienstleister sollten nicht direkt und unkontrolliert aus jeder Fachkomponente heraus aufgerufen werden, sondern über eine definierte Integrationsarchitektur mit zentralem Routing, Sicherheitskontrollen, Quotenmanagement und Beobachtbarkeit. Ergänzt um asynchrone Verarbeitungsmuster, Retry-/Circuit-Breaker-Mechanismen sowie providernahe Caching- und Routingstrategien entsteht eine Architektur, die sowohl technisch robust als auch organisatorisch beherrschbar bleibt. Genau diese Entkopplung ist entscheidend, wenn KI-Funktionen langfristig in produktive Dokumenten- und Unternehmensprozesse eingebettet werden sollen. \cite{griesch2024ki,azure_ai_gateway_apim,azure_async_request_reply,azure_circuit_breaker}
+Für Systeme zur Dokumentenverarbeitung ergibt sich daraus ein klares Zielbild: Externe \gls{ki}-Dienstleister sollten nicht direkt und unkontrolliert aus jeder Fachkomponente heraus aufgerufen werden, sondern über eine definierte Integrationsarchitektur mit zentralem Routing, Sicherheitskontrollen, Quotenmanagement und Beobachtbarkeit. Ergänzt um asynchrone Verarbeitungsmuster, Retry-/Circuit-Breaker-Mechanismen sowie providernahe Caching- und Routingstrategien entsteht eine Architektur, die sowohl technisch robust als auch organisatorisch beherrschbar bleibt. Genau diese Entkopplung ist entscheidend, wenn KI-Funktionen langfristig in produktive Dokumenten- und Unternehmensprozesse eingebettet werden sollen. \cite{griesch2024ki,azure_ai_gateway_apim,azure_async_request_reply,azure_circuit_breaker}
 
 
 \subsection{Merkmalsextraktion und Embedding}\label{subsec:merkmalsextraktion_embedding}
 
-Dieses Unterkapitel gibt einen Überblick über die Grundlagen der Merkmalsextraktion und von Embeddings. Dabei werden die Bedeutung dieser Konzepte für KI-Systeme sowie ihre Unterschiede und Einsatzmöglichkeiten in der Dokumentenverarbeitung beschrieben.
+Dieses Unterkapitel gibt einen Überblick über die Grundlagen der \gls{merkmalsextraktion} und von \gls{embedding}s. Dabei werden die Bedeutung dieser Konzepte für \gls{ki}-Systeme sowie ihre Unterschiede und Einsatzmöglichkeiten in der Dokumentenverarbeitung beschrieben.
 
 \subsubsection{Definition von Merkmalsextraktion}
 
-Merkmalsextraktion beschreibt die Umwandlung roher Daten in eine Form, die von Lernverfahren direkt verarbeitet werden kann. Das scikit-learn-Handbuch grenzt diesen Schritt explizit von der Merkmalsauswahl ab: Bei der Extraktion werden Texte, Bilder oder andere Eingaben zunächst in numerische bzw.\ strukturierte Merkmale transformiert, während die Merkmalsauswahl erst auf diesen bereits erzeugten Merkmalen arbeitet. Für Dokumentensysteme bedeutet das, dass Textinhalt, Layoutsignale oder Metadaten zunächst in eine modellierbare Repräsentation überführt werden müssen. \cite{sklearn_feature_extraction,azure_document_intelligence_overview}
+\gls{merkmalsextraktion} beschreibt die Umwandlung roher Daten in eine Form, die von Lernverfahren direkt verarbeitet werden kann. Das scikit-learn-Handbuch grenzt diesen Schritt explizit von der Merkmalsauswahl ab: Bei der Extraktion werden Texte, Bilder oder andere Eingaben zunächst in numerische bzw.\ strukturierte Merkmale transformiert, während die Merkmalsauswahl erst auf diesen bereits erzeugten Merkmalen arbeitet. Für Dokumentensysteme bedeutet das, dass Textinhalt, Layoutsignale oder Metadaten zunächst in eine modellierbare Repräsentation überführt werden müssen. \cite{sklearn_feature_extraction,azure_document_intelligence_overview}
 
-Je nach Datentyp kommen dafür unterschiedliche Repräsentationen zum Einsatz. In der Textverarbeitung zählen Bag-of-Words-, TF-IDF- oder Hashing-Verfahren zu den klassischen Ansätzen; neuere neuronale Verfahren lernen Merkmale dagegen direkt aus großen Datenbeständen. Unabhängig vom konkreten Verfahren besteht das Ziel darin, die für eine Aufgabe relevanten Informationen kompakt abzubilden und störende Varianz zu reduzieren. \cite{manning2008irbook,stanford_tfidf,sklearn_feature_extraction} \\
+Je nach Datentyp kommen dafür unterschiedliche Repräsentationen zum Einsatz. In der Textverarbeitung zählen Bag-of-Words-, \acrshort{tfidf}- oder Hashing-Verfahren zu den klassischen Ansätzen; neuere neuronale Verfahren lernen Merkmale dagegen direkt aus großen Datenbeständen. Unabhängig vom konkreten Verfahren besteht das Ziel darin, die für eine Aufgabe relevanten Informationen kompakt abzubilden und störende Varianz zu reduzieren. \cite{manning2008irbook,stanford_tfidf,sklearn_feature_extraction} \\
 
 \newpage
 
@@ -146,7 +146,7 @@ Anzahl der enthaltenen Merkmale bzw. Einträge eines Vektors. \\ \hline
 
 \subsubsection{Funktion der KI-gestützten Merkmalsextraktion}
 
-KI-gestützte Merkmalsextraktion ist ein zentraler Verarbeitungsschritt, weil Modelle nicht auf Rohdaten, sondern auf geeigneten Repräsentationen trainiert werden. Bei Text- und Dokumentdaten reicht das Spektrum von explizit konstruierten Merkmalen wie Wortzählungen und Gewichtungen bis zu automatisch gelernten Repräsentationen aus neuronalen Netzen. Klassische Verfahren sind transparent und effizient, neuronale Verfahren erfassen zusätzlich Kontext und semantische Zusammenhänge. \cite{sklearn_feature_extraction,manning2008irbook,bert_2019} \\
+\gls{ki}-gestützte \gls{merkmalsextraktion} ist ein zentraler Verarbeitungsschritt, weil Modelle nicht auf Rohdaten, sondern auf geeigneten Repräsentationen trainiert werden. Bei Text- und Dokumentdaten reicht das Spektrum von explizit konstruierten Merkmalen wie Wortzählungen und Gewichtungen bis zu automatisch gelernten Repräsentationen aus neuronalen Netzen. Klassische Verfahren sind transparent und effizient, neuronale Verfahren erfassen zusätzlich Kontext und semantische Zusammenhänge. \cite{sklearn_feature_extraction,manning2008irbook,bert_2019} \\
 
 Die in Tabelle \ref{tab:Algorithmen} aufgeführten Verfahren sind typische Methoden der Merkmalsextraktion.
 
@@ -174,19 +174,19 @@ Lernen Merkmale aus dem Kontext eines Tokens oder Satzes und können dadurch Meh
 \end{table}
 \newpage
 
-\textbf{Maschinelles Lernen} unterstützt die Merkmalsextraktion, indem Modelle aus Trainingsdaten lernen, welche Signale für eine Aufgabe tatsächlich relevant sind. Mikolov et al.\ zeigen dies bereits für Wortvektoren, indem kontinuierliche Repräsentationen semantische und syntaktische Beziehungen zwischen Wörtern erfassen. Mit BERT wurde dieser Gedanke auf kontextabhängige Sprachrepräsentationen ausgeweitet, bei denen dieselbe Zeichenfolge je nach Umgebung unterschiedlich eingebettet werden kann. \cite{mikolov2013word2vec,bert_2019}
+\textbf{Maschinelles Lernen} unterstützt die Merkmalsextraktion, indem Modelle aus Trainingsdaten lernen, welche Signale für eine Aufgabe tatsächlich relevant sind. Mikolov et al.\ zeigen dies bereits für Wortvektoren, indem kontinuierliche Repräsentationen semantische und syntaktische Beziehungen zwischen Wörtern erfassen. Mit BERT wurde dieser Gedanke im Bereich des \acrshort{nlp} auf kontextabhängige Sprachrepräsentationen ausgeweitet, bei denen dieselbe Zeichenfolge je nach Umgebung unterschiedlich eingebettet werden kann. \cite{mikolov2013word2vec,bert_2019}
 
-\textbf{Text Mining} ist ein praktischer Anwendungsbereich dieser Verfahren auf unstrukturierten Textbeständen. Hier werden Texte tokenisiert, normalisiert, gewichtet und gegebenenfalls in dichte Repräsentationen überführt, damit Aufgaben wie Klassifikation, semantische Suche oder Clustering möglich werden. Für Dokumentensysteme ist das besonders relevant, weil OCR-Texte, Metadaten und Layoutsignale gemeinsam in eine maschinenlesbare Form gebracht werden müssen. \cite{manning2008irbook,sklearn_feature_extraction,layoutlm_2020}
+\textbf{Text Mining} ist ein praktischer Anwendungsbereich dieser Verfahren auf unstrukturierten Textbeständen. Hier werden Texte im Rahmen der \gls{tokenization} normalisiert, gewichtet und gegebenenfalls in dichte Repräsentationen überführt, damit Aufgaben wie \gls{dokumentenklassifikation}, semantische Suche oder Clustering möglich werden. Für Dokumentensysteme ist das besonders relevant, weil \acrshort{ocr}-Texte, Metadaten und Layoutsignale gemeinsam in eine maschinenlesbare Form gebracht werden müssen. \cite{manning2008irbook,sklearn_feature_extraction,layoutlm_2020}
 
 \subsubsection{Definition von Embedding}
 
-Ein Embedding ist eine dichte Vektorrepräsentation eines Objekts in einem kontinuierlichen Raum. Google beschreibt Embedding-Vektoren als trainierte Arrays aus Fließkommazahlen, bei denen ähnliche Objekte ähnliche Zahlenmuster aufweisen. Damit unterscheiden sich Embeddings von sparsamen Repräsentationen wie One-Hot- oder Count-Vektoren, die zwar interpretierbar sind, semantische Nähe aber nur eingeschränkt abbilden. \cite{google_ml_glossary_embedding,sklearn_feature_extraction}
+Ein \gls{embedding} ist eine dichte Vektorrepräsentation eines Objekts in einem kontinuierlichen Raum. Google beschreibt Embedding-Vektoren als trainierte Arrays aus Fließkommazahlen, bei denen ähnliche Objekte ähnliche Zahlenmuster aufweisen. Damit unterscheiden sich Embeddings von sparsamen Repräsentationen wie One-Hot- oder Count-Vektoren, die zwar interpretierbar sind, semantische Nähe aber nur eingeschränkt abbilden. \cite{google_ml_glossary_embedding,sklearn_feature_extraction}
 
-Embeddings werden in vielen Anwendungsfeldern genutzt, etwa für semantische Suche, Ähnlichkeitsvergleich, Clustering oder Klassifikation. Die Grundidee ist, dass nicht einzelne Schlüsselwörter, sondern Bedeutungsbeziehungen gelernt werden. Bereits Word2Vec erzeugt kontinuierliche Wortvektoren aus großen Textmengen; neuere Transformer-Modelle wie BERT oder Sentence-BERT erweitern dieses Prinzip auf kontextabhängige Token- und Satzrepräsentationen. \cite{mikolov2013word2vec,bert_2019,sentence_bert_2019}
+Embeddings werden in vielen Anwendungsfeldern genutzt, etwa für semantische Suche, Ähnlichkeitsvergleich, Clustering oder Klassifikation. Die Grundidee ist, dass nicht einzelne Schlüsselwörter, sondern Bedeutungsbeziehungen gelernt werden. Bereits Word2Vec erzeugt kontinuierliche Wortvektoren aus großen Textmengen; neuere \gls{transformer}-Modelle wie BERT oder Sentence-BERT erweitern dieses Prinzip auf kontextabhängige Token- und Satzrepräsentationen. \cite{mikolov2013word2vec,bert_2019,sentence_bert_2019}
 
 \subsubsection{Prinzip und Funktionsweise von Embeddings}
 
-Bei der Bildung von Embeddings werden Objekte zunächst kodiert und anschließend so in einen Vektorraum projiziert, dass geometrische Nähe inhaltliche Nähe widerspiegelt. Für semantische Textähnlichkeit erzeugen moderne Embedding-Modelle Vektoren für einzelne Texte und vergleichen diese typischerweise über Cosinus-Ähnlichkeit. Die Dokumentation von Sentence Transformers beschreibt dieses Vorgehen explizit: Texte mit dem höchsten Similarity-Score gelten als semantisch am ähnlichsten. \cite{sbert_sts_docs,sentence_bert_2019}
+Bei der Bildung von Embeddings werden Objekte zunächst kodiert und anschließend so in einen Vektorraum projiziert, dass geometrische Nähe inhaltliche Nähe widerspiegelt. Für semantische Textähnlichkeit erzeugen moderne Embedding-Modelle Vektoren für einzelne Texte und vergleichen diese typischerweise über \gls{cosinesimilarity}. Die Dokumentation von Sentence Transformers beschreibt dieses Vorgehen explizit: Texte mit dem höchsten Similarity-Score gelten als semantisch am ähnlichsten. \cite{sbert_sts_docs,sentence_bert_2019}
 
 In Abbildung \ref{fig:Vektordarstellung} ist dieses Prinzip schematisch dargestellt: semantisch ähnliche Begriffe liegen im Vektorraum näher beieinander (z. B. Cat, Dog, Wolf), während thematisch andere Begriffe weiter entfernt positioniert sind (z. B. Apple, Banana). 
 Die räumliche Distanz dient damit als Maß für Ähnlichkeit.
@@ -200,7 +200,7 @@ Die räumliche Distanz dient damit als Maß für Ähnlichkeit.
     \label{fig:Vektordarstellung}
 \end{figure}
 
-Für die Dokumentenverarbeitung ist ein besonders anschauliches Beispiel die semantische Suche: Ein Modell erzeugt Embeddings für Dokumenttitel, Absätze oder ganze Seiten, und eine Suchanfrage wird in denselben Vektorraum projiziert. Dokumente mit hoher Cosinus-Ähnlichkeit zur Anfrage können anschließend priorisiert, gruppiert oder einer tieferen Extraktion zugeführt werden. Genau dafür wurden Satz-Embeddings wie Sentence-BERT entwickelt, weil klassische BERT-Paarvergleiche für große Vergleichsmengen zu teuer wären. \cite{sentence_bert_2019,sbert_sts_docs}
+Für die Dokumentenverarbeitung ist ein besonders anschauliches Beispiel die semantische Suche: Ein Modell erzeugt Embeddings für Dokumenttitel, Absätze oder ganze Seiten, und eine Suchanfrage wird in denselben Vektorraum projiziert. Dokumente mit hoher \gls{cosinesimilarity} zur Anfrage können anschließend priorisiert, gruppiert oder einer tieferen Extraktion zugeführt werden. Genau dafür wurden Satz-Embeddings wie Sentence-BERT entwickelt, weil klassische BERT-Paarvergleiche für große Vergleichsmengen zu teuer wären. \cite{sentence_bert_2019,sbert_sts_docs}
 
 \subsubsection{Häufige Objekte für Embeddings}
 
@@ -230,47 +230,47 @@ Multimodale Repräsentationen, die Textpositionen, visuelle Merkmale und Layout 
 
 \subsubsection{Abgrenzung: Merkmalsextraktion vs. Embedding}
 
-Merkmalsextraktion ist der Oberbegriff für alle Verfahren, die aus Rohdaten nutzbare Merkmale ableiten. Das Ergebnis können einfache statistische Kennwerte, sparse Vektoren wie TF-IDF oder auch multimodale Layoutmerkmale sein. Der Begriff beschreibt also den Prozess der Repräsentationsbildung insgesamt. \cite{sklearn_feature_extraction,stanford_tfidf}
+Merkmalsextraktion ist der Oberbegriff für alle Verfahren, die aus Rohdaten nutzbare Merkmale ableiten. Das Ergebnis können einfache statistische Kennwerte, sparse Vektoren wie \acrshort{tfidf} oder auch multimodale Layoutmerkmale sein. Der Begriff beschreibt also den Prozess der Repräsentationsbildung insgesamt. \cite{sklearn_feature_extraction,stanford_tfidf}
 
-Ein Embedding ist dagegen eine spezielle, gelernte Form dieser Repräsentation. Embeddings sind typischerweise dichte Vektoren in einem kontinuierlichen Raum, in dem semantisch ähnliche Objekte nahe beieinanderliegen. Damit ist jedes Embedding ein Merkmal bzw.\ ein Merkmalsvektor, aber nicht jede Merkmalsextraktion erzeugt automatisch Embeddings. Genau diese Unterscheidung ist für Dokumentensysteme wichtig: TF-IDF, Layoutmerkmale und OCR-Metadaten sind extrahierte Merkmale, während Satz- oder Dokumentembeddings zusätzlich semantische Nähe direkt im Vektorraum modellieren. \cite{google_ml_glossary_embedding,mikolov2013word2vec,sentence_bert_2019}
+Ein \gls{embedding} ist dagegen eine spezielle, gelernte Form dieser Repräsentation. \gls{embedding}s sind typischerweise dichte Vektoren in einem kontinuierlichen Raum, in dem semantisch ähnliche Objekte nahe beieinanderliegen. Damit ist jedes Embedding ein Merkmal bzw.\ ein Merkmalsvektor, aber nicht jede Merkmalsextraktion erzeugt automatisch Embeddings. Genau diese Unterscheidung ist für Dokumentensysteme wichtig: \acrshort{tfidf}, Layoutmerkmale und \acrshort{ocr}-Metadaten sind extrahierte Merkmale, während Satz- oder Dokument-\gls{embedding}s zusätzlich semantische Nähe direkt im Vektorraum modellieren. \cite{google_ml_glossary_embedding,mikolov2013word2vec,sentence_bert_2019}
 
 \subsection{Modellfamilien zur Dokumenttypenerkennung}
 
-Die Dokumenttypenerkennung ist ein zentraler Baustein in der KI-gestützten Dokumentenverarbeitung. Ziel ist es, eingehende Dokumente – 
+Die Dokumenttypenerkennung ist ein zentraler Baustein in der \gls{ki}-gestützten Dokumentenverarbeitung. Ziel ist es, eingehende Dokumente – 
 etwa Rechnungen, Angebote, Verträge oder Formulare – automatisch einem definierten Dokumenttyp zuzuordnen, um nachgelagerte Verarbeitungsschritte wie Routing, Extraktion oder Validierung zu steuern. 
 Je nach Anwendungsfall stehen dafür unterschiedliche Modellansätze zur Verfügung, die sich vor allem darin unterscheiden, welche Informationsquellen eines Dokuments sie nutzen: reinen Textinhalt, visuelle Merkmale einer Seite, Layout- und Positionsinformationen oder Kombinationen daraus.
 In der Literatur und in praktischen Systemen haben sich daher mehrere „Modellfamilien“ etabliert.
 
 \subsubsection{Textbasierte Modellfamilie}
 
-Textbasierte Verfahren formulieren die Dokumenttypenerkennung als Textklassifikationsproblem: Ein Dokument wird zunächst in eine rein textuelle Darstellung überführt (z. B. durch direkt extrahierbaren PDF-Text oder durch OCR bei gescannten Dokumenten). 
-Anschließend wird dieser Text einer vordefinierten Klasse zugeordnet. Methodisch entspricht dies dem allgemeinen Vorgehen der Textklassifikation, bei dem Textinhalte analysiert und mittels gelabelter Beispiele in Kategorien eingeteilt werden. \cite{elastic_textclassification}
+Textbasierte Verfahren formulieren die Dokumenttypenerkennung als Textklassifikationsproblem: Ein Dokument wird zunächst in eine rein textuelle Darstellung überführt (z. B. durch direkt extrahierbaren \acrshort{pdf}-Text oder durch \acrshort{ocr} bei gescannten Dokumenten). 
+Anschließend wird dieser Text einer vordefinierten Klasse zugeordnet. Methodisch entspricht dies dem allgemeinen Vorgehen der Textklassifikation (\acrshort{nlp}), bei dem Textinhalte analysiert und mittels gelabelter Beispiele in Kategorien eingeteilt werden. \cite{elastic_textclassification}
 
 Innerhalb dieser Modellfamilie werden sowohl klassische Feature-basierte Ansätze (z. B. Bag-of-Words/gewichtete Termrepräsentationen) als auch neuere neuronale Modelle eingesetzt. 
-Moderne Systeme nutzen häufig kontextuelle Sprachmodelle (Transformer), um neben Schlüsselbegriffen auch semantische Zusammenhänge zu berücksichtigen. 
-Die Leistungsfähigkeit textbasierter Ansätze hängt in der Dokumentenverarbeitung jedoch stark von der Qualität der Texterfassung ab: OCR-Fehler, fehlende Sonderzeichen oder fragmentierter Text können die Klassifikation erschweren. 
+Moderne Systeme nutzen häufig kontextuelle Sprachmodelle (\gls{transformer}), um neben Schlüsselbegriffen auch semantische Zusammenhänge zu berücksichtigen. 
+Die Leistungsfähigkeit textbasierter Ansätze hängt in der Dokumentenverarbeitung jedoch stark von der Qualität der Texterfassung ab: \acrshort{ocr}-Fehler, fehlende Sonderzeichen oder fragmentierter Text können die Klassifikation erschweren. 
 Außerdem werden Layout- und Strukturinformationen eines Dokuments (z. B. Positionen von Feldern oder tabellarische Anordnungen) in einem rein textuellen Ansatz nur indirekt oder gar nicht abgebildet. \cite{elastic_textclassification}
 
 \subsubsection{Bildbasierte Modellfamilie}
 
 Bildbasierte Verfahren behandeln Dokumenttypenerkennung als Bildklassifikation: Seiten werden als gerenderte PDF-Seiten oder Scans (Seitenbilder) verarbeitet und auf Basis visueller Merkmale klassifiziert. 
-Solche Ansätze nutzen typischerweise Convolutional Neural Networks (CNNs), die darauf ausgelegt sind, Muster in visuellen Daten zu erkennen und sich besonders für Klassifikationsaufgaben in der Computer Vision eignen. \cite{googlecloud_cnn}
+Solche Ansätze nutzen typischerweise \acrlong{cnn}s (\acrshort{cnn}s), die darauf ausgelegt sind, Muster in visuellen Daten zu erkennen und sich besonders für Klassifikationsaufgaben in der Computer Vision eignen. \cite{googlecloud_cnn}
 
 Ein wichtiges Argument für bildbasierte Ansätze ist, dass Dokumenttypen oft durch wiederkehrende visuelle Strukturen unterscheidbar sind (z. B. Formularcharakter, Briefkopf, typische Anordnung von Blöcken). 
 In der Forschung wird die Dokumentbildklassifikation häufig auf etablierten Datensätzen evaluiert; als verbreitetes Beispiel gilt RVL-CDIP mit 16 Dokumentklassen und insgesamt 400.000 Dokumentbildern.
-Neben CNNs kommen zunehmend Vision Transformer (ViT) zum Einsatz, die Bilder in Patches zerlegen und diese ähnlich wie Token-Sequenzen verarbeiten, um globale Zusammenhänge besser abzubilden. \cite{harley_rvlcdip} \cite{v7labs_vitguide}
+Neben \acrshort{cnn}s kommen zunehmend Vision Transformer (\acrshort{vit}) zum Einsatz, die Bilder in Patches zerlegen und diese ähnlich wie Token-Sequenzen verarbeiten, um globale Zusammenhänge besser abzubilden. \cite{harley_rvlcdip} \cite{v7labs_vitguide}
 
 \subsubsection{Layout-aware / dokumentenspezifische Transformer}
 
-Layout-aware Modelle erweitern textbasierte Ansätze um räumliche Layoutinformationen. Statt Text nur als Sequenz zu betrachten, wird zusätzlich modelliert, wo ein Token auf der Seite steht (z. B. über Bounding Boxes). 
+Layout-aware Modelle erweitern textbasierte Ansätze um räumliche Layoutinformationen. Statt Text nur als Sequenz im \gls{transformer} zu betrachten, wird zusätzlich modelliert, wo ein Token auf der Seite steht (z. B. über Bounding Boxes). 
 Damit lässt sich die Dokumenttypenerkennung als Aufgabe formulieren, bei der Inhalt und Struktur gemeinsam berücksichtigt werden (z. B. typische Positionen von Überschriften, Adressblöcken, Tabellenbereichen). \cite{huggingface_layoutlm}
 
 Ein prominentes Beispiel für diese Modellfamilie ist die LayoutLM-Klasse: In der Implementierung (z. B. in verbreiteten Frameworks) wird explizit ein zusätzliches Eingabesignal "bbox" erwartet, das die Bounding Boxes der Tokens enthält und damit die 2D-Positionen abbildet. \cite{huggingface_layoutlm}
 
 \subsubsection{Multimodale Foundation-Model-Familie (VLM/LLM)}
 
-Multimodale Foundation-Model-Ansätze nutzen große Modelle, die visuelle und häufig auch sprachliche Informationen gemeinsam verarbeiten können. 
-In der Dokumenttypenerkennung werden Dokumentseiten (als Bild bzw. gerendertes PDF) typischerweise zusammen mit einer natürlichsprachlichen Aufgabenbeschreibung (Prompt) an ein Vision-Language-Modell übergeben, das den Dokumenttyp direkt ausgibt. 
+Multimodale Foundation-Model-Ansätze nutzen große Modelle (\acrshort{llm}), die visuelle und häufig auch sprachliche Informationen gemeinsam verarbeiten können. 
+In der Dokumenttypenerkennung werden Dokumentseiten (als Bild bzw. gerendertes \acrshort{pdf}) typischerweise zusammen mit einer natürlichsprachlichen Aufgabenbeschreibung (Prompt) an ein \acrshort{vlm} übergeben, das den Dokumenttyp direkt ausgibt. 
 Solche Verfahren sind besonders dann attraktiv, wenn eine schnelle Erweiterung auf neue Klassen erforderlich ist oder wenn man Zero-/Few-shot-Strategien erproben möchte. \cite{azuresamples_docclass_gptvision}
 
 Dass diese Vorgehensweise praktisch umgesetzt wird, zeigen Anbieterbeispiele: Ein öffentliches Azure-Sample demonstriert explizit die Klassifikation eines Dokuments mithilfe eines Vision-fähigen GPT-4o-Modells (Prompt + Dokumentbild), 
@@ -278,16 +278,16 @@ also genau das Grundprinzip dieser Modellfamilie. \cite{azuresamples_docclass_gp
 
 \subsection{Datenaufbereitung und Preprocessing für Dokumente}
 
-Die Datenaufbereitung ist ein zentraler Erfolgsfaktor in der KI-gestützten Dokumentenverarbeitung, weil Klassifikationsmodelle nur so gut sind wie die Qualität ihrer Eingabedaten. 
+Die Datenaufbereitung ist ein zentraler Erfolgsfaktor in der \gls{ki}-gestützten Dokumentenverarbeitung, weil Klassifikationsmodelle nur so gut sind wie die Qualität ihrer Eingabedaten. 
 Bereits kleine Inkonsistenzen in Scanqualität, Dokumentstruktur oder Labeling wirken sich direkt auf Modellgüte, Generalisierbarkeit und spätere Produktionsstabilität aus. \cite{shaip2025dokumentenklassifizierung}
 
-Gerade bei heterogenen Dokumentbeständen (z. B. gescannte Belege, digital erzeugte PDFs und Formularbilder) ist Preprocessing daher kein optionaler Zwischenschritt, sondern eine eigene Prozessphase. 
+Gerade bei heterogenen Dokumentbeständen (z. B. gescannte Belege, digital erzeugte \acrshort{pdf}s und Formularbilder) ist Preprocessing daher kein optionaler Zwischenschritt, sondern eine eigene Prozessphase. 
 Sie verbindet die Rohdatenerfassung mit der modellgerechten Repräsentation und reduziert Informationsverluste über die gesamte Pipeline hinweg. \cite{shaip2025dokumentenklassifizierung}
 
 \subsubsection{Zielsetzung und Qualitätskriterien}
 
 Das Ziel der Dokumentaufbereitung besteht darin, Eingaben technisch zu standardisieren, semantisch verwertbar zu machen und gleichzeitig den Informationsgehalt für nachgelagerte Modelle zu erhalten. 
-In der Praxis bedeutet das vor allem: robuste OCR-Ergebnisse, stabile Layoutsignale und konsistente Trainingslabels. \cite{shaip2025dokumentenklassifizierung}
+In der Praxis bedeutet das vor allem: robuste \acrshort{ocr}-Ergebnisse, stabile Layoutsignale und konsistente Trainingslabels. \cite{shaip2025dokumentenklassifizierung}
 
 Aus OCR-Sicht hängt die Lesegenauigkeit stark von Eigenschaften wie Auflösung, Schräglage, Rauschen, Binarisierung und Randartefakten ab. 
 Die Tesseract-Dokumentation beschreibt dafür konkrete Vorverarbeitungsschritte wie Rescaling (typisch mindestens 300 dpi), Binarisierung, Rauschreduktion und Deskewing, um die Erkennungsqualität zu erhöhen. \cite{tesseract_improve_quality}
@@ -325,11 +325,11 @@ Eine belastbare Pipeline folgt typischerweise einem klaren Ablauf von Standardis
 Damit wird sichergestellt, dass sowohl klassische textbasierte Modelle als auch multimodale Architekturen mit konsistenten Eingaben trainiert werden. \cite{shaip2025dokumentenklassifizierung} \cite{layoutlmv2_2021}
 
 \begin{enumerate}
-    \item \textbf{Format- und Eingangsstandardisierung} \\ Zu Beginn werden Dateiformate vereinheitlicht (z. B. Scanbilder und PDFs in eine verarbeitbare Seitenrepräsentation), Seitenmetriken geprüft und ungeeignete Dokumente ausgeschlossen. Für OCR-basierte Verarbeitung ist insbesondere eine ausreichende Bildauflösung relevant; Tesseract nennt hier mindestens 300 dpi als sinnvollen Richtwert. \cite{tesseract_improve_quality}
+    \item \textbf{Format- und Eingangsstandardisierung} \\ Zu Beginn werden Dateiformate vereinheitlicht (z. B. Scanbilder und \acrshort{pdf}s in eine verarbeitbare Seitenrepräsentation), Seitenmetriken geprüft und ungeeignete Dokumente ausgeschlossen. Für OCR-basierte Verarbeitung ist insbesondere eine ausreichende Bildauflösung relevant; Tesseract nennt hier mindestens 300 dpi als sinnvollen Richtwert. \cite{tesseract_improve_quality}
     \item \textbf{Bildvorverarbeitung} \\ Anschließend folgt die visuelle Bereinigung mit Binarisierung, Entfernung von Bildrauschen, Korrektur von Schräglagen (Deskewing) und Behandlung von Randartefakten. Diese Schritte verbessern die Zeichen- und Zeilensegmentierung und senken damit die Wahrscheinlichkeit systematischer OCR-Fehler. \cite{tesseract_improve_quality}
-    \item \textbf{OCR und Strukturerfassung} \\ Nach der Bildbereinigung wird der Text extrahiert und gleichzeitig die Seitenstruktur erfasst (z. B. Positionen von Wörtern oder Blöcken). Für layoutbewusste Modelle ist diese Strukturinformation essenziell, da Textinhalte erst in Kombination mit Position und Kontext ihre volle Aussagekraft entfalten. \cite{huggingface_layoutlm} \cite{layoutlm_2020}
-    \item \textbf{Textnormalisierung und Feature-Aufbereitung} \\ Auf OCR-Ebene werden üblicherweise Normalisierungsschritte wie Bereinigung von Artefaktzeichen, Vereinheitlichung von Datums-/Zahlformaten und konsistente Tokenrepräsentationen angewendet. Dadurch sinkt die Streuung technischer Schreibvarianten, und die Merkmale werden für das Klassifikationsmodell robuster. \cite{shaip2025dokumentenklassifizierung}
-    \item \textbf{Multimodale Repräsentation} \\ In modernen Dokument-Pipelines werden Text-, Layout- und Bildsignale gemeinsam verarbeitet. LayoutLMv2 zeigt, dass die gemeinsame Modellierung dieser Modalitäten auf mehreren Dokumentaufgaben deutliche Leistungsgewinne gegenüber rein textuellen Ansätzen ermöglicht. \cite{layoutlmv2_2021}
+    \item \textbf{OCR und Strukturerfassung} \\ Nach der Bildbereinigung wird der Text per \acrshort{ocr} extrahiert und gleichzeitig die Seitenstruktur erfasst (z. B. Positionen von Wörtern oder Blöcken). Für layoutbewusste Modelle ist diese Strukturinformation essenziell, da Textinhalte erst in Kombination mit Position und Kontext ihre volle Aussagekraft entfalten. \cite{huggingface_layoutlm} \cite{layoutlm_2020}
+    \item \textbf{Textnormalisierung und Feature-Aufbereitung} \\ Auf \acrshort{ocr}-Ebene werden üblicherweise Normalisierungsschritte wie Bereinigung von Artefaktzeichen, Vereinheitlichung von Datums-/Zahlformaten und konsistente \gls{tokenization} angewendet. Dadurch sinkt die Streuung technischer Schreibvarianten, und die Merkmale werden für das Klassifikationsmodell robuster. \cite{shaip2025dokumentenklassifizierung}
+    \item \textbf{Multimodale Repräsentation} \\ In modernen Dokument-Pipelines werden Text-, Layout- und Bildsignale gemeinsam als multimodale \gls{embedding}s verarbeitet. LayoutLMv2 zeigt, dass die gemeinsame Modellierung dieser Modalitäten auf mehreren Dokumentaufgaben deutliche Leistungsgewinne gegenüber rein textuellen Ansätzen ermöglicht. \cite{layoutlmv2_2021}
     \item \textbf{Training/Validierung/Test-Split} \\ Vor dem Training werden die Daten reproduzierbar in Teilmengen aufgeteilt (z. B. mit fixer Zufallsinitialisierung und stratifizierter Verteilung), um Verzerrungen bei der Evaluation zu reduzieren. Für komplexe Datenstrukturen mit Gruppenzugehörigkeiten (z. B. mehrere Seiten desselben Dokuments) sind gruppenbasierte Splitter sinnvoll, damit keine Informationsleckage zwischen Train- und Testmenge entsteht. \cite{sklearn_train_test_split} \cite{sklearn_cross_validation}
 \end{enumerate}
 

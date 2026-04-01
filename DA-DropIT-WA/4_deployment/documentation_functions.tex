@@ -4,7 +4,7 @@ Dieses Kapitel gibt einen Überblick über die zentralen Funktionen des umgesetz
 
 \subsection{Dokumenten-Upload}\label{subsec:dokumenten_upload}
 
-Dieses Kapitel dokumentiert den vollständigen Upload-Flow von der Anlage einer Upload-Zone bis zur finalen Speicherung des Dokuments in SharePoint inklusive Metadatenpersistenz und Suchindex-Aktualisierung.
+Dieses Kapitel dokumentiert den vollständigen Upload-Flow von der Anlage einer Upload-Zone bis zur finalen Speicherung des Dokuments in \gls{sharepoint} inklusive Metadatenpersistenz und Suchindex-Aktualisierung.
 
 \subsubsection{Technischer Gesamtflow}
 
@@ -13,19 +13,19 @@ Der Upload ist als mehrstufige Pipeline umgesetzt, damit fachliche Prüfung, Ben
     \item Eine Zone wird im Frontend erstellt oder ausgewählt.
     \item Die Zone wird im Zone-Service persistiert; der zugehörige SharePoint-Ordner wird best-effort angelegt.
     \item Eine Datei wird per Dateiauswahl oder Drag \& Drop in die Zone-Upload-Queue gestellt.
-    \item Der Zone-Service führt eine Preflight-Phase aus und ruft die Dokumenten-Klassifikation auf.
+    \item Der Zone-Service führt eine \gls{preflight}-Phase aus und ruft die Dokumenten-Klassifikation auf.
     \item Ergebniswerte der Klassifikation werden zusammen mit der Datei temporär abgelegt und mit \texttt{uploadId} referenziert.
     \item Die Benutzerin bzw. der Benutzer bestätigt oder korrigiert die erkannten Metadaten.
     \item Beim \texttt{commit} wird die Datei nach SharePoint geschrieben und die temporäre Ablage aufgelöst.
-    \item Die Dokument-Metadaten werden in der Documents-API in der Datenbank gespeichert.
+    \item Die Dokument-Metadaten werden in der Documents-\acrshort{api} in der Datenbank gespeichert.
     \item Das Dokument wird für die Suche über die Search-API indiziert.
 \end{enumerate}
 
-Damit kann der Uploadprozess robust aufgeteilt werden: Die KI-Extraktion ist vor der finalen Persistenz sichtbar und korrigierbar, bevor irreversible Schreiboperationen durchgeführt werden.
+Damit kann der Uploadprozess robust aufgeteilt werden: Die \gls{ki}-Extraktion ist vor der finalen Persistenz sichtbar und korrigierbar, bevor irreversible Schreiboperationen durchgeführt werden.
 
 \subsubsection{Zone-Erstellung und SharePoint-Ordnerinitialisierung}
 
-Der Upload beginnt fachlich mit einer Zone. Die Zone-API stellt dafür \texttt{POST /zones} bereit. Beim Anlegen wird ein neuer \texttt{ZoneDto}-Eintrag in der zonenspezifischen JSON-Struktur gespeichert und parallel versucht, den Zielordner in SharePoint zu erzeugen.
+Der Upload beginnt fachlich mit einer Zone. Die Zone-\acrshort{api} stellt dafür \texttt{POST /zones} bereit. Beim Anlegen wird ein neuer \texttt{ZoneDto}-Eintrag in der zonenspezifischen JSON-Struktur gespeichert und parallel versucht, den Zielordner in \gls{sharepoint} zu erzeugen.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Zone-Erstellung mit SharePoint-Ordnerinitialisierung},label={lst:upload-zone-create}]
 g.MapPost(
@@ -127,7 +127,7 @@ Wesentliche technische Punkte in dieser Schicht sind:
 
 \subsubsection{Preflight-Endpunkt und Klassifikationsaufruf}
 
-Die eigentliche serverseitige Vorverarbeitung startet über den Preflight-Endpunkt der Zone-API. Der Endpunkt nimmt das Multipart-File entgegen, sendet es an den AI-Service und legt danach Datei plus Metadaten temporär ab.
+Die eigentliche serverseitige Vorverarbeitung startet über den \gls{preflight}-Endpunkt der Zone-\acrshort{api}. Der Endpunkt nimmt das Multipart-File entgegen, sendet es an den AI-Service und legt danach Datei plus Metadaten temporär ab.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Preflight-Endpunkt im Zone-Service},label={lst:upload-preflight-endpoint}]
 g.MapPost(
@@ -208,10 +208,10 @@ Der Commit wird über \texttt{POST /zones/\{zoneId\}/upload/\{uploadId\}/commit}
 \begin{itemize}
     \item Laden der temporären Datei und KI-Metadaten,
     \item Merge mit benutzerbestätigten Änderungen,
-    \item SHA-256-Bildung zur Integritätsreferenz,
+    \item \acrshort{sha}-256-Bildung zur Integritätsreferenz,
     \item Zielpfad-Aufbau aus Zone-Ordner und optionalem Partner-Unterordner,
-    \item Upload der Datei in SharePoint via Microsoft Graph,
-    \item optionale Textextraktion bei PDF für spätere Suche,
+    \item Upload der Datei in \gls{sharepoint} via Microsoft Graph,
+    \item optionale Textextraktion bei \acrshort{pdf} für spätere Suche,
     \item Löschung der temporären Artefakte.
 \end{itemize}
 
@@ -314,9 +314,9 @@ Der Flow implementiert mehrere Sicherheits- und Robustheitsmechanismen:
 \begin{itemize}
     \item Autorisierung auf allen geschützten Zone-Endpunkten über Benutzerkontext (\texttt{TenantId}, \texttt{ObjectId}),
     \item temporäre Entkopplung via \texttt{uploadId}, um unbestätigte Uploads nicht sofort final zu persistieren,
-    \item typisierte Persistenzobjekte für API-Grenzen (DTOs für Dokumenterfassung und Suchindexierung),
+    \item typisierte Persistenzobjekte für \acrshort{api}-Grenzen (\acrshort{dto}s für Dokumenterfassung und Suchindexierung),
     \item interne Indexierung nur mit \texttt{X-Internal-Key},
-    \item ACL-Übernahme in den Index über \texttt{AllowedUsers}.
+    \item \acrshort{acl}-Übernahme in den Index über \texttt{AllowedUsers}.
 \end{itemize}
 
 Zusätzlich führen Fehler in Preflight, Commit oder Metadatenpersistenz zu klaren Benutzer-Rückmeldungen im Frontend (Toasts) und unterbrechen den Vorgang kontrolliert, statt inkonsistente Zwischenzustände zu erzeugen.
@@ -324,7 +324,7 @@ Zusätzlich führen Fehler in Preflight, Commit oder Metadatenpersistenz zu klar
 \subsubsection{Zusammenfassung der Upload-Implementierung}
 
 Die Upload-Implementierung verbindet Benutzerführung, KI-Voranalyse und Persistenz in einem durchgängigen Prozess.
-Durch die Trennung in Preflight und Commit bleiben KI-Ergebnisse vor dem endgültigen Speichern überprüfbar. Datenhaltung und Suchindexierung werden danach konsistent aktualisiert.
+Durch die Trennung in \gls{preflight} und Commit bleiben \gls{ki}-Ergebnisse vor dem endgültigen Speichern überprüfbar. Datenhaltung und Suchindexierung werden danach konsistent aktualisiert.
 
 \subsection{Dokumenten-Klassifikation}\label{subsec:dokumenten_klassifikation}
 
@@ -332,7 +332,7 @@ Dieses Kapitel dokumentiert die implementierte Dokumenten-Klassifikation und bes
 
 \subsubsection{Zweck und Ergebnisobjekt}
 
-Die Klassifikation extrahiert aus einem PDF die für die weitere Verarbeitung relevanten Metadaten und liefert diese in einem einheitlichen DTO zurück. Das Ergebnis besteht aus Dokumenttyp, Jahr, Vertragstyp, Partner und optionalem Ablaufdatum.
+Die Klassifikation extrahiert aus einem \acrshort{pdf} die für die weitere Verarbeitung relevanten Metadaten und liefert diese in einem einheitlichen \acrshort{dto} zurück. Das Ergebnis besteht aus Dokumenttyp, Jahr, Vertragstyp, Partner und optionalem Ablaufdatum.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Rückgabeobjekt der Klassifikation},label={lst:classification-result-dto}]
 public record DocumentClassificationResultDto(
@@ -348,7 +348,7 @@ Damit ist das Ergebnisformat für alle aufrufenden Komponenten stabil und typisi
 
 \subsubsection{Klassifikations-Endpunkt}
 
-Die AI-API stellt den Endpunkt \texttt{POST /ai/classify} bereit. Der Controller validiert die Eingabe (nicht leer, MIME-Type PDF) und delegiert die eigentliche Klassifikationslogik an den Service \texttt{OpenAiClassifier}.
+Die AI-\acrshort{api} stellt den Endpunkt \texttt{POST /ai/classify} bereit. Der Controller validiert die Eingabe (nicht leer, MIME-Type \acrshort{pdf}) und delegiert die eigentliche Klassifikationslogik an den Service \texttt{OpenAiClassifier}.
 
 \begin{lstlisting}[language={[Sharp]C},caption={API-Endpunkt der Dokumenten-Klassifikation},label={lst:classification-endpoint}]
 [HttpPost("classify")]
@@ -372,7 +372,7 @@ Die Verantwortung des Controllers bleibt damit bewusst schlank: Validierung, Del
 
 Der Service \texttt{OpenAiClassifier} enthält die eigentliche KI-Interaktion. Die Pipeline besteht aus vier Schritten:
 \begin{enumerate}
-    \item Upload der PDF-Datei an die OpenAI Files API,
+    \item Upload der \acrshort{pdf}-Datei an die OpenAI Files \acrshort{api},
     \item Aufruf der Responses API mit Modell, Prompt und strikt vorgegebenem JSON-Schema,
     \item Parsen der strukturierten Antwort,
     \item technische und fachliche Nachvalidierung der Felder.
@@ -422,7 +422,7 @@ Durch \texttt{strict = true} und das definierte Schema wird die Ausgabe stark no
 
 \subsubsection{Parsing und fachliche Nachvalidierung}
 
-Nach dem API-Aufruf wird der JSON-Text extrahiert, in die internen Typen gemappt und anschließend fachlich bereinigt. Dabei gelten unter anderem folgende Regeln:
+Nach dem \acrshort{api}-Aufruf wird der JSON-Text extrahiert, in die internen Typen gemappt und anschließend fachlich bereinigt. Dabei gelten unter anderem folgende Regeln:
 \begin{itemize}
     \item Jahr nur im Bereich 1900 bis 2100,
     \item \texttt{ContractType} und \texttt{ExpireDate} nur für \texttt{DocumentType.Vertrag},
@@ -458,17 +458,17 @@ Zusätzlich unterstützt \texttt{ExtractFirstOutputText(...)} mehrere Antwortvar
 
 Die Dokumenten-Klassifikation ist als klar gekapselter Service umgesetzt:
 \begin{itemize}
-    \item schlanker API-Endpunkt für PDF-Eingaben,
-    \item schema-basierter KI-Aufruf für strukturierte Extraktion,
+    \item schlanker \acrshort{api}-Endpunkt für \acrshort{pdf}-Eingaben,
+    \item schema-basierter \gls{ki}-Aufruf für strukturierte Extraktion,
     \item typisierte Ergebnisrückgabe über \texttt{DocumentClassificationResultDto},
-    \item sowie explizite Nachvalidierung der KI-Ergebnisse.
+    \item sowie explizite Nachvalidierung der \gls{ki}-Ergebnisse.
 \end{itemize}
 
 Damit ist die Klassifikationslogik technisch isoliert dokumentiert und als wiederverwendeter Baustein beschrieben.
 
 \subsection{Dokumenten-Suche}
 
-Dieses Kapitel dokumentiert die implementierte Suchfunktion über den gesamten Request-Flow hinweg: von der Benutzerinteraktion in der Weboberfläche bis zur Ausführung der Abfrage in Azure AI Search und der Rückgabe von Treffern inklusive Facetten.
+Dieses Kapitel dokumentiert die implementierte Suchfunktion über den gesamten Request-Flow hinweg: von der Benutzerinteraktion in der Weboberfläche bis zur Ausführung der Abfrage in Azure AI Search und der Rückgabe von Treffern inklusive \gls{facet}en.
 
 \subsubsection{Technischer Such-Flow}
 
@@ -525,7 +525,7 @@ Technisch wird bei leerem Suchtext automatisch \texttt{"*"} als Suchausdruck ver
 
 \subsubsection{Search API: Authentifizierter Endpunkt}
 
-Der Search-Service stellt die fachliche Suchoperation über \texttt{POST /search} bereit. Der Endpunkt ist geschützt (\texttt{RequireAuthorization()}) und extrahiert die Benutzerkennung aus dem JWT-Token. Ohne gültige \texttt{oid} wird der Request abgelehnt.
+Der Search-Service stellt die fachliche Suchoperation über \texttt{POST /search} bereit. Der Endpunkt ist geschützt (\texttt{RequireAuthorization()}) und extrahiert die Benutzerkennung aus dem \acrshort{jwt}-Token. Ohne gültige \texttt{oid} wird der Request abgelehnt.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Search-Endpunkt mit Benutzerkontext},label={lst:search-api-endpoint}]
 app.MapPost(
@@ -554,7 +554,7 @@ Damit ist sichergestellt, dass jeder Suchaufruf mit einem konkreten Benutzerkont
 
 \subsubsection{Query-Service: Paging, Facets und Filter}
 
-Die eigentliche Suchlogik liegt im \texttt{AzureSearchQueryService}. Dort werden Suchtext, Paging und Facetten konfiguriert. Für leere Suchanfragen wird ein Wildcard-Searchtext (\texttt{"*"}) verwendet, damit auch reine Filterabfragen möglich sind.
+Die eigentliche Suchlogik liegt im \texttt{AzureSearchQueryService}. Dort werden Suchtext, Paging und \gls{facet}en konfiguriert. Für leere Suchanfragen wird ein Wildcard-Searchtext (\texttt{"*"}) verwendet, damit auch reine Filterabfragen möglich sind.
 
 \begin{lstlisting}[language={[Sharp]C},caption={SearchOptions und Filteraufbau im Query-Service},label={lst:search-query-options}]
 var searchText = string.IsNullOrWhiteSpace(req.Query) ? "*" : req.Query;
@@ -582,9 +582,9 @@ opt.Filter = BuildFilter(
 var resp = await _client.SearchAsync<SearchDocument>(searchText, opt, ct);
 \end{lstlisting}
 
-Die Limits (\texttt{Size} zwischen 1 und 100) schützen den Service vor übergroßen Antworten. Gleichzeitig liefern Facetten die Datenbasis für dynamische Filteroptionen im UI.
+Die Limits (\texttt{Size} zwischen 1 und 100) schützen den Service vor übergroßen Antworten. Gleichzeitig liefern \gls{facet}en die Datenbasis für dynamische Filteroptionen im UI.
 
-Die wichtigste Sicherheitsregel ist im Filteraufbau implementiert: Ergebnisse werden immer auf Dokumente eingeschränkt, die für den aktuellen Benutzer freigegeben sind.
+Die wichtigste Sicherheitsregel ist im \acrshort{odata}-Filteraufbau implementiert: Ergebnisse werden immer auf Dokumente eingeschränkt, die für den aktuellen Benutzer freigegeben sind.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Benutzerbezogener OData-Filter},label={lst:search-filter-acl}]
 private static string BuildFilter(SearchRequestDto req, string callerOid, ...)
@@ -604,11 +604,11 @@ private static string BuildFilter(SearchRequestDto req, string callerOid, ...)
 }
 \end{lstlisting}
 
-Durch die Kombination aus ACL-Bedingung und fachlichen Filtern entsteht ein Security-First-Ansatz: Ein Dokument wird nur dann zurückgegeben, wenn sowohl die Berechtigung als auch die Suchkriterien erfüllt sind.
+Durch die Kombination aus \acrshort{acl}-Bedingung und fachlichen Filtern entsteht ein Security-First-Ansatz: Ein Dokument wird nur dann zurückgegeben, wenn sowohl die Berechtigung als auch die Suchkriterien erfüllt sind.
 
 \subsubsection{Rückgabe und UI-Aktualisierung}
 
-Nach der Suchausführung werden die Index-Dokumente auf \texttt{SearchHitDto}-Objekte gemappt. Zusätzlich werden Facettenwerte in Bucket-Strukturen überführt. Das Frontend nutzt diese Buckets, um Filterlisten (z. B. Jahre, Vertragstypen, Partner) mit Trefferanzahl zu aktualisieren.
+Nach der Suchausführung werden die Index-Dokumente auf \texttt{SearchHitDto}-Objekte gemappt. Zusätzlich werden \gls{facet}werte in Bucket-Strukturen überführt. Das Frontend nutzt diese Buckets, um Filterlisten (z. B. Jahre, Vertragstypen, Partner) mit Trefferanzahl zu aktualisieren.
 
 Dadurch entsteht eine adaptive Suchoberfläche: Filter zeigen nur Werte an, die im aktuellen Ergebnisraum tatsächlich vorkommen. Das reduziert ungültige Kombinationen und verbessert die Bedienbarkeit bei großen Dokumentmengen.
 
@@ -639,7 +639,7 @@ Die Webanwendung ist so konfiguriert, dass die Anmeldung über Microsoft Entra I
 erfolgt und nach erfolgreicher Authentifizierung Zugriffstoken für
 nachgelagerte APIs angefordert werden können. Gleichzeitig werden die zentralen
 UI-Komponenten nur für angemeldete Benutzer gerendert. Auf Serverseite
-validieren insbesondere Zone- und Search-Service die mitgesendeten JWT-Tokens
+validieren insbesondere Zone- und Search-Service die mitgesendeten \acrshort{jwt}-Tokens
 und schützen ihre Endpunkte über \texttt{RequireAuthorization()}.
 
 \begin{lstlisting}[language={[Sharp]C},caption={Authentifizierte Webanwendung mit geschütztem UI-Zugriff},label={lst:user-auth-web}]
@@ -754,15 +754,15 @@ feingranularere Rollen- und Berechtigungserweiterungen.
 \subsection{API-Endpunkte}\label{subsec:api_endpunkte}
 
 Dieses Unterkapitel gibt einen kompakten Überblick über die wichtigsten
-API-Endpunkte der einzelnen Services. Im Fokus stehen dabei jene Endpunkte, die
+\acrshort{api}-Endpunkte der einzelnen Services. Im Fokus stehen dabei jene Endpunkte, die
 im tatsächlichen Ablauf von Upload, Dokumentverwaltung, Suche und
 Benutzerzugriff verwendet werden.
 
 \subsubsection{Zone-Service}
 
-Der Zone-Service stellt die zentrale fachliche API des Systems bereit. Er
+Der Zone-Service stellt die zentrale fachliche \acrshort{api} des Systems bereit. Er
 verwaltet Upload-Zonen, steuert den Upload-Prozess und bildet die Brücke zu
-SharePoint sowie zu den nachgelagerten Dokument- und Suchdiensten.
+\gls{sharepoint} sowie zu den nachgelagerten Dokument- und Suchdiensten.
 
 \begin{itemize}
     \item \texttt{GET /zones}: Lädt alle Zonen des aktuell angemeldeten Benutzers.
@@ -824,7 +824,7 @@ zentralen Fachendpunkt bereit.
     \item \texttt{POST /ai/classify}: Nimmt eine PDF-Datei entgegen, analysiert sie mit dem KI-Modell und liefert erkannte Metadaten wie Dokumenttyp, Jahr, Partner oder Ablaufdatum zurück.
 \end{itemize}
 
-Dieser Endpunkt wird im Upload-Preflight verwendet, um dem Benutzer vor dem
+Dieser Endpunkt wird im Upload-\gls{preflight} verwendet, um dem Benutzer vor dem
 finalen Commit bereits einen strukturierten Vorschlag anzuzeigen.
 
 \subsubsection{Zusammenfassung der Implementierung}

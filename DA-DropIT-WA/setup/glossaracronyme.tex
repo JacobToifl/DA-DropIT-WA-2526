@@ -1,16 +1,153 @@
 
-%% Akronyme, die im Text verwendet werden
-\newacronym{php}{PHP}{PHP:\@Hypertext Preprocessor}
+%% ============================================================
+%%  Akronyme
+%% ============================================================
 
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym{rest}{REST}{Representational State Transfer}
+\newacronym{http}{HTTP}{Hypertext Transfer Protocol}
+\newacronym{ocr}{OCR}{Optical Character Recognition}
+\newacronym{nlp}{NLP}{Natural Language Processing}
+\newacronym{cnn}{CNN}{Convolutional Neural Network}
+\newacronym{tfidf}{TF-IDF}{Term Frequency -- Inverse Document Frequency}
+\newacronym{saas}{SaaS}{Software as a Service}
+\newacronym{rbac}{RBAC}{Role-Based Access Control}
+\newacronym{abac}{ABAC}{Attribute-Based Access Control}
+\newacronym{nist}{NIST}{National Institute of Standards and Technology}
+\newacronym{dto}{DTO}{Data Transfer Object}
+\newacronym{acl}{ACL}{Access Control List}
+\newacronym{jwt}{JWT}{JSON Web Token}
+\newacronym{pdf}{PDF}{Portable Document Format}
+\newacronym{sql}{SQL}{Structured Query Language}
+\newacronym{sha}{SHA-256}{Secure Hash Algorithm 256}
+\newacronym{css}{CSS}{Cascading Style Sheets}
+\newacronym{vit}{ViT}{Vision Transformer}
+\newacronym{vlm}{VLM}{Vision-Language Model}
+\newacronym{llm}{LLM}{Large Language Model}
+\newacronym{crm}{CRM}{Customer Relationship Management}
+\newacronym{odata}{OData}{Open Data Protocol}
+\newacronym{mime}{MIME}{Multipurpose Internet Mail Extensions}
 
-%% Glossar
-\newglossaryentry{mysql}
+%% ============================================================
+%%  Glossar
+%% ============================================================
+
+\newglossaryentry{ki}
 {
-        name=MySQL,
-        description={MySQL ist ein weit verbreitetes, Open-Source-Datenbankmanagementsystem, das Daten in relationalen Tabellen speichert.}
+    name=Künstliche Intelligenz,
+    description={Teilgebiet der Informatik, das sich mit der Entwicklung von Systemen befasst, die Aufgaben ausführen können, die üblicherweise menschliche Intelligenz erfordern, etwa Klassifikation, Sprachverarbeitung oder Mustererkennung}
 }
-\newglossaryentry{css}
+
+\newglossaryentry{dokumentenklassifikation}
 {
-        name=CSS,
-        description={Cascading Style Sheets, eine Stylesheet-Sprache, die für die Gestaltung und das Layout von Webinhalten verwendet wird.}
+    name=Dokumentenklassifikation,
+    description={Automatisierte Zuordnung eingehender Dokumente zu vordefinierten Klassen anhand von Text-, Layout- und visuellen Merkmalen}
+}
+
+\newglossaryentry{embedding}
+{
+    name=Embedding,
+    description={Dichte Vektorrepräsentation eines Objekts in einem kontinuierlichen Raum, in dem semantisch ähnliche Objekte nahe beieinanderliegen}
+}
+
+\newglossaryentry{merkmalsextraktion}
+{
+    name=Merkmalsextraktion,
+    description={Verfahren zur Umwandlung von Rohdaten (Text, Bilder, Layout) in numerische oder strukturierte Merkmale, die von Lernverfahren verarbeitet werden können}
+}
+
+\newglossaryentry{microservices}
+{
+    name=Microservices,
+    description={Architekturansatz, bei dem eine Anwendung in kleine, unabhängig deploybare Dienste aufgeteilt wird, die über definierte Schnittstellen kommunizieren}
+}
+
+\newglossaryentry{monolith}
+{
+    name=Monolithische Architektur,
+    description={Klassischer Architekturansatz, bei dem alle Funktionsbereiche einer Anwendung in einer einzigen, eng gekoppelten Einheit zusammengefasst und gemeinsam deployt werden}
+}
+
+\newglossaryentry{blazor}
+{
+    name=Blazor WebAssembly,
+    description={Microsoft-Framework zur Entwicklung interaktiver Webanwendungen mit C\#, wobei der Anwendungscode clientseitig im Browser über WebAssembly ausgeführt wird}
+}
+
+\newglossaryentry{postgresql}
+{
+    name=PostgreSQL,
+    description={Quelloffenes, relationales Datenbankmanagementsystem mit umfangreichen SQL-Funktionalitäten und hoher Skalierbarkeit}
+}
+
+\newglossaryentry{azureaisearch}
+{
+    name=Azure AI Search,
+    description={Cloud-basierter Suchdienst von Microsoft zur Indizierung großer Dokumentbestände mit Volltext-, Filter- und Facettensuche}
+}
+
+\newglossaryentry{entraid}
+{
+    name=Microsoft Entra ID,
+    description={Cloudbasierter Identitäts- und Zugriffsverwaltungsdienst von Microsoft für Authentifizierung, Autorisierung und Schutz von Benutzern, Geräten und Anwendungen}
+}
+
+\newglossaryentry{sharepoint}
+{
+    name=SharePoint Online,
+    description={Cloudbasierte Kollaborations- und Dokumentenmanagementplattform von Microsoft, bereitgestellt als SaaS im Rahmen von Microsoft~365}
+}
+
+\newglossaryentry{circuitbreaker}
+{
+    name=Circuit Breaker,
+    description={Entwurfsmuster, das bei anhaltenden Fehlern einer Abhängigkeit weitere Aufrufe unterbindet und so eine sanfte Degradation des Gesamtsystems ermöglicht}
+}
+
+\newglossaryentry{retrypattern}
+{
+    name=Retry Pattern,
+    description={Entwurfsmuster, bei dem fehlgeschlagene Aufrufe kontrolliert und mit steigender Verzögerung wiederholt werden, um vorübergehende Störungen zu überbrücken}
+}
+
+\newglossaryentry{gateway}
+{
+    name=API-Gateway,
+    description={Vorgeschaltete Vermittlungsschicht, die Anfragen an Backend-Dienste weiterleitet und zentrale Aufgaben wie Authentifizierung, Routing, Quotensteuerung und Monitoring übernimmt}
+}
+
+\newglossaryentry{zerotrust}
+{
+    name=Zero Trust,
+    description={Sicherheitsstrategie, bei der Identitäten, Zugriffsbedingungen und Berechtigungen konsequent überprüft werden, unabhängig davon, ob sich der Zugriff innerhalb oder außerhalb des Netzwerks befindet}
+}
+
+\newglossaryentry{tokenization}
+{
+    name=Tokenisierung,
+    description={Zerlegung von Text in einzelne Einheiten (Tokens), die als Eingabe für Sprachmodelle oder Textverarbeitungsverfahren dienen}
+}
+
+\newglossaryentry{transformer}
+{
+    name=Transformer,
+    description={Neuronale Netzwerkarchitektur, die auf Selbstaufmerksamkeit (Self-Attention) basiert und Grundlage moderner Sprachmodelle wie BERT oder GPT bildet}
+}
+
+\newglossaryentry{cosinesimilarity}
+{
+    name=Kosinus-Ähnlichkeit,
+    description={Maß für die Ähnlichkeit zweier Vektoren, berechnet als Kosinus des Winkels zwischen ihnen; wird häufig zum Vergleich von Embeddings eingesetzt}
+}
+
+\newglossaryentry{preflight}
+{
+    name=Preflight,
+    description={Vorverarbeitungsphase im Upload-Prozess, in der ein Dokument vor der finalen Persistierung durch die KI-Klassifikation analysiert und die Ergebnisse dem Benutzer zur Bestätigung vorgelegt werden}
+}
+
+\newglossaryentry{facet}
+{
+    name=Facette,
+    description={Dynamisch berechnete Filteroptionen in Suchergebnissen, die auf den tatsächlich vorhandenen Werten eines Attributs basieren und die Eingrenzung der Treffermenge ermöglichen}
 }

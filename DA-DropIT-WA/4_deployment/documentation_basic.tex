@@ -10,29 +10,29 @@ Dieses Kapitel beschreibt die grundlegenden technischen Rahmenbedingungen der um
     \label{fig:Systemarchitektur}
 \end{figure}
 
-Die dargestellte Systemarchitektur in Abbildung \ref{fig:Systemarchitektur} ist serviceorientiert aufgebaut und trennt Benutzeroberfläche, Identitätsverwaltung, Fachlogik und externe Systeme voneinander. Die Blazor Web App dient als Client und kommuniziert über REST-Schnittstellen mit den Backend-Services, wobei die Authentifizierung und Tokenbereitstellung über Microsoft Entra ID erfolgt.
+Die dargestellte Systemarchitektur in Abbildung \ref{fig:Systemarchitektur} ist serviceorientiert aufgebaut und trennt Benutzeroberfläche, Identitätsverwaltung, Fachlogik und externe Systeme voneinander. Die \gls{blazor} Web App dient als Client und kommuniziert über \acrshort{rest}-Schnittstellen mit den Backend-Services, wobei die Authentifizierung und Tokenbereitstellung über \gls{entraid} erfolgt.
 
-Der Zone-Service übernimmt die zentrale Orchestrierung der Geschäftslogik. Er steuert den Upload-Prozess, die KI-gestützte Klassifikation über den AI-Service, die Speicherung von Metadaten im Documents-Service sowie die Indexierung im Search-Service. Die eigentliche Dokumentablage erfolgt in SharePoint Online, während PostgreSQL für strukturierte Metadaten und Azure AI Search für Suchanfragen verwendet wird. Dadurch entsteht eine klar getrennte und erweiterbare Systemarchitektur.
+Der Zone-Service übernimmt die zentrale Orchestrierung der Geschäftslogik. Er steuert den Upload-Prozess, die KI-gestützte Klassifikation über den AI-Service, die Speicherung von Metadaten im Documents-Service sowie die Indexierung im Search-Service. Die eigentliche Dokumentablage erfolgt in \gls{sharepoint} Online, während \gls{postgresql} für strukturierte Metadaten und \gls{azureaisearch} für Suchanfragen verwendet wird. Dadurch entsteht eine klar getrennte und erweiterbare Systemarchitektur.
 
 \subsection{Technologien}\label{subsec:technologien}
 
 Dieses Unterkapitel gibt einen Überblick über die zentralen Technologien, die für die Umsetzung des Systems verwendet wurden. Dabei werden insbesondere Backend, Datenhaltung, Suchtechnologie sowie Frontend-nahe Technologien kurz eingeordnet.
 
 \subsection*{Backend und Kommunikation}
-Die Backend-Implementierung erfolgte in der Programmiersprache \textbf{C\#}. Zur Kommunikation zwischen Client und Server wird eine \textbf{REST-basierte Schnittstelle (REST-API)} verwendet. Diese ermöglicht eine standardisierte Datenübertragung über \textbf{HTTP} und sorgt für eine klare Trennung zwischen Präsentationsschicht und Anwendungslogik.
+Die Backend-Implementierung erfolgte in der Programmiersprache \textbf{C\#}. Zur Kommunikation zwischen Client und Server wird eine \textbf{REST-basierte Schnittstelle (REST-API)} verwendet. Diese ermöglicht eine standardisierte Datenübertragung über \acrshort{http} und sorgt für eine klare Trennung zwischen Präsentationsschicht und Anwendungslogik.
 
 \subsection*{Datenhaltung}
-Zur persistenten Speicherung der Daten kommt das relationale Datenbankmanagementsystem \textbf{PostgreSQL} zum Einsatz. PostgreSQL bietet eine hohe Stabilität, umfangreiche SQL-Funktionalitäten sowie eine gute Skalierbarkeit und eignet sich daher optimal für datenbankgestützte Webanwendungen.
+Zur persistenten Speicherung der Daten kommt das relationale Datenbankmanagementsystem \textbf{PostgreSQL} zum Einsatz. PostgreSQL bietet eine hohe Stabilität, umfangreiche \acrshort{sql}-Funktionalitäten sowie eine gute Skalierbarkeit und eignet sich daher optimal für datenbankgestützte Webanwendungen.
 
 \subsection*{Suchtechnologie}
-Für die Dokumentensuche wird \textbf{Azure AI Search} eingesetzt. Dieser Dienst ermöglicht die Indizierung großer Dokumentbestände sowie eine performante Volltextsuche mit Filter- und Facettenfunktionen. Dadurch können Dokumente anhand von Suchbegriffen und strukturierten Metadaten effizient aufgefunden werden.
+Für die Dokumentensuche wird \textbf{Azure AI Search} eingesetzt. Dieser Dienst ermöglicht die Indizierung großer Dokumentbestände sowie eine performante Volltextsuche mit Filter- und \gls{facet}funktionen. Dadurch können Dokumente anhand von Suchbegriffen und strukturierten Metadaten effizient aufgefunden werden.
 
 \subsection*{Microsoft Entra ID}
-Für die Benutzeranmeldung und Zugriffsverwaltung wird \textbf{Microsoft Entra ID} verwendet. Der Dienst übernimmt die Authentifizierung der Benutzer und stellt den Benutzerkontext für geschützte Zugriffe auf die Anwendung und angebundene Microsoft-Dienste wie SharePoint bereit.
+Für die Benutzeranmeldung und Zugriffsverwaltung wird \textbf{Microsoft Entra ID} verwendet. Der Dienst übernimmt die Authentifizierung der Benutzer und stellt den Benutzerkontext für geschützte Zugriffe auf die Anwendung und angebundene Microsoft-Dienste wie \gls{sharepoint} bereit.
 
-Die registrierte Anwendung \textbf{DropIT.Core} fungiert dabei als zentrale Client-App der Webanwendung und fordert Zugriffstoken für die getrennt registrierten Dienste \textbf{DropIT.Zones.Api}, \textbf{DropIT.Documents.Api} und \textbf{DropIT.Search.Api} an. \textbf{DropIT.Zones.Api} wird für die Zonenverwaltung sowie für Zugriffe auf SharePoint verwendet, \textbf{DropIT.Documents.Api} für die Verwaltung der Dokument-Metadaten und \textbf{DropIT.Search.Api} für die abgesicherte Suchfunktion. Die Aufteilung auf mehrere App-Registrierungen ermöglicht es, Berechtigungen pro Dienst getrennt zu vergeben und die einzelnen Systemteile klar voneinander abzugrenzen.
+Die registrierte Anwendung \textbf{DropIT.Core} fungiert dabei als zentrale Client-App der Webanwendung und fordert Zugriffstoken für die getrennt registrierten Dienste \textbf{DropIT.Zones.Api}, \textbf{DropIT.Documents.Api} und \textbf{DropIT.Search.Api} an. \textbf{DropIT.Zones.Api} wird für die Zonenverwaltung sowie für Zugriffe auf SharePoint verwendet, \textbf{DropIT.Documents.Api} für die Verwaltung der Dokument-Metadaten und \textbf{DropIT.Search.Api} für die abgesicherte Suchfunktion. Die Aufteilung auf mehrere App-Registrierungen ermöglicht es, Berechtigungen pro \acrshort{api}-Dienst getrennt zu vergeben und die einzelnen Systemteile klar voneinander abzugrenzen.
 
-Die in Microsoft Entra registrierten Anwendungen des Systems sind in Abbildung \ref{fig:entra_apps} dargestellt.
+Die in \gls{entraid} registrierten Anwendungen des Systems sind in Abbildung \ref{fig:entra_apps} dargestellt.
 
 \begin{figure}
     \centering
@@ -42,7 +42,7 @@ Die in Microsoft Entra registrierten Anwendungen des Systems sind in Abbildung \
 \end{figure}
 
 \subsection*{Frontend und Design}
-Das Frontend wurde mit einem \textbf{Blazor WebAssembly} realisiert. Dieses Framework ermöglicht die Entwicklung interaktiver Webanwendungen unter Verwendung von C\#, wobei der Anwendungscode direkt im Browser des Clients ausgeführt wird. Dadurch kann ein Teil der Verarbeitungslogik clientseitig erfolgen, was zu einer verbesserten Benutzerinteraktion führt.
+Das Frontend wurde mit einem \textbf{Blazor WebAssembly} realisiert. Dieses \gls{blazor}-Framework ermöglicht die Entwicklung interaktiver Webanwendungen unter Verwendung von C\#, wobei der Anwendungscode direkt im Browser des Clients ausgeführt wird. Dadurch kann ein Teil der Verarbeitungslogik clientseitig erfolgen, was zu einer verbesserten Benutzerinteraktion führt.
 
 \begin{itemize}
     \item \textbf{CSS:} Das Layout und Design der Benutzeroberfläche wird mithilfe von Cascading Style Sheets (CSS) umgesetzt. Dadurch können Struktur, Darstellung und Responsivität flexibel gestaltet werden.
